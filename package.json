@@ -1,26 +1,17 @@
 {
-  "name": "jquery-boilerplate",
+  "name": "jquery-interactive-timeline-exceedance-module",
   "version": "4.1.0",
-  "description": "A jump-start for jQuery plugins development.",
+  "description": "Interactive Timeline Exceedance Module",
   "keywords": [
     "jquery-plugin",
     "jquery",
-    "boilerplate",
+    "interactive timeline exceedance module",
     "plugins"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/jquery-boilerplate/jquery-boilerplate.git"
-  },
-  "bugs": {
-    "url": "https://github.com/jquery-boilerplate/jquery-boilerplate/issues"
-  },
   "author": {
-    "name": "Zeno Rocha",
-    "email": "zno.rocha@gmail.com",
-    "url": "https://github.com/zenorocha"
+    "name": "Josh Wilson",
+    "email": "jwilson@waystone.systems"
   },
-  "homepage": "http://jqueryboilerplate.com",
   "contributors": [
     {
       "name": "Zeno Rocha",
@@ -38,9 +29,11 @@
       "url": "https://github.com/heldr"
     }
   ],
-  "license": "MIT",
+  "license": "Proprietary",
   "dependencies": {
-    "jquery": ">=1.5.1"
+    "jquery": ">=1.5.1",
+    "lodash": "~4.17.4",
+    "jquery-ui": "~1.12.1"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

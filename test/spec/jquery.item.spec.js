@@ -5,7 +5,7 @@
 	var $testCanvas = $( "#testCanvas" );
 	var $fixture = null;
 
-	QUnit.module( "jQuery Boilerplate", {
+	QUnit.module( "jQuery Interactive Timeline Exceedance Module", {
 		beforeEach: function() {
 
 			// fixture is the element where your jQuery plugin will act
@@ -62,7 +62,7 @@
 	QUnit.test( "changes the element text", function( assert ) {
 		$fixture.defaultPluginName();
 
-		assert.equal( $fixture.text(), "jQuery Boilerplate" );
+		assert.equal( $fixture.text(), "jQuery Interactive Timeline Exceedance Module" );
 	} );
 
 	QUnit.test(

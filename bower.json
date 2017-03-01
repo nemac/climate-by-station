@@ -1,19 +1,16 @@
 {
-  "name": "jquery-boilerplate",
-  "license": "MIT",
+  "name": "jquery-ui-interactive-timeline-exceedance-module",
+  "license": "Proprietary",
   "authors": [
-    "Zeno Rocha <hi@zenorocha.com>"
+    "Josh Wilson <jwilson@waystone.systems>"
   ],
   "description": "A jump-start for jQuery plugins development.",
-  "homepage": "http://jqueryboilerplate.com",
   "keywords": [
     "jquery",
     "plugin",
-    "boilerplate",
-    "jquery-plugin",
-    "jquery-boilerplate"
+    "jquery-plugin"
   ],
-  "main": "src/jquery.boilerplate.js",
+  "main": "src/jquery.ui.item.js",
   "dependencies": {
     "jquery": "1"
   },

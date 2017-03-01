@@ -1,18 +1,65 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>jQuery Boilerplate</title>
-		<script src="../node_modules/jquery/dist/jquery.min.js"></script>
-		<script src="../src/jquery.boilerplate.js"></script>
-	</head>
-	<body>
-		<div id="element"></div>
-		<script>
-			$( function() {
-				$( "#element" ).defaultPluginName( {
-					propertyName: "a custom value"
-				} );
-			} );
-		</script>
-	</body>
+<head>
+	<title>Interactive Timeline Exceedance Module Demo</title>
+	<script src="../node_modules/jquery/dist/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script src="../node_modules/lodash/lodash.js"></script>
+	<script src="../src/jquery.item.js"></script>
+	<!--Bootstrap for styling. Not required for use of widget-->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+		  integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+		  integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+	<h1>Simple Climate Graph Demo</h1>
+	<div class="row">
+		<div class="col-md-4">
+			<div class="form-group"><label for="scenario">Exceedance Scenario:</label>
+				<select name="scenario" id="scenario" class="form-control">
+					<option value="prcp-gt">Precipitation - Days above threshold</option>
+					<option value="prcp-lt">Precipitation - Days below threshold</option>
+					<option value="custom">Custom</option>
+				</select></div>
+			<div class="form-group"><label for="threshold"></label>
+				<div class="input-group"><input type="number" name="threshold" id="threshold" value="1">
+					<div class="input-group-addon" id="thresholdUnits">inches</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-8">
+			<div id="output"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+				<span class="sr-only">Loading...</span></div>
+		</div>
+	</div>
+</div>
+
+<script>
+	(function ($) {
+		$('#threshold').change(function () {
+			$("#output").simpleClimateWidget('option', 'threshold', parseFloat($('#threshold').val()));
+		});
+
+		$("#output").simpleClimateWidget({
+			mode: 'threshold',
+			operator: 'gt',
+			thresholdInput: parseFloat($('#threshold').val()),
+			thresholdUnit: $('#thresholdUnit').val()
+		});
+	})(jQuery);
+</script>
+
+<!--Bootstrap scripts-->
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
+		integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
+		crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
+		integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+		crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"
+		integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+		crossorigin="anonymous"></script>
+</body>
 </html>
