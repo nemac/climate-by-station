@@ -2,64 +2,157 @@
 <html>
 <head>
 	<title>Interactive Timeline Exceedance Module Demo</title>
-	<script src="../node_modules/jquery/dist/jquery.min.js"></script>
-	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-	<script src="../node_modules/lodash/lodash.js"></script>
-	<script src="../src/jquery.item.js"></script>
-	<!--Bootstrap for styling. Not required for use of widget-->
+
+	<!--development environment -->
+	<!--
+	<script src="/jspm_packages/system.js"></script>
+	<script src="/jspm.config.js"></script>
+	<script>
+	System.import('/demo/demo.js').then(function (fn) {fn.default( 10);});
+	</script>
+	<style id="compiled-styles"></style>
+	-->
+	<!--end development environment -->
+
+	<!--pre-built environment-->
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js"
+					integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+					crossorigin="anonymous"></script>
+	<script src="/dist/jquery.fl-item.min.js"></script>
+	<link rel="stylesheet" href="/dist/fl-item.css">
+	<script>
+		$(function ($) {
+			$("#output").item({
+				station: $('#station').val(),
+				currentView: 'graph'
+			});
+			$('#station').change(() => {
+				$("#output").item('option', 'station', $('#station').val()).item('update');
+			});
+			$('#threshold').change(function () {
+				$("#output").item('option', 'threshold', parseFloat($('#threshold').val())).item('update');
+			});
+			$('#variable').change(() => {
+				let queryElements, missingValueTreatment;
+				switch ($('#variable').val()) {
+					case 'pcpn':
+						queryElements = [{"name": "pcpn", 'units': 'inch'}];
+						missingValueTreatment = 'drop';
+						$('#thresholdUnits').text('in');
+						$('#threshold').val(1.0);
+						break;
+					case 'tmax':
+						queryElements = [{"name": "maxt", "units": "degreeF"}];
+						missingValueTreatment = 'drop';
+						$('#thresholdUnits').text('F');
+						$('#threshold').val(95);
+						break;
+					case 'tmin':
+						queryElements = [{"name": "mint", "units": "degreeF"}];
+						missingValueTreatment = 'drop';
+						$('#thresholdUnits').text('F');
+						$('#threshold').val(95);
+						break;
+					case 'tavg':
+						queryElements = [{"name": "avgt", "units": "degreeF"}];
+						missingValueTreatment = 'drop';
+						$('#thresholdUnits').text('F');
+						$('#threshold').val(95);
+						break;
+				}
+				$("#output").item({
+					queryElements: queryElements,
+					missingValueFilter: missingValueTreatment,
+					threshold: parseFloat($('#threshold').val())
+				}).item('update');
+			});
+			$('#operator').change(() => {
+				$("#output").item({thresholdOperator: $('#operator').val()}).item('update');
+			});
+			$('#95ththreshold').click(() => {
+				$('#threshold').val($("#output").item('getQuantile', 95)).trigger('change');
+			});
+			$('#90ththreshold').click(() => {
+				$('#threshold').val($("#output").item('getQuantile', 90)).trigger('change');
+			});
+			$('#rollingSum').change(() => {
+				$("#output").item({rollingSum: parseInt($('#rollingSum').val())});
+				$("#output").item('update');
+			});
+			$('#sdate').change(() => {
+				$("#output").item({sdate: parseInt($('#sdate').val())});
+				$("#output").item('update');
+			});
+			$('#edate').change(() => {
+				$("#output").item({edate: parseInt($('#edate').val())});
+				$("#output").item('update');
+			});
+		});
+	</script>
+	<!--end pre-built environment-->
+
+	<!--Demo styling. Not required for use of widget.-->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
-		  integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+				integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
 	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
-		  integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+				integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
 </head>
 <body>
 <div class="container">
-	<h1>Simple Climate Graph Demo</h1>
+	<h1>Interactive Timeline Exceedance Module Demo</h1>
 	<div class="row">
 		<div class="col-md-4">
-			<div class="form-group"><label for="scenario">Exceedance Scenario:</label>
-				<select name="scenario" id="scenario" class="form-control">
-					<option value="prcp-gt">Precipitation - Days above threshold</option>
-					<option value="prcp-lt">Precipitation - Days below threshold</option>
-					<option value="custom">Custom</option>
+			<div class="form-group"><label for="station">Station Id:</label>
+				<input name="station" id="station" value="USC00094429" class="form-control"></div>
+			<div class="row">
+				<div class="form-group col-sm-6"><label for="sdate">Start Year:</label>
+					<input type="number" value="" name="sdate" id="sdate" class="form-control"></div>
+				<div class="form-group col-sm-6"><label for="edate">End Year:</label>
+					<input type="number" value="2016" max="2016" name="sdate" id="edate" class="form-control"></div>
+			</div>
+			<div class="form-group"><label for="variable">Variable:</label>
+				<select name="variable" id="variable" class="form-control">
+					<option value="pcpn">Precipitation</option>
+					<option value="tmax">TMax</option>
+					<option value="tmin">TMin</option>
+					<option value="tavg">TAvg</option>
 				</select></div>
-			<div class="form-group"><label for="threshold"></label>
-				<div class="input-group"><input type="number" name="threshold" id="threshold" value="1">
-					<div class="input-group-addon" id="thresholdUnits">inches</div>
+			<div class="form-group"><label for="operator">Exceedance:</label>
+				<select name="operator" id="operator" class="form-control">
+					<option value=">">Days above threshold</option>
+					<option value="<">Days below threshold</option>
+				</select>
+			</div>
+			<div class="form-group"><label for="rollingSum">Rolling Window: </label>
+				<div class="input-group"><input type="number" id="rollingSum"
+																				name="rollingSum" value="1" class="form-control">
+					<div class="input-group-addon">days</div>
 				</div>
 			</div>
+
+			<div class="form-group"><label for="threshold">Threshold: </label>
+				<div class="input-group"><input type="number" name="threshold" id="threshold" value="1" step="0.1"
+																				class="form-control">
+					<div class="input-group-addon" id="thresholdUnits">inches</div>
+				</div>
+				<div class="form-group">
+					<button class="btn btn-secondary btn-sm pull-right m-2" id="95ththreshold"
+									title="Sets threshold to 95th percentile">95th
+						percentile
+					</button>
+					<button class="btn btn-secondary btn-sm pull-right m-2" id="90ththreshold"
+									title="Sets threshold to 90th percentile">90th
+						percentile
+					</button>
+				</div>
+			</div>
+
 		</div>
-		<div class="col-md-8">
-			<div id="output"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
-				<span class="sr-only">Loading...</span></div>
+		<div class="col-md-8" style="min-height: 70vh;">
+			<div id="output"></div>
 		</div>
 	</div>
 </div>
 
-<script>
-	(function ($) {
-		$('#threshold').change(function () {
-			$("#output").simpleClimateWidget('option', 'threshold', parseFloat($('#threshold').val()));
-		});
-
-		$("#output").simpleClimateWidget({
-			mode: 'threshold',
-			operator: 'gt',
-			thresholdInput: parseFloat($('#threshold').val()),
-			thresholdUnit: $('#thresholdUnit').val()
-		});
-	})(jQuery);
-</script>
-
-<!--Bootstrap scripts-->
-<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"
-		integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n"
-		crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
-		integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
-		crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"
-		integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
-		crossorigin="anonymous"></script>
 </body>
 </html>

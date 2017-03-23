@@ -1,46 +1,28 @@
 # jQuery Interactive Timeline Exceedance Module
 
-<!-- TODO Overview -->
+This widget show threshold exceedance over time for weather stations. It is a proof of concept project that could be later expanded to examine specific regions and more complex variables.
 
 ## Usage
 
-1. Include jQuery:
+1. Include plugin's code:
 
 	```html
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script src="dist/jquery.fl-item.min.js"></script>
+	<link rel="stylesheet" src="dist/fl-item.css" />
 	```
 
-2. Include plugin's code:
-
-	```html
-	<script src="dist/jquery.boilerplate.min.js"></script>
-	```
-
-3. Call the plugin:
+2. Call the plugin:
 
 	```javascript
-	$("#element").defaultPluginName({
-		propertyName: "a custom value"
+	$("#widget-div").item({
+		station: $('#station').val(),
+        currentView: 'graph'
 	});
 	```
 
-## Structure
+# Development
 
-The basic structure of the project is given in the following way:
-
-```
-├── demo/
-│   └── index.html
-├── dist/
-│   ├── jquery.boilerplate.js
-│   └── jquery.boilerplate.min.js
-├── src/
-│   ├── jquery.boilerplate.coffee
-│   └── jquery.boilerplate.js
-├── .editorconfig
-├── .gitignore
-├── .jshintrc
-├── .travis.yml
-├── Gruntfile.js
-└── package.json
-```
+1. Install dev requirements using `npm install --dev` followed by `./node_modules/.bin/jspm install --dev`
+2. uncomment the `<!--development environment-->` section in `demo/index.html` and comment out the `<!--pre-built environment-->` section.
+3. Run any http server and visit `demo/index.html`, the source will be build in-browser each time the page is reloaded.
+4. Run `npm run build` to bundle the project for production.

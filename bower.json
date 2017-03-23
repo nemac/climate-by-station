@@ -1,18 +1,14 @@
 {
-  "name": "jquery-ui-interactive-timeline-exceedance-module",
+  "name": "jquery-interactiveTimelineExceedanceModule",
   "license": "Proprietary",
   "authors": [
     "Josh Wilson <jwilson@waystone.systems>"
   ],
-  "description": "A jump-start for jQuery plugins development.",
+  "description": "",
   "keywords": [
-    "jquery",
-    "plugin",
-    "jquery-plugin"
   ],
-  "main": "src/jquery.ui.item.js",
+  "main": "dist/jquery.item.js",
   "dependencies": {
-    "jquery": "1"
   },
   "ignore": [
     "npm-debug.log",
