@@ -2,6 +2,7 @@
 
 This widget show threshold exceedance over time for weather stations. It is a proof of concept project that could be later expanded to examine specific regions and more complex variables.
 
+
 ## Usage
 
 1. Include plugin's code:
@@ -21,6 +22,8 @@ This widget show threshold exceedance over time for weather stations. It is a pr
 	```
 
 # Development
+
+Requires node version 7+
 
 1. Install dev requirements using `npm install --dev` followed by `./node_modules/.bin/jspm install --dev`
 2. uncomment the `<!--development environment-->` section in `demo/index.html` and comment out the `<!--pre-built environment-->` section.

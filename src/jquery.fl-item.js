@@ -146,7 +146,7 @@ $.widget("fernleaf.item", {
 		return this.yearlyExceedanceData;
 	},
 	_getStationData(){
-		this._updateSpinner('downloading data..');
+		this._updateSpinner('downloading data...');
 		return Promise.resolve($.ajax({
 			url: this.options.dataAPIEndpoint + 'StnData',
 			type: "POST",
@@ -160,25 +160,29 @@ $.widget("fernleaf.item", {
 				elems: this.options.queryElements
 			})
 		})).then((response) => {
-			this._updateSpinner('reducing data..');
+			this._updateSpinner('reducing data...');
 			let data = this._filterMissingValues(_.fromPairs(response.data), this.options.missingValueFilter);
 			//Parse string to floats (and ignore NaN values).
 			data = _(data).mapValues((v) => parseFloat(v)).pickBy(_.isFinite).value();
 			if (this.options.rollingSum > 1) {
 				data = this._rollingDailySum(data);
 			}
-			this.yearlyExceedanceData = this._reduceDailyToYearly(data,
-				(dailies, year) => _.reduce(dailies, (yearly, value, date) => {
-					if (this._thresholdFunction(value)) {
-						return yearly + 1;
-					}
-					return yearly;
-				}, 0)
-			);
-			this.yearlyExceedanceLinearRegression = regression('linear', _(this.yearlyExceedanceData).toPairs().map((v) => [parseInt(v[0]), v[1]]).filter((v) => v[1] > 0).value());
 			this.data = data;
 			return data;
 		});
+	},
+	getYearlyExceedanceData(){
+		return this._reduceDailyToYearly(this.data,
+			(dailies, year) => _.reduce(dailies, (yearly, value, date) => {
+				if (this._thresholdFunction(value)) {
+					return yearly + 1;
+				}
+				return yearly;
+			}, 0)
+		);
+	},
+	getYearlyExceedanceLinearRegression(yearlyExceedanceData){
+		return regression('linear', _(yearlyExceedanceData).toPairs().map((v) => [parseInt(v[0]), v[1]]).filter((v) => v[1] > 0).value());
 	},
 	/**
 	 *
@@ -190,7 +194,7 @@ $.widget("fernleaf.item", {
 			//Get bounding boxes if we don't already have them
 			let bboxPromise;
 			if (this.options.boundingBoxes.length === 0) {
-				this._updateSpinner('finding region..');
+				this._updateSpinner('finding region...');
 				if (this.options.counties.length !== 0) {
 					bboxPromise = this._requestRegionBoundingBoxes('county', this.options.counties);
 				}
@@ -203,7 +207,7 @@ $.widget("fernleaf.item", {
 			}
 
 			Promise.resolve(bboxPromise).then(() => {
-				this._updateSpinner('downloading data..');
+				this._updateSpinner('downloading data...');
 
 				let dataPromises = [];
 				_.each(this.options.boundingBoxes, (box) => {
@@ -215,7 +219,7 @@ $.widget("fernleaf.item", {
 					}));
 				});
 				Promise.all(dataPromises).then((datasets) => {
-					this._updateSpinner('reducing data..');
+					this._updateSpinner('reducing data...');
 					this.data = this._reduceArea(datasets);
 					resolve(this.data);
 				}, reject);
@@ -353,10 +357,13 @@ $.widget("fernleaf.item", {
 			this._views.$yearlyExceedanceGraph.show();
 			return;
 		}
-		let yearlyExceedanceLine = _(this.yearlyExceedanceData).toPairs().map((v) => {
+
+		let yearlyExceedanceData = this.getYearlyExceedanceData();
+		let yearlyExceedanceTrend = this.getYearlyExceedanceLinearRegression(yearlyExceedanceData);
+		let yearlyExceedanceLine = _(yearlyExceedanceData).toPairs().map((v) => {
 			return {x: String(v[0]), y: v[1]}
 		}).sortBy('x').value();
-		let yearlyExceedanceTrendLine = _(this.yearlyExceedanceLinearRegression.points).map((v) => {
+		let yearlyExceedanceTrendLine = _(yearlyExceedanceTrend.points).map((v) => {
 			return {x: String(v[0]), y: v[1]}
 		}).sortBy('x').value();
 		this._views.$yearlyExceedanceGraph = $(this.templates.graph()).uniqueId().appendTo(this.element);
@@ -374,7 +381,7 @@ $.widget("fernleaf.item", {
 							lineTension: 0
 						},
 						{
-							label: `Trend (${this.yearlyExceedanceLinearRegression.string})`,
+							label: `Trend (${yearlyExceedanceTrend.string})`,
 							data: yearlyExceedanceTrendLine,
 							fill: false,
 							borderColor: '#00dd09',
@@ -487,8 +494,9 @@ $.widget("fernleaf.item", {
 			return;
 		}
 		this._views.$options = $(this.templates.options(this.options.threshold)).uniqueId().appendTo(this.element);
-		this._views.$options.find('input[name="threshold"]').change((e) => {
+		this._views.$options.find('input[name="threshold"]').change((e, element) => {
 			this.options.threshold = parseFloat(e.value);
+			this.update();
 		});
 	},
 	_showSummary(){

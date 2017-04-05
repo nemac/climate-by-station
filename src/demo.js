@@ -1,18 +1,8 @@
 ;"use strict";
 import $ from 'jquery';
 import "../src/jquery.fl-item.js";
-import Sass from '/jspm_packages/npm/sass.js@0.10.3/dist/sass';
 
-// initialize a Sass instance
-const sass = new Sass('/jspm_packages/npm/sass.js@0.10.3/dist/sass.worker.js');
-
-sass.preloadFiles('/assets/scss/', '', [
-	'fl-item.scss'
-], () => {
-	sass.compileFile('fl-item.scss', (result) => {$('#compiled-styles').html(result.text)});
-});
-
-export default function () {
+export default function demo() {
 	$("#output").item({
 		station: $('#station').val(),
 		currentView: 'graph'
@@ -21,11 +11,11 @@ export default function () {
 		$("#output").item('option', 'station', $('#station').val()).item('update');
 	});
 	$('#threshold').change(function () {
-		$("#output").item('option', 'threshold', parseFloat($('#threshold').val())).item('update');
+		$("#output").item({threshold: parseFloat($('#threshold').val())}).item('update');
 	});
 	$('#variable').change(() => {
 		let queryElements, missingValueTreatment;
-		switch ($('#varaible').val()) {
+		switch ($('#variable').val()) {
 			case 'pcpn':
 				queryElements = [{"name": "pcpn", 'units': 'inch'}];
 				missingValueTreatment = 'drop';
@@ -42,7 +32,7 @@ export default function () {
 				queryElements = [{"name": "mint", "units": "degreeF"}];
 				missingValueTreatment = 'drop';
 				$('#thresholdUnits').text('F');
-				$('#threshold').val(95);
+				$('#threshold').val(32);
 				break;
 			case 'tavg':
 				queryElements = [{"name": "avgt", "units": "degreeF"}];
@@ -78,6 +68,5 @@ export default function () {
 		$("#output").item({edate: parseInt($('#edate').val())});
 		$("#output").item('update');
 	});
-
-
 };
+demo();

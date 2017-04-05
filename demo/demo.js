@@ -31081,7 +31081,7 @@ $__System.registerDynamic("8f", [], true, function ($__require, exports, module)
 		});
 	});
 });
-$__System.register("1", ["42", "44", "46", "49", "89", "b", "3e", "8e", "8f"], function (_export) {
+$__System.register("90", ["42", "44", "46", "49", "89", "b", "3e", "8e", "8f"], function (_export) {
 	var _Object$keys, _, $, regression, Chart, _Object$assign, _Promise, defaultTemplates;
 
 	return {
@@ -31732,8 +31732,96 @@ $__System.register("1", ["42", "44", "46", "49", "89", "b", "3e", "8e", "8f"], f
 		}
 	};
 });
+
+$__System.register("1", ["46", "90"], function (_export) {
+	"use strict";
+
+	var $;
+
+	_export("default", demo);
+
+	function demo() {
+		$("#output").item({
+			station: $('#station').val(),
+			currentView: 'graph'
+		});
+		$('#station').change(function () {
+			$("#output").item('option', 'station', $('#station').val()).item('update');
+		});
+		$('#threshold').change(function () {
+			$("#output").item({ threshold: parseFloat($('#threshold').val()) }).item('update');
+		});
+		$('#variable').change(function () {
+			var queryElements = undefined,
+			    missingValueTreatment = undefined;
+			switch ($('#variable').val()) {
+				case 'pcpn':
+					queryElements = [{ "name": "pcpn", 'units': 'inch' }];
+					missingValueTreatment = 'drop';
+					$('#thresholdUnits').text('in');
+					$('#threshold').val(1.0);
+					break;
+				case 'tmax':
+					queryElements = [{ "name": "maxt", "units": "degreeF" }];
+					missingValueTreatment = 'drop';
+					$('#thresholdUnits').text('F');
+					$('#threshold').val(95);
+					break;
+				case 'tmin':
+					queryElements = [{ "name": "mint", "units": "degreeF" }];
+					missingValueTreatment = 'drop';
+					$('#thresholdUnits').text('F');
+					$('#threshold').val(32);
+					break;
+				case 'tavg':
+					queryElements = [{ "name": "avgt", "units": "degreeF" }];
+					missingValueTreatment = 'drop';
+					$('#thresholdUnits').text('F');
+					$('#threshold').val(95);
+					break;
+			}
+			$("#output").item({
+				queryElements: queryElements,
+				missingValueFilter: missingValueTreatment,
+				threshold: parseFloat($('#threshold').val())
+			}).item('update');
+		});
+		$('#operator').change(function () {
+			$("#output").item({ thresholdOperator: $('#operator').val() }).item('update');
+		});
+		$('#95ththreshold').click(function () {
+			$('#threshold').val($("#output").item('getQuantile', 95)).trigger('change');
+		});
+		$('#90ththreshold').click(function () {
+			$('#threshold').val($("#output").item('getQuantile', 90)).trigger('change');
+		});
+		$('#rollingSum').change(function () {
+			$("#output").item({ rollingSum: parseInt($('#rollingSum').val()) });
+			$("#output").item('update');
+		});
+		$('#sdate').change(function () {
+			$("#output").item({ sdate: parseInt($('#sdate').val()) });
+			$("#output").item('update');
+		});
+		$('#edate').change(function () {
+			$("#output").item({ edate: parseInt($('#edate').val()) });
+			$("#output").item('update');
+		});
+	}
+
+	return {
+		setters: [function (_) {
+			$ = _["default"];
+		}, function (_2) {}],
+		execute: function () {
+			;"use strict";
+			;
+			demo();
+		}
+	};
+});
+
 })
 (function(factory) {
-  factory();
+  Demo = factory();
 });
-//# sourceMappingURL=jquery.fl-item.js.map

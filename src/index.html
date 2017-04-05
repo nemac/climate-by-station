@@ -3,14 +3,25 @@
 <head>
 	<title>Interactive Timeline Exceedance Module Demo</title>
 
-
+	<!--dev environment-->
+	<script src="/jspm_packages/system.js"></script>
+	<script src="/jspm.config.js"></script>
+	<script>
+		System.import('/demo/demo.js').then(function (fn){fn.default()});
+		System.import('/src/scss/fl-item.scss!').then(function (css) {
+			let cssNode = document.createElement('style');
+			cssNode.innerHTML = css.default;
+			document.head.appendChild(cssNode);
+		});
+	</script>
+	<!--end dev-->
+	<!-- uncomment for dist
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js"
 					integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
 					crossorigin="anonymous"></script>
 	<script src="/dist/jquery.fl-item.min.js"></script>
 	<script src="demo.js"></script>
-
-
+	-->
 
 	<link rel="stylesheet" href="/dist/fl-item.css">
 
@@ -76,6 +87,5 @@
 		</div>
 	</div>
 </div>
-<script>Demo.default()</script>
 </body>
 </html>
