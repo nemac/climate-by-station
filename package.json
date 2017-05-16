@@ -24,7 +24,7 @@
     "build": "npm run build-js  && npm run build-scss && npm run build-demo-js && npm run build-demo-html",
     "build-js": "jspm bundle-sfx src/jquery.fl-item.js dist/jquery.fl-item.js && jspm bundle-sfx src/jquery.fl-item.js dist/jquery.fl-item.min.js --minify",
     "build-demo-js": "jspm bundle-sfx src/demo.js demo/demo.js --global-name Demo --skip-source-maps",
-		"build-demo-html": "perl -0777 -pe 's/<!--dev environment-->(.*)<!--end dev-->.*<!-- uncomment for dist(.*?)-->/$2/s' src/index.html > demo/index.html",
+    "build-demo-html": "perl -0777 -pe 's/<!--dev environment-->(.*)<!--end dev-->.*<!-- uncomment for dist(.*?)-->/$2/s' src/index.html > demo/index.html",
     "build-scss": "node-sass src/scss/*.scss -o dist/ && npm run build-autoprefix-css",
     "build-autoprefix-css": "postcss dist/*.css --use autoprefixer postcss-flexbugs-fixes --replace",
     "postinstall": "jspm install"

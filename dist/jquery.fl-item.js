@@ -31152,7 +31152,8 @@ $__System.register("1", ["42", "44", "46", "49", "89", "b", "3e", "8e", "8f"], f
 					missingValues: ['T', 'M', 'S'],
 					missingValueFilter: 'zero',
 					currentView: 'summary',
-					rollingSum: 1
+					rollingWindow: 1,
+					rollingWindowFunction: _.sum
 				},
 				_operators: {
 					'==': function _(o1, o2) {
@@ -31247,7 +31248,7 @@ $__System.register("1", ["42", "44", "46", "49", "89", "b", "3e", "8e", "8f"], f
 					this._super(key, value);
 
 					//empty data for any options that will require new data
-					if (['station', 'state', 'county', 'queryElements', 'rollingSum', 'sdate', 'edate'].includes(key)) {
+					if (['station', 'state', 'county', 'queryElements', 'rollingWindow', 'sdate', 'edate'].includes(key)) {
 						delete this.data;
 					}
 				},
@@ -31312,8 +31313,8 @@ $__System.register("1", ["42", "44", "46", "49", "89", "b", "3e", "8e", "8f"], f
 						data = _(data).mapValues(function (v) {
 							return parseFloat(v);
 						}).pickBy(_.isFinite).value();
-						if (_this3.options.rollingSum > 1) {
-							data = _this3._rollingDailySum(data);
+						if (_this3.options.rollingWindow > 1) {
+							data = _this3._rollingWindowDaily(data);
 						}
 						_this3.data = data;
 						return data;
@@ -31479,19 +31480,27 @@ $__System.register("1", ["42", "44", "46", "49", "89", "b", "3e", "8e", "8f"], f
 					}
 					return _.mapValues(intervalData, _.mean);
 				},
-				//sums consecutive days
-				_rollingDailySum: function _rollingDailySum(collection) {
+				//aggregates consecutive days
+				_rollingWindowDaily: function _rollingWindowDaily(collection) {
 					var _this7 = this;
 
 					return _.mapValues(collection, function (value, date) {
-						for (var i = _this7.options.rollingSum - 1; i > 0; i--) {
+						var valuesInWindow = [value];
+						for (var i = _this7.options.rollingWindow - 1; i > 0; i--) {
 							var newdate = new Date(date);
 							newdate.setDate(newdate.getDate() - i);
 							newdate.setMinutes(newdate.getMinutes() - newdate.getTimezoneOffset());
 							newdate = newdate.toISOString().slice(0, 10);
 							if (undefined !== collection[newdate]) {
-								value += collection[newdate];
+								valuesInWindow.push(collection[newdate]);
 							}
+						}
+						if ('function' === _this7.options.rollingWindowFunction) {
+							return _this7.options.rollingWindowFunction.apply(_this7, valuesInWindow);
+						} else if (_this7.options.rollingWindowFunction === 'mean') {
+							value = _.mean(valuesInWindow);
+						} else {
+							value = _.sum(valuesInWindow);
 						}
 						return value;
 					});
@@ -31655,7 +31664,7 @@ $__System.register("1", ["42", "44", "46", "49", "89", "b", "3e", "8e", "8f"], f
 					}
 					this._views.$options = $(this.templates.options(this.options.threshold)).uniqueId().appendTo(this.element);
 					this._views.$options.find('input[name="threshold"]').change(function (e, element) {
-						_this8.options.threshold = parseFloat(e.value);
+						_this8.options.threshold = parseFloat(e.target.value);
 						_this8.update();
 					});
 				},

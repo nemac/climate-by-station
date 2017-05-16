@@ -26,6 +26,5 @@ This widget show threshold exceedance over time for weather stations. It is a pr
 Requires node version 7+
 
 1. Install dev requirements using `npm install --dev` followed by `./node_modules/.bin/jspm install --dev`
-2. uncomment the `<!--development environment-->` section in `demo/index.html` and comment out the `<!--pre-built environment-->` section.
-3. Run any http server and visit `demo/index.html`, the source will be build in-browser each time the page is reloaded.
-4. Run `npm run build` to bundle the project for production.
+2. Run any http server and visit `src/demo.html`, the source will be built in-browser each time the page is reloaded.
+3. Run `npm run build` to bundle the project for production.

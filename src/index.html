@@ -2,12 +2,13 @@
 <html>
 <head>
 	<title>Interactive Timeline Exceedance Module Demo</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
 	<!--dev environment-->
 	<script src="/jspm_packages/system.js"></script>
 	<script src="/jspm.config.js"></script>
 	<script>
-		System.import('/demo/demo.js').then(function (fn){fn.default()});
+		System.import('/src/demo.js').then(function (fn) {fn.default()});
 		System.import('/src/scss/fl-item.scss!').then(function (css) {
 			let cssNode = document.createElement('style');
 			cssNode.innerHTML = css.default;
@@ -16,12 +17,10 @@
 	</script>
 	<!--end dev-->
 	<!-- uncomment for dist
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js"
-					integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-					crossorigin="anonymous"></script>
-	<script src="/dist/jquery.fl-item.min.js"></script>
-	<script src="demo.js"></script>
-	-->
+    <script src="/dist/jquery.fl-item.min.js"></script>
+    <script src="demo.js"></script>
+    <script>Demo.default();</script>
+    -->
 
 	<link rel="stylesheet" href="/dist/fl-item.css">
 
@@ -57,9 +56,9 @@
 					<option value="<">Days below threshold</option>
 				</select>
 			</div>
-			<div class="form-group"><label for="rollingSum">Rolling Window: </label>
-				<div class="input-group"><input type="number" id="rollingSum"
-																				name="rollingSum" value="1" class="form-control">
+			<div class="form-group"><label for="rollingWindow">Rolling Window: </label>
+				<div class="input-group"><input type="number" id="rollingWindow"
+																				name="rollingWindow" value="1" class="form-control">
 					<div class="input-group-addon">days</div>
 				</div>
 			</div>
@@ -69,15 +68,21 @@
 																				class="form-control">
 					<div class="input-group-addon" id="thresholdUnits">inches</div>
 				</div>
-				<div class="form-group">
-					<button class="btn btn-secondary btn-sm pull-right m-2" id="95ththreshold"
-									title="Sets threshold to 95th percentile">95th
-						percentile
-					</button>
-					<button class="btn btn-secondary btn-sm pull-right m-2" id="90ththreshold"
-									title="Sets threshold to 90th percentile">90th
-						percentile
-					</button>
+				<div class="form-group " title="Sets threshold to a specific percentile">
+					<div class="input-group input-group-sm pull-right m-2 col-8"><input type="number" id="percentileThreshold"
+																																							name="percentileThreshold" value=""
+																																							class="col-4 form-control" step="1" min="0" max="100">
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+											aria-haspopup="true" aria-expanded="false"></button>
+							<div class="dropdown-menu dropdown-menu-right">
+								<a class="dropdown-item" href="#" id="80ththreshold">80th</a>
+								<a class="dropdown-item" href="#" id="90ththreshold">90th</a>
+								<a class="dropdown-item" href="#" id="95ththreshold">95th</a>
+							</div>
+						</div>
+						<div class="input-group-addon">percentile</div>
+					</div>
 				</div>
 			</div>
 
@@ -87,5 +92,8 @@
 		</div>
 	</div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha256-gL1ibrbVcRIHKlCO5OXOPC/lZz/gpdApgQAzskqqXp8=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 </body>
 </html>

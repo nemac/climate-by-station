@@ -47,7 +47,8 @@ $.widget("fernleaf.item", {
 		missingValues: ['T', 'M', 'S'],
 		missingValueFilter: 'zero',
 		currentView: 'summary',
-		rollingSum: 1,
+		rollingWindow: 1,
+		rollingWindowFunction: _.sum
 	},
 	_operators: {
 		'==': (o1, o2) => o1 == o2,
@@ -106,7 +107,7 @@ $.widget("fernleaf.item", {
 		this._super(key, value);
 
 		//empty data for any options that will require new data
-		if (['station', 'state', 'county', 'queryElements', 'rollingSum', 'sdate', 'edate'].includes(key)) {
+		if (['station', 'state', 'county', 'queryElements', 'rollingWindow', 'sdate', 'edate'].includes(key)) {
 			delete this.data;
 		}
 	},
@@ -164,8 +165,8 @@ $.widget("fernleaf.item", {
 			let data = this._filterMissingValues(_.fromPairs(response.data), this.options.missingValueFilter);
 			//Parse string to floats (and ignore NaN values).
 			data = _(data).mapValues((v) => parseFloat(v)).pickBy(_.isFinite).value();
-			if (this.options.rollingSum > 1) {
-				data = this._rollingDailySum(data);
+			if (this.options.rollingWindow > 1) {
+				data = this._rollingWindowDaily(data);
 			}
 			this.data = data;
 			return data;
@@ -320,17 +321,26 @@ $.widget("fernleaf.item", {
 		}
 		return _.mapValues(intervalData, _.mean);
 	},
-	//sums consecutive days
-	_rollingDailySum(collection){
+	//aggregates consecutive days
+	_rollingWindowDaily(collection){
 		return _.mapValues(collection, (value, date) => {
-			for (let i = this.options.rollingSum - 1; i > 0; i--) {
+			let valuesInWindow = [value];
+			for (let i = this.options.rollingWindow - 1; i > 0; i--) {
 				let newdate = new Date(date);
 				newdate.setDate(newdate.getDate() - i);
 				newdate.setMinutes(newdate.getMinutes() - newdate.getTimezoneOffset());
 				newdate = newdate.toISOString().slice(0, 10);
 				if (undefined !== collection[newdate]) {
-					value += collection[newdate];
+					valuesInWindow.push(collection[newdate]);
 				}
+			}
+			if ('function' === this.options.rollingWindowFunction) {
+				return this.options.rollingWindowFunction.apply(this, valuesInWindow);
+			}else if (this.options.rollingWindowFunction === 'mean'){
+				 value = _.mean(valuesInWindow);
+			}
+			else {
+				value = _.sum(valuesInWindow);
 			}
 			return value;
 		});
@@ -495,7 +505,7 @@ $.widget("fernleaf.item", {
 		}
 		this._views.$options = $(this.templates.options(this.options.threshold)).uniqueId().appendTo(this.element);
 		this._views.$options.find('input[name="threshold"]').change((e, element) => {
-			this.options.threshold = parseFloat(e.value);
+			this.options.threshold = parseFloat(e.target.value);
 			this.update();
 		});
 	},
