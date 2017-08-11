@@ -1,11 +1,20 @@
 ;"use strict";
 import $ from "jquery";
-import "../src/jquery.fl-item.js";
+import _ from 'lodash';
+import '../src/jquery.fl-item'
 
-export default function() {
-	$("#output").item({
+export default function () {
+	$("#output").fliitem({
 		station: $('#station').val(),
-		currentView: 'graph'
+		// This example year validator ignores years which have less than 293 (80%) valid daily values.
+		// A more advanced validator might ignore years before 1940, or years with more than 30 days of contiguous missing data.
+		yearValidator: (exceedance, dailyValuesByYear, year, allDailyValuesByYear, allDailyValues) => {
+			return _.size(_.filter(dailyValuesByYear, (value) => value.valid)) >= 293
+		},
+		// This example trendable validator won't let us run trends for less than 10 years of valid data
+		trendableValidator:(exceedanceData)=>{
+			return _.size(_.filter(exceedanceData, (value) => value.valid)) > 10
+		}
 	});
 	$('#station').change(() => {
 		$("#output").item('option', 'station', $('#station').val()).item('update');
@@ -16,55 +25,38 @@ export default function() {
 	$('#variable').change(() => {
 		let queryElements, missingValueTreatment, rollingWindowFunction;
 		switch ($('#variable').val()) {
-			case 'pcpn':
-				queryElements = [{"name": "pcpn", 'units': 'inch'}];
-				missingValueTreatment = 'drop';
-				rollingWindowFunction = 'sum';
+			case 'precipitation':
 				$('#thresholdUnits').text('in');
 				$('#threshold').val(1.0);
 				break;
 			case 'tmax':
-				queryElements = [{"name": "maxt", "units": "degreeF"}];
-				missingValueTreatment = 'drop';
-				rollingWindowFunction = 'mean';
 				$('#thresholdUnits').text('F');
 				$('#threshold').val(95);
 				break;
 			case 'tmin':
-				queryElements = [{"name": "mint", "units": "degreeF"}];
-				missingValueTreatment = 'drop';
-				rollingWindowFunction = 'mean';
 				$('#thresholdUnits').text('F');
 				$('#threshold').val(32);
 				break;
 			case 'tavg':
-				queryElements = [{"name": "avgt", "units": "degreeF"}];
-				missingValueTreatment = 'drop';
-				rollingWindowFunction = 'mean';
 				$('#thresholdUnits').text('F');
 				$('#threshold').val(95);
 				break;
 		}
-		$("#output").item({
-			queryElements: queryElements,
-			missingValueFilter: missingValueTreatment,
-			threshold: parseFloat($('#threshold').val()),
-			rollingWindowFunction: rollingWindowFunction
-		}).item('update');
+		$("#output").item({threshold: parseFloat($('#threshold').val()), variable: $('#variable').val()}).item('update');
 	});
 	$('#operator').change(() => {
 		$("#output").item({thresholdOperator: $('#operator').val()}).item('update');
 	});
 	$('#percentileThreshold').change(() => {
 		let value = $('#percentileThreshold').val();
-		if (value === ''){
+		if (value === '') {
 			return;
 		}
-		if ( value <= 0 || value >= 100) {
+		if (value <= 0 || value >= 100) {
 			$('#percentileThreshold').addClass('form-control-danger');
 			return;
 		}
-		$('#threshold').val($("#output").item('getQuantile', value)).trigger('change');
+		$('#threshold').val($("#output").item('getPercentileValue', value)).trigger('change');
 	});
 	$('#95ththreshold').click(() => {
 		$('#percentileThreshold').val(95).trigger('change');

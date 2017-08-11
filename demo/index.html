@@ -4,10 +4,9 @@
 	<title>Interactive Timeline Exceedance Module Demo</title>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
-	
-    <script src="/dist/jquery.fl-item.min.js"></script>
     <script src="demo.js"></script>
-    
+
+
 
 	<link rel="stylesheet" href="/dist/fl-item.css">
 
@@ -16,6 +15,14 @@
 				integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
 	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
 				integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+	<style>
+		@media (min-width: 1200px) {
+			.container {
+				width: 1300px;
+				max-width: 100%;
+			}
+		}
+	</style>
 </head>
 <body>
 <div class="container">
@@ -32,7 +39,7 @@
 			</div>
 			<div class="form-group"><label for="variable">Variable:</label>
 				<select name="variable" id="variable" class="form-control">
-					<option value="pcpn">Precipitation</option>
+					<option value="precipitation">Precipitation</option>
 					<option value="tmax">TMax</option>
 					<option value="tmin">TMin</option>
 					<option value="tavg">TAvg</option>
@@ -74,13 +81,14 @@
 			</div>
 
 		</div>
-		<div class="col-md-8" style="min-height: 70vh;">
+		<div class="col-md-8" style="min-height: 60vh;">
 			<div id="output"></div>
 		</div>
 	</div>
 </div>
-<script>Demo.default();</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha256-gL1ibrbVcRIHKlCO5OXOPC/lZz/gpdApgQAzskqqXp8=" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<script>Demo.default();</script>
 </body>
 </html>
