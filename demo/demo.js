@@ -31043,7 +31043,7 @@ $__System.register("8d", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"],
 
 			;"use strict";
 
-			$.widget("fernleaf.fliitem", {
+			$.widget("fernleaf.item", {
 				options: {
 					station: '',
 					sdate: 'por',
@@ -31467,6 +31467,93 @@ $__System.register("1", ["41", "43", "8d"], function (_export) {
 
 	var _, $;
 
+	_export("default", demo);
+
+	function demo() {
+
+		$("#output").item({
+			station: $('#station').val(),
+			// This example year validator ignores years which have less than 293 (80%) valid daily values.
+			// A more advanced validator might ignore years before 1940, or years with more than 30 days of contiguous missing data.
+			yearValidator: function yearValidator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, allDailyValues) {
+				return _.size(_.filter(dailyValuesByYear, function (value) {
+					return value.valid;
+				})) >= 293;
+			},
+			// This example trendable validator won't let us run trends for less than 10 years of valid data
+			trendableValidator: function trendableValidator(exceedanceData) {
+				return _.size(_.filter(exceedanceData, function (value) {
+					return value.valid;
+				})) > 10;
+			}
+		});
+		$('#station').change(function () {
+			$("#output").item('option', 'station', $('#station').val()).item('update');
+		});
+		$('#threshold').change(function () {
+			$("#output").item({ threshold: parseFloat($('#threshold').val()) }).item('update');
+		});
+		$('#variable').change(function () {
+			var queryElements = undefined,
+			    missingValueTreatment = undefined,
+			    rollingWindowFunction = undefined;
+			switch ($('#variable').val()) {
+				case 'precipitation':
+					$('#thresholdUnits').text('in');
+					$('#threshold').val(1.0);
+					break;
+				case 'tmax':
+					$('#thresholdUnits').text('F');
+					$('#threshold').val(95);
+					break;
+				case 'tmin':
+					$('#thresholdUnits').text('F');
+					$('#threshold').val(32);
+					break;
+				case 'tavg':
+					$('#thresholdUnits').text('F');
+					$('#threshold').val(95);
+					break;
+			}
+			$("#output").item({ threshold: parseFloat($('#threshold').val()), variable: $('#variable').val() }).item('update');
+		});
+		$('#operator').change(function () {
+			$("#output").item({ thresholdOperator: $('#operator').val() }).item('update');
+		});
+		$('#percentileThreshold').change(function () {
+			var value = $('#percentileThreshold').val();
+			if (value === '') {
+				return;
+			}
+			if (value <= 0 || value >= 100) {
+				$('#percentileThreshold').addClass('form-control-danger');
+				return;
+			}
+			$('#threshold').val($("#output").item('getPercentileValue', value)).trigger('change');
+		});
+		$('#95ththreshold').click(function () {
+			$('#percentileThreshold').val(95).trigger('change');
+		});
+		$('#90ththreshold').click(function () {
+			$('#percentileThreshold').val(90).trigger('change');
+		});
+		$('#80ththreshold').click(function () {
+			$('#percentileThreshold').val(80).trigger('change');
+		});
+		$('#rollingWindow').change(function () {
+			$("#output").item({ rollingWindow: parseInt($('#rollingWindow').val()) });
+			$("#output").item('update');
+		});
+		$('#sdate').change(function () {
+			$("#output").item({ sdate: parseInt($('#sdate').val()) });
+			$("#output").item('update');
+		});
+		$('#edate').change(function () {
+			$("#output").item({ edate: parseInt($('#edate').val()) });
+			$("#output").item('update');
+		});
+	}
+
 	return {
 		setters: [function (_3) {
 			_ = _3["default"];
@@ -31475,92 +31562,9 @@ $__System.register("1", ["41", "43", "8d"], function (_export) {
 		}, function (_d) {}],
 		execute: function () {
 			;"use strict";
-
-			_export("default", function () {
-				$("#output").fliitem({
-					station: $('#station').val(),
-					// This example year validator ignores years which have less than 293 (80%) valid daily values.
-					// A more advanced validator might ignore years before 1940, or years with more than 30 days of contiguous missing data.
-					yearValidator: function yearValidator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, allDailyValues) {
-						return _.size(_.filter(dailyValuesByYear, function (value) {
-							return value.valid;
-						})) >= 293;
-					},
-					// This example trendable validator won't let us run trends for less than 10 years of valid data
-					trendableValidator: function trendableValidator(exceedanceData) {
-						return _.size(_.filter(exceedanceData, function (value) {
-							return value.valid;
-						})) > 10;
-					}
-				});
-				$('#station').change(function () {
-					$("#output").item('option', 'station', $('#station').val()).item('update');
-				});
-				$('#threshold').change(function () {
-					$("#output").item({ threshold: parseFloat($('#threshold').val()) }).item('update');
-				});
-				$('#variable').change(function () {
-					var queryElements = undefined,
-					    missingValueTreatment = undefined,
-					    rollingWindowFunction = undefined;
-					switch ($('#variable').val()) {
-						case 'precipitation':
-							$('#thresholdUnits').text('in');
-							$('#threshold').val(1.0);
-							break;
-						case 'tmax':
-							$('#thresholdUnits').text('F');
-							$('#threshold').val(95);
-							break;
-						case 'tmin':
-							$('#thresholdUnits').text('F');
-							$('#threshold').val(32);
-							break;
-						case 'tavg':
-							$('#thresholdUnits').text('F');
-							$('#threshold').val(95);
-							break;
-					}
-					$("#output").item({ threshold: parseFloat($('#threshold').val()), variable: $('#variable').val() }).item('update');
-				});
-				$('#operator').change(function () {
-					$("#output").item({ thresholdOperator: $('#operator').val() }).item('update');
-				});
-				$('#percentileThreshold').change(function () {
-					var value = $('#percentileThreshold').val();
-					if (value === '') {
-						return;
-					}
-					if (value <= 0 || value >= 100) {
-						$('#percentileThreshold').addClass('form-control-danger');
-						return;
-					}
-					$('#threshold').val($("#output").item('getPercentileValue', value)).trigger('change');
-				});
-				$('#95ththreshold').click(function () {
-					$('#percentileThreshold').val(95).trigger('change');
-				});
-				$('#90ththreshold').click(function () {
-					$('#percentileThreshold').val(90).trigger('change');
-				});
-				$('#80ththreshold').click(function () {
-					$('#percentileThreshold').val(80).trigger('change');
-				});
-				$('#rollingWindow').change(function () {
-					$("#output").item({ rollingWindow: parseInt($('#rollingWindow').val()) });
-					$("#output").item('update');
-				});
-				$('#sdate').change(function () {
-					$("#output").item({ sdate: parseInt($('#sdate').val()) });
-					$("#output").item('update');
-				});
-				$('#edate').change(function () {
-					$("#output").item({ edate: parseInt($('#edate').val()) });
-					$("#output").item('update');
-				});
-			});
-
 			;
+
+			demo();
 		}
 	};
 });

@@ -3,8 +3,10 @@ import $ from "jquery";
 import _ from 'lodash';
 import '../src/jquery.fl-item'
 
-export default function () {
-	$("#output").fliitem({
+export default function demo () {
+
+
+	$("#output").item({
 		station: $('#station').val(),
 		// This example year validator ignores years which have less than 293 (80%) valid daily values.
 		// A more advanced validator might ignore years before 1940, or years with more than 30 days of contiguous missing data.
@@ -80,3 +82,5 @@ export default function () {
 		$("#output").item('update');
 	});
 };
+
+demo();

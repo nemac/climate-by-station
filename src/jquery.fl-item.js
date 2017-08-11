@@ -8,7 +8,7 @@ import "jquery-ui";
 import "jquery-ui/ui/unique-id";
 import "chart.js";
 
-$.widget("fernleaf.fliitem", {
+$.widget("fernleaf.item", {
 	options: {
 		station: '',
 		sdate: 'por',

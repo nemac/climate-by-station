@@ -31043,7 +31043,7 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 
 			;"use strict";
 
-			$.widget("fernleaf.fliitem", {
+			$.widget("fernleaf.item", {
 				options: {
 					station: '',
 					sdate: 'por',
