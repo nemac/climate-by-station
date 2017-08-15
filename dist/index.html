@@ -4,11 +4,13 @@
 	<title>Interactive Timeline Exceedance Module Demo</title>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
+	
     <script src="demo.js"></script>
+    <script>$(document).ready(function(){Demo.default()});</script>
+		<link rel="stylesheet" href="fl-item.css">
+    
 
 
-
-	<link rel="stylesheet" href="/dist/fl-item.css">
 
 	<!--Demo styling. Not required for use of widget.-->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
@@ -44,15 +46,9 @@
 					<option value="tmin">TMin</option>
 					<option value="tavg">TAvg</option>
 				</select></div>
-			<div class="form-group"><label for="operator">Exceedance:</label>
-				<select name="operator" id="operator" class="form-control">
-					<option value=">">Days above threshold</option>
-					<option value="<">Days below threshold</option>
-				</select>
-			</div>
-			<div class="form-group"><label for="rollingWindow">Rolling Window: </label>
-				<div class="input-group"><input type="number" id="rollingWindow"
-																				name="rollingWindow" value="1" class="form-control">
+			<div class="form-group"><label for="window">Window: </label>
+				<div class="input-group"><input type="number" id="window"
+																				name="window" value="1" class="form-control">
 					<div class="input-group-addon">days</div>
 				</div>
 			</div>
@@ -89,6 +85,5 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha256-gL1ibrbVcRIHKlCO5OXOPC/lZz/gpdApgQAzskqqXp8=" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-<script>$(document).ready(function(){Demo.default()});</script>
 </body>
 </html>

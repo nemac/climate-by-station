@@ -31052,8 +31052,8 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 					threshold: 1.0,
 					thresholdOperator: '>',
 					thresholdFilter: '',
-					thresholdFunction: undefined, //Pass in a custom function: function(v1, v2){ return v1 > v2; }
-					rollingWindow: 1,
+					thresholdFunction: undefined, //Pass in a custom function: function(this, values){ return _.sum(values) > v2; }
+					window: 1,
 					dailyValueValidator: undefined, // Pass in a custom validator predicate function(value, date){return date.slice(0, 4) > 1960 && value > 5 }
 					yearValidator: undefined,
 					trendableValidator: undefined, //(exceedanceData) => {}
@@ -31061,24 +31061,20 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 				},
 				_variables: {
 					precipitation: {
-						rollingWindowFunction: 'sum',
-						invalidDailyValueBehavior: 'zero',
-						queryElements: [{ "name": "pcpn", 'units': 'inch' }]
+						queryElements: [{ "name": "pcpn", 'units': 'inch' }],
+						windowBehavior: 'rollingSum'
 					},
 					tmax: {
 						queryElements: [{ "name": "maxt", "units": "degreeF" }],
-						missingValueTreatment: 'drop',
-						rollingWindowFunction: 'mean'
+						windowBehavior: 'all'
 					},
 					tmin: {
 						queryElements: [{ "name": "mint", "units": "degreeF" }],
-						missingValueTreatment: 'drop',
-						rollingWindowFunction: 'mean'
+						windowBehavior: 'all'
 					},
 					tavg: {
-						queryElements: [{ "name": "mint", "units": "degreeF" }],
-						missingValueTreatment: 'drop',
-						rollingWindowFunction: 'mean'
+						queryElements: [{ "name": "avgt", "units": "degreeF" }],
+						windowBehavior: 'all'
 					}
 				},
 				_dailyValues: null, //{date:{value: 1.0, valid: true}}
@@ -31156,7 +31152,7 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 					var dataPromise = undefined;
 					if (this._dailyValues === null) {
 						dataPromise = _Promise.resolve(this._getDailyValuesByStation()).then(function (dailyValues) {
-							_this._dailyValues = _this.options.rollingWindow > 1 ? _this._rollingWindowDailyValues(dailyValues) : dailyValues;
+							_this._dailyValues = dailyValues;
 						});
 					}
 					_Promise.resolve(dataPromise).then(function () {
@@ -31187,7 +31183,7 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 					}
 					this._super(key, value);
 					//clear data if any of these options change. On next update() new data will be requested.
-					if (['station', 'variable', 'rollingWindow', 'sdate', 'edate'].includes(key)) {
+					if (['station', 'variable', 'sdate', 'edate'].includes(key)) {
 						this._clearData();
 					}
 				},
@@ -31250,7 +31246,20 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 					.mapValues(function (dailyValuesByYear, year, allDailyValuesByYear) {
 						// Sum the number of days which exceeded the threshold.
 						var exceedance = _.reduce(dailyValuesByYear, function (exceedance, value, date) {
-							if (value.valid && _this3._thresholdValue(value.value)) {
+							//gather values from window
+							var valuesInWindow = [];
+							if (value.valid) {
+								valuesInWindow.push(value.value);
+							}
+							for (var i = _this3.options.window - 1; i > 0; i--) {
+								var newdate = new Date(date);
+								newdate.setDate(newdate.getDate() - i);
+								newdate = newdate.toISOString().slice(0, 10);
+								if (undefined !== dailyValues[newdate] && dailyValues[newdate].valid) {
+									valuesInWindow.push(dailyValues[newdate].value);
+								}
+							}
+							if (valuesInWindow.length > 0 && _this3._thresholdFunction(valuesInWindow)) {
 								return exceedance + 1;
 							}
 							return exceedance;
@@ -31274,46 +31283,33 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 					}).value());
 				},
 				/**
-     * Applies threshold function or comparison operator to given value.
-     * @param value
+     * Applies threshold function or comparison operator to given values (array of values in window).
+     * @param values
      * @returns {boolean}
      * @private
      */
-				_thresholdValue: function _thresholdValue(value) {
-					if ('function' === this.options.thresholdFunction) {
-						return this.options.thresholdFunction.apply(this, value);
-					}
-					return this._operators[this.options.thresholdOperator](value, this.options.threshold);
-				},
-
-				/**
-     * Aggregate consecutive daily values into a rolling window value for each day. (acts on this._dailyValues)
-     * @returns
-     * @private
-     */
-				_rollingWindowDailyValues: function _rollingWindowDailyValues(dailyValues) {
+				_thresholdFunction: function _thresholdFunction(values) {
 					var _this4 = this;
 
-					return _.mapValues(dailyValues, function (value, date) {
-						var valuesInWindow = [value.value];
-						for (var i = _this4.options.rollingWindow - 1; i > 0; i--) {
-							var newdate = new Date(date);
-							newdate.setDate(newdate.getDate() - i);
-							newdate.setMinutes(newdate.getMinutes() - newdate.getTimezoneOffset());
-							newdate = newdate.toISOString().slice(0, 10);
-							if (undefined !== dailyValues[newdate] && dailyValues[newdate].valid) {
-								valuesInWindow.push(dailyValues[newdate].value);
-							}
-						}
-						if (typeof _this4.options.rollingWindowFunction === 'function') {
-							value.value = _this4.options.rollingWindowFunction(valuesInWindow);
-						} else if (_this4.options.rollingWindowFunction === 'mean') {
-							value.value = _.mean(valuesInWindow);
-						} else {
-							value.value = _.sum(valuesInWindow);
-						}
-						return value;
-					});
+					if ('function' === this.options.thresholdFunction) {
+						return this.options.thresholdFunction(this, values);
+					}
+					var operator = this._operators[this.options.thresholdOperator];
+					switch (this._variables[this.options.variable].windowBehavior) {
+						case 'rollingSum':
+							return operator(_.sum(values), this.options.threshold);
+							break;
+						case 'any':
+							return _.any(values, function (value) {
+								return operator(value, _this4.options.threshold);
+							});
+							break;
+						case 'all':
+							return _.every(values, function (value) {
+								return operator(value, _this4.options.threshold);
+							});
+							break;
+					}
 				},
 				_updateSpinner: function _updateSpinner() {
 					var msg = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
@@ -31383,6 +31379,9 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 							}]
 						},
 						options: {
+							animation: {
+								duration: 0
+							},
 							scales: {
 								xAxes: [{
 									type: 'time',
@@ -31390,7 +31389,7 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 									time: { unit: 'year', unitStepSize: 3 },
 									scaleLabel: {
 										display: true,
-										labelString: 'Date'
+										labelString: 'Year'
 									},
 									position: 'bottom'
 								}],
@@ -31448,11 +31447,11 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 					// [2] Is the index an integer?
 					if (index === Math.floor(index)) {
 						// Value is the average between the value at index and index+1:
-						return (dailyValues[index].value + dailyValues[index + 1].value) / 2.0;
+						return _.round((dailyValues[index].value + dailyValues[index + 1].value) / 2.0, 3);
 					}
 					// [3] Round up to the next index:
 					index = Math.ceil(index);
-					return dailyValues[index].value;
+					return _.round(dailyValues[index].value, 3);
 				},
 				_clearData: function _clearData() {
 					this._dailyValues = null;

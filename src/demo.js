@@ -25,7 +25,7 @@ export default function demo () {
 		$("#output").item({threshold: parseFloat($('#threshold').val())}).item('update');
 	});
 	$('#variable').change(() => {
-		let queryElements, missingValueTreatment, rollingWindowFunction;
+		let queryElements, missingValueTreatment, windowFunction;
 		switch ($('#variable').val()) {
 			case 'precipitation':
 				$('#thresholdUnits').text('in');
@@ -41,13 +41,10 @@ export default function demo () {
 				break;
 			case 'tavg':
 				$('#thresholdUnits').text('F');
-				$('#threshold').val(95);
+				$('#threshold').val(70);
 				break;
 		}
 		$("#output").item({threshold: parseFloat($('#threshold').val()), variable: $('#variable').val()}).item('update');
-	});
-	$('#operator').change(() => {
-		$("#output").item({thresholdOperator: $('#operator').val()}).item('update');
 	});
 	$('#percentileThreshold').change(() => {
 		let value = $('#percentileThreshold').val();
@@ -69,8 +66,8 @@ export default function demo () {
 	$('#80ththreshold').click(() => {
 		$('#percentileThreshold').val(80).trigger('change');
 	});
-	$('#rollingWindow').change(() => {
-		$("#output").item({rollingWindow: parseInt($('#rollingWindow').val())});
+	$('#window').change(() => {
+		$("#output").item({window: parseInt($('#window').val())});
 		$("#output").item('update');
 	});
 	$('#sdate').change(() => {
