@@ -22961,8 +22961,7 @@ $__System.registerDynamic('6d', [], true, function ($__require, exports, module)
 			borderDashOffset: 0.0,
 			borderJoinStyle: 'miter',
 			capBezierPoints: true,
-			fill: true // do we fill in the area between the line and its base axis
-		};
+			fill: true };
 
 		Chart.elements.Line = Chart.Element.extend({
 			draw: function () {
@@ -31340,18 +31339,6 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 					var exceedanceLine = _(yearExceedance).toPairs().map(function (v) {
 						return { x: String(v[0]), y: v[1].valid ? v[1].exceedance : Number.NaN };
 					}).sortBy('x').value();
-					var exceedanceTrendPercentage = undefined;
-					var exceedanceTrendLine = undefined;
-					if (typeof this.options.trendableValidator !== 'function' || this.options.trendableValidator(yearExceedance)) {
-						var exceedanceTrend = this.getExceedanceLinearRegression(yearExceedance);
-
-						//we just want the first and last points for the trendline.
-						exceedanceTrendLine = [{ x: exceedanceLine[0].x, y: exceedanceTrend.points[0][1] }, {
-							x: exceedanceLine[exceedanceLine.length - 1].x,
-							y: exceedanceTrend.points[exceedanceTrend.points.length - 1][1]
-						}];
-						exceedanceTrendPercentage = _.round((exceedanceTrendLine[1].y - exceedanceTrendLine[0].y) / (exceedanceTrendLine[1].x - exceedanceTrendLine[0].x), 3);
-					}
 					this._views.$yearlyExceedanceGraph = $('<canvas></canvas>').uniqueId().appendTo(this.element);
 					this.chart = new Chart(this._views.$yearlyExceedanceGraph, {
 						label: "Yearly Exceedance",
@@ -31359,14 +31346,6 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 						animationEnabled: false,
 						data: {
 							datasets: [{
-								label: exceedanceTrendPercentage ? "Trend (" + exceedanceTrendPercentage + "% / yr)" : 'Trend (not enough data)',
-								data: exceedanceTrendLine,
-								fill: false,
-								borderColor: '#63dd2c',
-								borderWidth: 2,
-								lineTension: 0,
-								pointRadius: 0
-							}, {
 								label: "Yearly Exceedance",
 								data: exceedanceLine ? exceedanceLine : [],
 								borderColor: '#307bda',
