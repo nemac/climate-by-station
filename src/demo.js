@@ -13,10 +13,6 @@ export default function demo () {
 		yearValidator: (exceedance, dailyValuesByYear, year, allDailyValuesByYear, allDailyValues) => {
 			return _.size(_.filter(dailyValuesByYear, (value) => value.valid)) >= 293
 		},
-		// This example trendable validator won't let us run trends for less than 10 years of valid data
-		trendableValidator:(exceedanceData)=>{
-			return _.size(_.filter(exceedanceData, (value) => value.valid)) > 10
-		}
 	});
 	$('#station').change(() => {
 		$("#output").item('option', 'station', $('#station').val()).item('update');
@@ -24,6 +20,8 @@ export default function demo () {
 	$('#threshold').change(function () {
 		$("#output").item({threshold: parseFloat($('#threshold').val())}).item('update');
 	});
+
+	// when #variable changes, update ui units and apply sensible defaults.
 	$('#variable').change(() => {
 		let queryElements, missingValueTreatment, windowFunction;
 		switch ($('#variable').val()) {
@@ -46,6 +44,7 @@ export default function demo () {
 		}
 		$("#output").item({threshold: parseFloat($('#threshold').val()), variable: $('#variable').val()}).item('update');
 	});
+
 	$('#percentileThreshold').change(() => {
 		let value = $('#percentileThreshold').val();
 		if (value === '') {

@@ -21,7 +21,6 @@ $.widget("fernleaf.item", {
 		window: 1,
 		dailyValueValidator: undefined, // Pass in a custom validator predicate function(value, date){return date.slice(0, 4) > 1960 && value > 5 }
 		yearValidator: undefined,
-		trendableValidator: undefined, //(exceedanceData) => {}
 		dataAPIEndpoint: "https://data.rcc-acis.org/",
 	},
 	_variables: {
@@ -152,7 +151,7 @@ $.widget("fernleaf.item", {
 	},
 
 	/**
-	 * Gets a collection of sums of days which exceeded threshold in year.
+	 * Gets a collection of counts of days which exceeded threshold in year.
 	 * @returns {Object} Ex: {'2016':22,'2015': 11}
 	 */
 	getYearExceedance(dailyValues) {
@@ -197,9 +196,6 @@ $.widget("fernleaf.item", {
 				}
 			})
 			.value()
-	},
-	getExceedanceLinearRegression(yearExceedance) {
-		return regression('linear', _(yearExceedance).toPairs().sortBy((v) => v[0]).filter((v) => v[1].valid).map((v) => [parseInt(v[0]), v[1].exceedance]).value());
 	},
 	/**
 	 * Applies threshold function or comparison operator to given values (array of values in window).

@@ -22961,7 +22961,8 @@ $__System.registerDynamic('6d', [], true, function ($__require, exports, module)
 			borderDashOffset: 0.0,
 			borderJoinStyle: 'miter',
 			capBezierPoints: true,
-			fill: true };
+			fill: true // do we fill in the area between the line and its base axis
+		};
 
 		Chart.elements.Line = Chart.Element.extend({
 			draw: function () {
@@ -31055,7 +31056,6 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 					window: 1,
 					dailyValueValidator: undefined, // Pass in a custom validator predicate function(value, date){return date.slice(0, 4) > 1960 && value > 5 }
 					yearValidator: undefined,
-					trendableValidator: undefined, //(exceedanceData) => {}
 					dataAPIEndpoint: "https://data.rcc-acis.org/"
 				},
 				_variables: {
@@ -31223,7 +31223,7 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 				},
 
 				/**
-     * Gets a collection of sums of days which exceeded threshold in year.
+     * Gets a collection of counts of days which exceeded threshold in year.
      * @returns {Object} Ex: {'2016':22,'2015': 11}
      */
 				getYearExceedance: function getYearExceedance(dailyValues) {
@@ -31271,15 +31271,6 @@ $__System.register("1", ["39", "41", "43", "46", "86", "3c", "3f", "8b", "8c"], 
 							dailyValues: dailyValuesByYear
 						};
 					}).value();
-				},
-				getExceedanceLinearRegression: function getExceedanceLinearRegression(yearExceedance) {
-					return regression('linear', _(yearExceedance).toPairs().sortBy(function (v) {
-						return v[0];
-					}).filter(function (v) {
-						return v[1].valid;
-					}).map(function (v) {
-						return [parseInt(v[0]), v[1].exceedance];
-					}).value());
 				},
 				/**
      * Applies threshold function or comparison operator to given values (array of values in window).
