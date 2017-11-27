@@ -243,26 +243,21 @@ $.widget("fernleaf.item", {
 			return;
 		}
 		let yearExceedance = this.getYearExceedance(dailyValues);
-		let exceedanceLine = _(yearExceedance).toPairs().map((v) => {
+		let exceedanceBars = _(yearExceedance).toPairs().map((v) => {
 			return {x: String(v[0]), y: v[1].valid ? v[1].exceedance : Number.NaN}
 		}).sortBy('x').value();
 		this._views.$yearlyExceedanceGraph = $('<canvas></canvas>').uniqueId().appendTo(this.element);
 		this.chart = new Chart(this._views.$yearlyExceedanceGraph, {
 				label: `Yearly Exceedance`,
-				type: 'line',
+				type: 'bar',
 				animationEnabled: false,
 				data: {
 					datasets: [
 						{
 							label: `Yearly Exceedance`,
-							data: exceedanceLine ? exceedanceLine : [],
-							borderColor: '#307bda',
-							borderWidth: 2,
-							pointRadius: 2,
-							lineTension: 0.1,
+							data: exceedanceBars ? exceedanceBars : [],
 							fill: true,
-							spanGaps: false,
-							backgroundColor: "rgba(50, 121, 216, 0.2)"
+							backgroundColor: "#307bda",
 						}
 					]
 				},
@@ -274,7 +269,12 @@ $.widget("fernleaf.item", {
 						xAxes: [{
 							type: 'time',
 							display: true,
-							time: {unit: 'year', unitStepSize: 3},
+							distribution: 'linear',
+							time: {
+								unit: 'year',
+								unitStepSize: 3,
+								max: String(parseInt(String(this.options.edate).slice(0, 4)) + 1)
+							},
 							scaleLabel: {
 								display: true,
 								labelString: 'Year'
@@ -294,8 +294,8 @@ $.widget("fernleaf.item", {
 					tooltips: {
 						callbacks: {
 							afterLabel: (tooltipItem, data) => {
-								if (tooltipItem.datasetIndex = 1) {
-									return 'Invalid/missing daily values: ' + _.size(_.filter(yearExceedance[data.datasets[1].data[tooltipItem.index].x].dailyValues, (v) => {
+								if (tooltipItem.datasetIndex === 0) {
+									return 'Invalid/missing daily values: ' + _.size(_.filter(yearExceedance[data.datasets[0].data[tooltipItem.index].x].dailyValues, (v) => {
 										return v.valid === false
 									}));
 								}
