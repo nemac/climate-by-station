@@ -1,15 +1,11 @@
 ;"use strict";
-import $ from "jquery";
-import _ from 'lodash';
+
+// uncomment if you want to use jspm module loading instead of cdn.
+// import $ from "jquery";
+// import _ from 'lodash';
 import '../src/jquery.fl-item'
 
-//
-// This is the demo script, note that it relies on ES6/jspm for dependency loading, but the minified version of this file has its dependencies pre-bundled.
-//
-
 export default function demo () {
-
-
 	$("#output").item({
 		station: $('#station').val(),
 		// This example year validator ignores years which have less than 293 (80%) valid daily values.
@@ -74,5 +70,3 @@ export default function demo () {
 		$("#output").item('update');
 	});
 };
-
-demo();

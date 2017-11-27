@@ -4,15 +4,23 @@ This widget displays threshold exceedance over time for weather stations. Note t
 
 
 ## Usage
+1. Load dependencies using the versions shown below:
+	
+	```html
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js" integrity="sha256-N4u5BjTLNwmGul6RgLoESPNqDFVUibVuOYhP4gJgrew=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js" integrity="sha256-8E6QUcFg1KTnpEU8TFGhpTGHw5fJqB9vCms3OhAYLqw=" crossorigin="anonymous"></script>
+	```
 
-1. Include plugin's code (Note that jQuery and jQuery UI are pre-bundled in the minified script, but should not conflict with alternate versions running on the page.):
+2. Load the widget:
 
 	```html
 	<script src="jquery.fl-item.min.js"></script>
 	<link rel="stylesheet" href="fl-item.css" />
 	```
 
-2. Call the plugin with desired options:
+3. Call the widget with desired options on a container element:
 
 	```javascript
 	$("#widget-div").item({

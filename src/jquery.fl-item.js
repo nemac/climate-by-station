@@ -1,12 +1,13 @@
 ;"use strict";
 
-import _ from "lodash";
-import $ from "jquery";
-import regression from "regression";
-import Chart from "chart.js";
-import "jquery-ui";
-import "jquery-ui/ui/unique-id";
-import "chart.js";
+// uncomment if you want to use jspm module loading instead of cdn/manual loading
+// import _ from "lodash";
+// import $ from "jquery";
+// import Chart from "chart.js";
+// import "jquery-ui";
+// import "jquery-ui/ui/unique-id";
+// import "chart.js";
+
 
 $.widget("fernleaf.item", {
 	options: {
@@ -21,6 +22,7 @@ $.widget("fernleaf.item", {
 		window: 1,
 		dailyValueValidator: undefined, // Pass in a custom validator predicate function(value, date){return date.slice(0, 4) > 1960 && value > 5 }
 		yearValidator: undefined,
+		barColor: "#307bda",
 		dataAPIEndpoint: "https://data.rcc-acis.org/",
 	},
 	_variables: {
@@ -50,11 +52,12 @@ $.widget("fernleaf.item", {
 		'<=': (o1, o2) => o1 <= o2,
 		'<': (o1, o2) => o1 < o2,
 	},
+	_views: {},
 	_filters: {
 		KtoC: (v) => v + 273.15,
 		CtoK: (v) => v - 273.15,
-		FtoC: (v) => (v * 9 / 5) + 32,
-		CtoF: (v) => (v - 32) * 5 / 9,
+		FtoC: (v) => ((v * 9 / 5) + 32),
+		CtoF: (v) => ((v - 32) * 5 / 9),
 		InchToCM: (v) => v * 2.54,
 		CMtoInch: (v) => v / 2.54,
 		DaytoWeek: (v) => v / 7,
@@ -62,7 +65,6 @@ $.widget("fernleaf.item", {
 		DaytoYear: (v) => v / 365,
 		YeartoDay: (v) => v * 365,
 	},
-	_views: {},
 	/**
 	 * Constructor for the widget.
 	 * @private

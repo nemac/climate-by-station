@@ -15,21 +15,22 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "autoprefixer": "~6.7.6",
-    "jspm": "^0.16.52",
+    "jspm": "^0.17.0-beta.47",
     "node-sass": "~4.5.0",
     "postcss-cli": "~3.0.0-beta",
     "postcss-flexbugs-fixes": "~2.1.0"
   },
   "scripts": {
     "build": "npm run build-js  && npm run build-scss && npm run build-demo-js && npm run build-demo-html",
-    "build-js": "jspm bundle-sfx src/jquery.fl-item.js dist/jquery.fl-item.min.js --minify --skip-source-maps",
-    "build-demo-js": "jspm bundle-sfx src/demo.js dist/demo.js --global-name Demo --skip-source-maps",
+    "build-js": "jspm build src/jquery.fl-item.js dist/jquery.fl-item.min.js --minify --skip-source-maps",
+    "build-demo-js": "jspm build src/demo.js dist/demo.js --global-name Demo --skip-source-maps",
     "build-demo-html": "perl -0777 -pe 's/<!--dev environment-->(.*)<!--end dev-->.*<!-- uncomment for dist(.*?)-->/$2/s' src/index.html > dist/index.html",
     "build-scss": "node-sass src/scss/*.scss -o dist/ && npm run build-autoprefix-css",
     "build-autoprefix-css": "postcss dist/*.css --use autoprefixer postcss-flexbugs-fixes --replace",
     "postinstall": "jspm install"
   },
   "jspm": {
+    "main": "jquery-interactiveTimelineExceedanceModule.js",
     "configFile": "jspm.config.js",
     "dependencies": {
       "scss": "github:KevCJones/plugin-scss@^0.2.11"
@@ -42,7 +43,69 @@
       "jquery": "npm:jquery@^3.1.1",
       "jquery-ui": "npm:jquery-ui@^1.12.1",
       "lodash": "npm:lodash@^4.17.4",
-      "regression": "npm:regression@^1.4.0"
+      "plugin-babel": "npm:systemjs-plugin-babel@^0.0.25"
+    },
+    "peerDependencies": {
+      "assert": "npm:jspm-nodelibs-assert@^0.2.0",
+      "buffer": "npm:jspm-nodelibs-buffer@^0.2.0",
+      "constants": "npm:jspm-nodelibs-constants@^0.2.0",
+      "crypto": "npm:jspm-nodelibs-crypto@^0.2.0",
+      "events": "npm:jspm-nodelibs-events@^0.2.0",
+      "fs": "npm:jspm-nodelibs-fs@^0.2.0",
+      "os": "npm:jspm-nodelibs-os@^0.2.0",
+      "path": "npm:jspm-nodelibs-path@^0.2.0",
+      "process": "npm:jspm-nodelibs-process@^0.2.0",
+      "stream": "npm:jspm-nodelibs-stream@^0.2.0",
+      "string_decoder": "npm:jspm-nodelibs-string_decoder@^0.2.0",
+      "util": "npm:jspm-nodelibs-util@^0.2.0",
+      "vm": "npm:jspm-nodelibs-vm@^0.2.0"
+    },
+    "overrides": {
+      "npm:babel-core@5.8.38": {
+        "main": "browser.js",
+        "dependencies": {},
+        "jspmNodeConversion": false,
+        "map": {
+          "regenerator/runtime": "babel-runtime/regenerator/runtime"
+        },
+        "meta": {
+          "browser.js": {
+            "exports": "babel",
+            "format": "global"
+          }
+        }
+      },
+      "npm:babel-runtime@5.8.38": {
+        "main": false,
+        "dependencies": {},
+        "optionalDependencies": {
+          "core-js": "^1.2.0"
+        }
+      },
+      "npm:inherits@2.0.3": {
+        "ignore": [
+          "test.js"
+        ]
+      },
+      "npm:jquery@3.2.1": {
+        "format": "amd"
+      },
+      "npm:lodash@4.17.4": {
+        "map": {
+          "buffer": "@empty",
+          "process": "@empty"
+        }
+      },
+      "npm:moment@2.18.1": {
+        "jspmNodeConversion": false
+      },
+      "npm:pbkdf2@3.0.14": {
+        "main": "browser.js"
+      },
+      "npm:safe-buffer@5.1.1": {
+        "browser": "index.js"
+      }
     }
-  }
+  },
+  "dependencies": {}
 }
