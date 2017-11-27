@@ -31,7 +31,7 @@ This widget displays threshold exceedance over time for weather stations. Note t
 	});
 	```
 
-3. Hook ui change events to pass updates to the widget:
+3. Hook ui change events to pass updates to the widget (more examples at the end of `demo.js`):
 ```javascript
 $('#station').change(() => {
 		$("#output").item('option', 'station', $('#station').val()).item('update');
@@ -62,4 +62,6 @@ There are a handful of widget methods that may be useful:
 **getYearlyExceedance** - Returns a collection of counts of days which exceeded threshold in year.
 
 Call any of these methods like this: `$("#output").item('getPercentileValue', value)`
+
+
 
