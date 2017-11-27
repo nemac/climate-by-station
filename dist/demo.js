@@ -30435,7 +30435,7 @@ $__System.register("94", ["39", "41", "43", "46", "92", "93", "3c", "3f", "8d"],
 								label: "Yearly Exceedance",
 								data: exceedanceBars ? exceedanceBars : [],
 								fill: true,
-								backgroundColor: "#307bda"
+								backgroundColor: this.options.barColor ? this.options.barColor : "#307bda"
 							}]
 						},
 						options: {
@@ -30604,14 +30604,6 @@ $__System.register("1", ["41", "43", "94"], function (_export) {
 		});
 		$('#window').change(function () {
 			$("#output").item({ window: parseInt($('#window').val()) });
-			$("#output").item('update');
-		});
-		$('#sdate').change(function () {
-			$("#output").item({ sdate: parseInt($('#sdate').val()) });
-			$("#output").item('update');
-		});
-		$('#edate').change(function () {
-			$("#output").item({ edate: parseInt($('#edate').val()) });
 			$("#output").item('update');
 		});
 	}

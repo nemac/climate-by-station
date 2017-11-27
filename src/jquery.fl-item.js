@@ -257,7 +257,7 @@ $.widget("fernleaf.item", {
 							label: `Yearly Exceedance`,
 							data: exceedanceBars ? exceedanceBars : [],
 							fill: true,
-							backgroundColor: "#307bda",
+							backgroundColor: this.options.barColor ? this.options.barColor : "#307bda",
 						}
 					]
 				},

@@ -73,14 +73,6 @@ export default function demo () {
 		$("#output").item({window: parseInt($('#window').val())});
 		$("#output").item('update');
 	});
-	$('#sdate').change(() => {
-		$("#output").item({sdate: parseInt($('#sdate').val())});
-		$("#output").item('update');
-	});
-	$('#edate').change(() => {
-		$("#output").item({edate: parseInt($('#edate').val())});
-		$("#output").item('update');
-	});
 };
 
 demo();

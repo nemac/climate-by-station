@@ -17,8 +17,6 @@ This widget displays threshold exceedance over time for weather stations. Note t
 	```javascript
 	$("#widget-div").item({
 		station: $('#station').val(), // GHCN-D Station id (required)
-		sdate: 'por', // Date string in the form YYYY-MM-DD or 'por'
-		edate: '2016-12-31', // Date string in the form YYYY-MM-DD or 'por'
 		variable: 'precipitation', // Valid values: 'precipitation', 'tmax', 'tmin', 'tavg'
 		threshold: 1.0, 
 		thresholdOperator: '>', // Valid values: '==', '>=', '>', '<=', '<'
@@ -28,6 +26,7 @@ This widget displays threshold exceedance over time for weather stations. Note t
 		dailyValueValidator: undefined, // Pass in a custom validator predicate function(value, date){return date.slice(0, 4) > 1960 && value > 5 }
 		yearValidator: undefined, // Similar to dailyValueValidator
 		dataAPIEndpoint: "https://data.rcc-acis.org/", 
+		barColor: '#307bda' // Color for bars.
 	});
 	```
 
