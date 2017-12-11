@@ -16,7 +16,7 @@
 		System.import('/src/demo.js').then(function (module) {module.default()});
 		System.import('/src/scss/fl-item.scss!').then(function (css) {
 			let cssNode = document.createElement('style');
-			cssNode.innerHTML = css.default;
+			cssNode.innerHTML = css;
 			document.head.appendChild(cssNode);
 		});
 	</script>
