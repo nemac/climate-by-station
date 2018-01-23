@@ -278,6 +278,7 @@ $.widget("fernleaf.item", {
 								max: String(parseInt(String(this.options.edate).slice(0, 4)) + 1)
 							},
 							scaleLabel: {
+								fontSize:13,
 								display: true,
 								labelString: 'Year'
 							},
@@ -286,8 +287,9 @@ $.widget("fernleaf.item", {
 						yAxes: [{
 							display: true,
 							scaleLabel: {
+								fontSize:13,
 								display: true,
-								labelString: 'Exceedance'
+								labelString: 'Events per Year Above Threshold'
 							}, ticks: {
 								beginAtZero: true
 							}
