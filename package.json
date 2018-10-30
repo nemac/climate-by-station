@@ -26,12 +26,12 @@
     "build-demo-js": "jspm build src/demo.js dist/demo.js --global-name Demo --skip-source-maps",
     "build-demo-html": "perl -0777 -pe 's/<!--dev environment-->(.*)<!--end dev-->.*<!-- uncomment for dist(.*?)-->/$2/s' src/index.html > dist/index.html",
     "build-scss": "node-sass src/scss/*.scss -o dist/ && npm run build-autoprefix-css",
-    "build-autoprefix-css": "postcss dist/*.css --use autoprefixer postcss-flexbugs-fixes --replace",
-    "postinstall": "jspm install --yes"
+    "build-autoprefix-css": "postcss dist/*.css --use autoprefixer postcss-flexbugs-fixes --replace"
   },
   "jspm": {
     "main": "jquery-interactiveTimelineExceedanceModule.js",
     "configFile": "jspm.config.js",
+    "dependencies": {},
     "devDependencies": {
       "babel": "npm:babel-core@^5.8.24",
       "babel-runtime": "npm:babel-runtime@^5.8.24",
@@ -42,6 +42,10 @@
       "lodash": "npm:lodash@^4.17.4",
       "plugin-babel": "npm:systemjs-plugin-babel@^0.0.25",
       "scss": "github:KevCJones/plugin-scss@0.2.10"
+    },
+    "buildConfig": {
+      "transpileES6": true,
+      "minify": true
     }
   }
 }

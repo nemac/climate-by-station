@@ -13,7 +13,7 @@ $.widget("fernleaf.item", {
 	options: {
 		station: '',
 		sdate: 'por',
-		edate: '2016-12-31',
+		edate: (new Date().getFullYear()) + '-12-31',
 		variable: 'precipitation',
 		threshold: 1.0,
 		thresholdOperator: '>',
@@ -146,7 +146,13 @@ $.widget("fernleaf.item", {
 		})).then((response) => {
 			let validator = typeof this.options.dailyValueValidator === 'function' ? this.options.dailyValueValidator : (value, date, dailyValues) => Number.isFinite(value);
 			return _.mapValues(_.fromPairs(response.data), (value, date, dailyValues) => {
+				if (value === 'T') {
+					value = '0'
+				}
 				value = Number.parseFloat(value);
+				if (value == -999) {
+					value = Number.NaN
+				}
 				return {value: value, valid: validator(value, date, dailyValues)};
 			});
 		});
@@ -157,7 +163,10 @@ $.widget("fernleaf.item", {
 	 * @returns {Object} Ex: {'2016':22,'2015': 11}
 	 */
 	getYearExceedance(dailyValues) {
-		let validator = typeof this.options.yearValidator === 'function' ? this.options.yearValidator : () => true;
+		let validator;
+		if (this.options.variable === 'precipitation') {validator = this._precip_year_validator;}
+		else {validator = this._temp_year_validator}
+		if (typeof this.options.yearValidator === 'function') {validator = this.options.yearValidator;}
 
 		return _.chain(dailyValues)
 		// Group daily values by year
@@ -190,7 +199,7 @@ $.widget("fernleaf.item", {
 					return exceedance;
 				}, 0);
 				// Validate year
-				let valid = validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues)
+				let valid = validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues);
 				return {
 					exceedance: exceedance,
 					valid: valid,
@@ -244,10 +253,17 @@ $.widget("fernleaf.item", {
 			this._views.$yearlyExceedanceGraph.show();
 			return;
 		}
+		let validYears = 0;
 		let yearExceedance = this.getYearExceedance(dailyValues);
+		this.exceedanceByYear = yearExceedance
 		let exceedanceBars = _(yearExceedance).toPairs().map((v) => {
+			if (v[1].valid){
+				validYears++
+			}
 			return {x: String(v[0]), y: v[1].valid ? v[1].exceedance : Number.NaN}
 		}).sortBy('x').value();
+
+		console.log("Valid years: "+validYears);
 		this._views.$yearlyExceedanceGraph = $('<canvas></canvas>').uniqueId().appendTo(this.element);
 		this.chart = new Chart(this._views.$yearlyExceedanceGraph, {
 				label: `Yearly Exceedance`,
@@ -278,7 +294,7 @@ $.widget("fernleaf.item", {
 								max: String(parseInt(String(this.options.edate).slice(0, 4)) + 1)
 							},
 							scaleLabel: {
-								fontSize:13,
+								fontSize: 13,
 								display: true,
 								labelString: 'Year'
 							},
@@ -287,7 +303,7 @@ $.widget("fernleaf.item", {
 						yAxes: [{
 							display: true,
 							scaleLabel: {
-								fontSize:13,
+								fontSize: 13,
 								display: true,
 								labelString: 'Events per Year Above Threshold'
 							}, ticks: {
@@ -331,12 +347,12 @@ $.widget("fernleaf.item", {
 			return dailyValues[len - 1].value;
 		}
 		// Calculate the vector index marking the percentile:
-		index = ( len * percentile ) - 1;
+		index = (len * percentile) - 1;
 
 		// [2] Is the index an integer?
 		if (index === Math.floor(index)) {
 			// Value is the average between the value at index and index+1:
-			return _.round(( dailyValues[index].value + dailyValues[index + 1].value ) / 2.0, 3);
+			return _.round((dailyValues[index].value + dailyValues[index + 1].value) / 2.0, 3);
 		}
 		// [3] Round up to the next index:
 		index = Math.ceil(index);
@@ -344,5 +360,48 @@ $.widget("fernleaf.item", {
 	},
 	_clearData() {
 		this._dailyValues = null;
+	},
+	_precip_year_validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues) {
+		let validByMonth = {};
+		_.forEach(dailyValuesByYear, (v, date) => {
+			let month = date.substring(date.indexOf('-') + 1, date.indexOf('-') + 3);
+			if (!validByMonth.hasOwnProperty(month)) {
+				validByMonth[month] = 0
+			}
+			if (v.valid) {
+				validByMonth[month] = validByMonth[month] + 1
+			}
+		});
+		return (Object.keys(validByMonth).length === 12) && _.every(validByMonth, (valid, month) => {
+				return ((new Date(year, month, 0).getDate()) - valid) <= 1;
+			}
+		);
+	},
+	_temp_year_validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues) {
+		let validByMonth = {};
+		_.forEach(dailyValuesByYear, (v, date) => {
+			let month = date.substring(date.indexOf('-') + 1, date.indexOf('-') + 3);
+			if (!validByMonth.hasOwnProperty(month)) {
+				validByMonth[month] = 0
+			}
+			if (v.valid) {
+				validByMonth[month] = validByMonth[month] + 1
+			}
+		});
+		return (Object.keys(validByMonth).length === 12) && _.every(validByMonth, (valid, month) => {
+				return ((new Date(year, month, 0).getDate()) - valid) <= 5;
+			}
+		);
+	},
+	downloadExceedanceData(link) {
+		link.href =  'data:text/csv;base64,' + window.btoa(('year,' + this.options.variable + '\n' + this.exceedanceByYear.toPairs().map((v)=>v.join(',')).join('\n')));
+		link.download = [
+			this.options.station,
+			"yearly_exceedance",
+			this.options.variable,
+			this.options.threshold,
+			this._variables[this.options.variable]['queryElements'][0]['units'],
+
+		].join('-').replace(/ /g, '_') + '.csv';
 	}
 });

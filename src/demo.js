@@ -10,9 +10,9 @@ export default function demo () {
 		station: $('#station').val(),
 		// This example year validator ignores years which have less than 293 (80%) valid daily values.
 		// A more advanced validator might ignore years before 1940, or years with more than 30 days of contiguous missing data.
-		yearValidator: (exceedance, dailyValuesByYear, year, allDailyValuesByYear, allDailyValues) => {
-			return _.size(_.filter(dailyValuesByYear, (value) => value.valid)) >= 293
-		},
+		// yearValidator: (exceedance, dailyValuesByYear, year, allDailyValuesByYear, allDailyValues) => {
+		// 	return _.size(_.filter(dailyValuesByYear, (value) => value.valid)) >= 293
+		// },
 	});
 	$('#station').change(() => {
 		$("#output").item('option', 'station', $('#station').val()).item('update');
