@@ -255,14 +255,13 @@ $.widget("fernleaf.item", {
 		}
 		let validYears = 0;
 		let yearExceedance = this.getYearExceedance(dailyValues);
-		this.exceedanceByYear = yearExceedance
 		let exceedanceBars = _(yearExceedance).toPairs().map((v) => {
 			if (v[1].valid){
 				validYears++
 			}
 			return {x: String(v[0]), y: v[1].valid ? v[1].exceedance : Number.NaN}
 		}).sortBy('x').value();
-
+		this.exceedanceByYear = exceedanceBars;
 		console.log("Valid years: "+validYears);
 		this._views.$yearlyExceedanceGraph = $('<canvas></canvas>').uniqueId().appendTo(this.element);
 		this.chart = new Chart(this._views.$yearlyExceedanceGraph, {
@@ -394,7 +393,7 @@ $.widget("fernleaf.item", {
 		);
 	},
 	downloadExceedanceData(link) {
-		link.href =  'data:text/csv;base64,' + window.btoa(('year,' + this.options.variable + '\n' + this.exceedanceByYear.toPairs().map((v)=>v.join(',')).join('\n')));
+		link.href =  'data:text/csv;base64,' + window.btoa(('year,' + this.options.variable + '\n' + this.exceedanceByYear.map((v)=>[v['x'],v['y']].join(',')).join('\n')));
 		link.download = [
 			this.options.station,
 			"yearly_exceedance",

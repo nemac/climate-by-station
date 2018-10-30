@@ -3,7 +3,6 @@
 // uncomment if you want to use jspm module loading instead of cdn.
 // import $ from "jquery";
 // import _ from 'lodash';
-import '../src/jquery.fl-item'
 
 export default function demo () {
 	$("#output").item({
@@ -65,8 +64,12 @@ export default function demo () {
 	$('#80ththreshold').click(() => {
 		$('#percentileThreshold').val(80).trigger('change');
 	});
+	$('#download-data').click(function(e){$('#output').item('downloadExceedanceData', e.target)});
+
 	$('#window').change(() => {
 		$("#output").item({window: parseInt($('#window').val())});
 		$("#output").item('update');
 	});
 };
+
+window.demo = demo;
