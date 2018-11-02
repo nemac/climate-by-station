@@ -264,6 +264,16 @@ $.widget("fernleaf.item", {
 		this.exceedanceByYear = exceedanceBars;
 		console.log("Valid years: "+validYears);
 		this._views.$yearlyExceedanceGraph = $('<canvas></canvas>').uniqueId().appendTo(this.element);
+
+		// White background for downloaded images.
+		Chart.plugins.register({
+			beforeDraw: function(chartInstance) {
+				var ctx = chartInstance.chart.ctx;
+				ctx.fillStyle = "white";
+				ctx.fillRect(0, 0, chartInstance.chart.width, chartInstance.chart.height);
+			}
+		});
+
 		this.chart = new Chart(this._views.$yearlyExceedanceGraph, {
 				label: `Yearly Exceedance`,
 				type: 'bar',
