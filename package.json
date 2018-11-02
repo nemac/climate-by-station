@@ -18,10 +18,13 @@
     "babel-preset-env": "^1.7.0",
     "node-sass": "^4.9.2",
     "node-static": "^0.7.10",
-    "uglify-js": "^3.4.4"
+    "uglify-js": "^3.4.4",
+    "autoprefixer": "~6.7.6",
+    "postcss-cli": "~3.0.0-beta",
+    "postcss-flexbugs-fixes": "~2.1.0"
   },
   "scripts": {
-    "build": "npm run build:js  && npm run build:scss && npm run build-demo",
+    "build": "npm run build:js  && npm run build:scss && npm run build:demo",
     "build:js": "babel src/jquery.fl-item.js --out-file  dist/jquery.fl-item.min.js --presets=babel-preset-env && uglifyjs --compress --mangle -o dist/jquery.fl-item.min.js -- dist/jquery.fl-item.min.js",
     "build:demo": "babel src/demo.js --out-file  dist/demo.js --presets=babel-preset-env && cp src/index.html dist/index.html",
     "build:scss": "node-sass src/scss/*.scss -o dist/ && npm run build-autoprefix-css",
