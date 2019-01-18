@@ -10,9 +10,9 @@
   ],
   "author": {
     "name": "Josh Wilson",
-    "email": "jwilson@waystone.systems"
+    "email": "jwilson@fernleafinteractive.com"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",
