@@ -1,9 +1,5 @@
 "use strict";
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-exports.default = demo;
 ;"use strict";
 
 // uncomment if you want to use jspm module loading instead of cdn.

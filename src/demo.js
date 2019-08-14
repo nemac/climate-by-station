@@ -4,7 +4,7 @@
 // import $ from "jquery";
 // import _ from 'lodash';
 
-export default function demo () {
+function demo () {
 	$("#output").item({
 		station: $('#station').val(),
 		// This example year validator ignores years which have less than 293 (80%) valid daily values.
