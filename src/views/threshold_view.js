@@ -37,9 +37,7 @@ export default class ThresholdView extends View {
 				}
 
 				let chart_layout = {
-						xaxis: {
-								tickmode: "linear"
-						}
+						xaxis: this.parent._get_x_axis_layout(x_axis)
 				}
 
 				let chart_data = [chart_options]

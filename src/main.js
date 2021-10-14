@@ -57,4 +57,13 @@ export default class ClimateByStationWidget {
 
 				await this.view.request_update();
 		}
+
+		_get_x_axis_layout(x_axis_range) {
+				return {
+						tickformat: "%Y",
+						ticklabelmode: "period",
+						type: "date",
+						range: [x_axis_range].map(a => a + '-01-01')
+				}
+		}
 }
