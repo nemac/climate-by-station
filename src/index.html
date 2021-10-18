@@ -45,14 +45,45 @@
 
 	<div id="threshold-graph"></div>
 
-<script type="module">
+		<script type="module">
 
-		let element = document.getElementById("threshold-graph");
+				let element = document.getElementById("threshold-graph");
 
-		const widget = new ClimateByStationWidget(element, {});
+				const widget = new ClimateByStationWidget(element, {});
 
-		console.log(widget);
+				window.widget = widget;
 
-</script>
+				let windowElement = document.getElementById("window");
+				let thresholdElement = document.getElementById("threshold");
+				let variableElement = document.getElementById("variables");
+
+				windowElement.addEventListener('change', function(e) {
+						let value = e.target.value;
+
+						if(value < 1) {
+								value = 1;
+						}
+
+						windowElement.value = value;
+					  widget.update({window: Number.parseInt(value)})
+				})
+
+				thresholdElement.addEventListener('change', function(e) {
+						let value = e.target.value;
+
+						if(value < 0.0) {
+								value = 0.0;
+						}
+
+						thresholdElement.value = value;
+						widget.update({threshold: Number.parseFloat(value)})
+				})
+
+				variableElement.addEventListener('change', function(e) {
+						let value = e.target.value;
+
+						widget.update({variable: value})
+				})
+		</script>
 </body>
 </html>

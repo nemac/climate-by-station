@@ -9,7 +9,8 @@ export default class ClimateByStationWidget {
 						edate: (new Date().getFullYear()) + '-12-31',
 						variable: 'precipitation',
 						threshold: 1.0,
-						window: 3,
+						window: 1,
+						thresholdOperator: '>',
 						dataAPIEndpoint: 'https://data.rcc-acis.org/',
 						variables: {
 								precipitation: {
@@ -27,6 +28,8 @@ export default class ClimateByStationWidget {
 						}
 				};
 
+				this.daily_values = null;
+
 				this.view = null;
 				this.element = element;
 
@@ -35,7 +38,7 @@ export default class ClimateByStationWidget {
 
 				this.element.append(this.view_container);
 
-				this.update();
+				this.update({});
 		}
 
 		get_view_class() {
@@ -44,7 +47,23 @@ export default class ClimateByStationWidget {
 
 		update(options) {
 
-				//update options here
+				if(options) {
+						let updated_options = Object.keys(options);
+
+						for(const val in updated_options) {
+								let key = updated_options[val];
+								let updated_value = options[key];
+
+								if(key === 'variable') {
+										this.daily_values = null;
+								}
+
+								if(this.options[key]) {
+										this.options[key] = updated_value;
+								}
+
+						}
+				}
 
 				this._update();
 		}

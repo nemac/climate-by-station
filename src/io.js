@@ -8,7 +8,7 @@ export async function get_threshold_data(options) {
 				body: JSON.stringify({
 						"sdate": options.sdate,
 						"edate": options.sdate,
-						"elems": options.variables[options.variable].elements,
+						"elems": [{"name": "pcpn", "units": "inch"}],
 						"sid": "USC00094429" //options.station
 				})
 		})).json();
