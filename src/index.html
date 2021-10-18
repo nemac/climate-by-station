@@ -45,11 +45,11 @@
 					<label for="operators">Operators:</label>
 
 					<select name="operators" id="operators">
-							<option value="==">Equals | ==</option>
-							<option value=">=">Greater than or Equals | >=</option>
 							<option value=">">Greater than | ></option>
-							<option value="<=">Less than or Equals | <=</option>
+							<option value=">=">Greater than or Equals | >=</option>
 							<option value="<">Less than | <</option>
+							<option value="<=">Less than or Equals | <=</option>
+							<option value="==">Equals | ==</option>
 					</select>
 			</div>
 	</div>
@@ -132,7 +132,6 @@
 				operatorElement.addEventListener('change', function(e) {
 						let value = e.target.value;
 
-						console.log(value);
 						widget.update({thresholdOperator: value});
 				})
 		</script>

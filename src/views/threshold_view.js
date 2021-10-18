@@ -205,5 +205,33 @@ export default class ThresholdView extends View {
 						}
 				);
 		}
+
+		_get_percentile_value(percentile) {
+				//get all valid values from _dailyValues
+				let dailyValues = _(this.parent.daily_values).filter((v) => v.valid && v.value > 0).sortBy((v) => v.value).value();
+
+				let len = dailyValues.length;
+				let index;
+				percentile = percentile / 100;
+				// [0] 0th percentile is the minimum value...
+				if (percentile <= 0.0) {
+						return dailyValues[0].value;
+				}
+				// [1] 100th percentile is the maximum value...
+				if (percentile >= 1.0) {
+						return dailyValues[len - 1].value;
+				}
+				// Calculate the vector index marking the percentile:
+				index = (len * percentile) - 1;
+
+				// [2] Is the index an integer?
+				if (index === Math.floor(index)) {
+						// Value is the average between the value at index and index+1:
+						return _.round((dailyValues[index].value + dailyValues[index + 1].value) / 2.0, 3);
+				}
+				// [3] Round up to the next index:
+				index = Math.ceil(index);
+				return _.round(dailyValues[index].value, 3);
+		}
 }
 
