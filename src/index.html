@@ -41,6 +41,17 @@
 					<label for="threshold">Threshold:</label>
 					<input type="number" step="0.25" name="threshold" id="threshold" value="1">
 			</div>
+			<div>
+					<label for="operators">Operators:</label>
+
+					<select name="operators" id="operators">
+							<option value="==">Equals | ==</option>
+							<option value=">=">Greater than or Equals | >=</option>
+							<option value=">">Greater than | ></option>
+							<option value="<=">Less than or Equals | <=</option>
+							<option value="<">Less than | <</option>
+					</select>
+			</div>
 	</div>
 
 	<div id="threshold-graph"></div>
@@ -58,6 +69,7 @@
 				let windowElement = document.getElementById("window");
 				let thresholdElement = document.getElementById("threshold");
 				let variableElement = document.getElementById("variables");
+				let operatorElement = document.getElementById("operators");
 
 				windowElement.addEventListener('change', function(e) {
 						let value = e.target.value;
@@ -115,6 +127,13 @@
 
 						let value = stationElement.value;
 						widget.update({station: value});
+				})
+
+				operatorElement.addEventListener('change', function(e) {
+						let value = e.target.value;
+
+						console.log(value);
+						widget.update({thresholdOperator: value});
 				})
 		</script>
 </body>

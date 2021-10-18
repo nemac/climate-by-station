@@ -141,7 +141,7 @@ export default class ThresholdView extends View {
 
 		operators() {
 				return {
-						'==': (o1, o2) => o1 == o2,
+						'==': (o1, o2) => o1 === o2,
 						'>=': (o1, o2) => o1 >= o2,
 						'>': (o1, o2) => o1 > o2,
 						'<=': (o1, o2) => o1 <= o2,
