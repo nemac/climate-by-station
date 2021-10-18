@@ -59,8 +59,13 @@ export default class ThresholdView extends View {
 		}
 
 		get_year_exceedance(dailyValues) {
-
-				let validator = this._precipitation_year_validator;
+				let validator;
+				if(this.parent.options.variable === 'precipitation') {
+						validator = this._precipitation_year_validator;
+				} else {
+						validator = this._temp_year_validator;
+						console.log("temp_year validator");
+				}
 
 				return _.chain(dailyValues)
 						// Group daily values by year
@@ -102,7 +107,7 @@ export default class ThresholdView extends View {
 										dailyValues: dailyValuesByYear
 								}
 						})
-						.value()
+						.value();
 		}
 
 		_threshold_function(values) {
@@ -111,8 +116,18 @@ export default class ThresholdView extends View {
 				// Currently it only has rollingSum.
 
 				let operator = this.parent.options.thresholdOperator;
+				let operator_function = this.operators()[operator];
 
-				return this.operators()[operator](_.sum(values), this.parent.options.threshold);
+				switch(this.parent.options.window_behaviour) {
+						case 'rollingSum':
+								return operator_function(_.sum(values), this.parent.options.threshold);
+								break;
+						case 'all':
+								return _.every(values, (value) => operator_function(value, this.parent.options.threshold));
+								break;
+				}
+
+				//return this.operators()[operator](_.sum(values), this.parent.options.threshold);
 		}
 
 		get_daily_values(data) {
@@ -170,6 +185,23 @@ export default class ThresholdView extends View {
 
 				return (Object.keys(validByMonth).length === 12) && _.every(validByMonth, (valid, month) => {
 								return ((new Date(year, month, 0).getDate()) - valid) <= 1;
+						}
+				);
+		}
+
+		_temp_year_validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues) {
+				let validByMonth = {};
+				_.forEach(dailyValuesByYear, (v, date) => {
+						let month = date.substring(date.indexOf('-') + 1, date.indexOf('-') + 3);
+						if (!validByMonth.hasOwnProperty(month)) {
+								validByMonth[month] = 0
+						}
+						if (v.valid) {
+								validByMonth[month] = validByMonth[month] + 1
+						}
+				});
+				return (Object.keys(validByMonth).length === 12) && _.every(validByMonth, (valid, month) => {
+								return ((new Date(year, month, 0).getDate()) - valid) <= 5;
 						}
 				);
 		}

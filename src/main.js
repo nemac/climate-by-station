@@ -4,26 +4,27 @@ export default class ClimateByStationWidget {
 
 		constructor(element, options = {}) {
 				this.options = {
-						station: '',
+						station: 'USC00094429',
 						sdate: 'por',
 						edate: (new Date().getFullYear()) + '-12-31',
 						variable: 'precipitation',
 						threshold: 1.0,
 						window: 1,
+						window_behaviour: 'rollingSum',
 						thresholdOperator: '>',
 						dataAPIEndpoint: 'https://data.rcc-acis.org/',
 						variables: {
 								precipitation: {
-										elements: [{"name": "pcpn"}]
+										elements: [{"name": "pcpn", "units": "inch"}]
 								},
 								tmax: {
-										elements: [{"name": "maxt"}]
+										elements: [{"name": "maxt", "units": "degreeF"}]
 								},
 								tmin: {
-										elements: [{"name": "mint"}]
+										elements: [{"name": "mint", "units": "degreeF"}]
 								},
 								tavg: {
-										elements: [{"name": "avgt"}]
+										elements: [{"name": "avgt", "units": "degreeF"}]
 								}
 						}
 				};
