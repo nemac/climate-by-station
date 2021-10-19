@@ -16,7 +16,8 @@
   "scripts": {
     "build": "",
     "build:js": "mkdir -p dist && rollup -c --environment=\"build_env:prod\"",
-    "build:html": ""
+    "build:html": "rsync src/index.html dist/",
+		"deploy:staging": "aws s3 sync --delete --no-follow-symlinks dist/ s3://climate-by-station.fernleafinteractive.com/"
   },
   "devDependencies": {
     "@babel/cli": "^7.15.7",
