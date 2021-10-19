@@ -14,7 +14,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "",
+    "build": "npm run build:js && npm run build:html",
     "build:js": "mkdir -p dist && rollup -c --environment=\"build_env:prod\"",
     "build:html": "rsync src/index.html dist/",
 		"deploy:staging": "aws s3 sync --delete --no-follow-symlinks dist/ s3://climate-by-station.fernleafinteractive.com/"
