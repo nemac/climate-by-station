@@ -52,6 +52,15 @@
 							<option value="==">Equals | ==</option>
 					</select>
 			</div>
+			<div>
+					<label for="percentile">Percentiles:</label>
+
+					<select name="percentile" id="percentile">
+							<option value="80">80th</option>
+							<option value="90">90th</option>
+							<option value="95">95th</option>
+					</select>
+			</div>
 	</div>
 
 	<div id="threshold-graph"></div>
@@ -70,6 +79,7 @@
 				let thresholdElement = document.getElementById("threshold");
 				let variableElement = document.getElementById("variables");
 				let operatorElement = document.getElementById("operators");
+				let percentileElement = document.getElementById("percentile");
 
 				windowElement.addEventListener('change', function(e) {
 						let value = e.target.value;
@@ -134,6 +144,16 @@
 
 						widget.update({thresholdOperator: value});
 				})
+
+				percentileElement.addEventListener('change', function(e) {
+						let value = e.target.value;
+
+						let updatedThreshold = widget.view._get_percentile_value(Number.parseInt(value));
+
+						thresholdElement.value = updatedThreshold;
+						widget.update({threshold: updatedThreshold});
+				})
+
 		</script>
 </body>
 </html>

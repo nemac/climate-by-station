@@ -10,13 +10,6 @@ export default class ThresholdView extends View {
 
 		async request_update() {
 
-				const {
-						station,
-						variable,
-						window,
-						threshold
-				} = this.parent.options;
-
 				if(this.parent.daily_values === null) {
 						let data = await (await get_threshold_data(this.parent.options)).data;
 						this.parent.daily_values = this.get_daily_values(data);
@@ -31,11 +24,14 @@ export default class ThresholdView extends View {
 				let missing_values = [];
 
 				Object.entries(exceedance).forEach(e => {
-						years.push(e[0]);
-						exceedance_values.push(e[1].exceedance);
-						missing_values.push( _.size(_.filter(e[1].dailyValues, (v) => {
-								return !v.valid;
-						})) );
+						// If the
+						if(e[1].valid) {
+								years.push(e[0]);
+								exceedance_values.push(e[1].exceedance);
+								missing_values.push( _.size(_.filter(e[1].dailyValues, (v) => {
+										return !v.valid;
+								})) );
+						}
 				})
 
 				let chart_layout = {
@@ -64,7 +60,6 @@ export default class ThresholdView extends View {
 						validator = this._precipitation_year_validator;
 				} else {
 						validator = this._temp_year_validator;
-						console.log("temp_year validator");
 				}
 
 				return _.chain(dailyValues)
@@ -112,9 +107,6 @@ export default class ThresholdView extends View {
 
 		_threshold_function(values) {
 
-				// Need to add other types of functions (any, all)
-				// Currently it only has rollingSum.
-
 				let operator = this.parent.options.thresholdOperator;
 				let operator_function = this.operators()[operator];
 
@@ -127,7 +119,6 @@ export default class ThresholdView extends View {
 								break;
 				}
 
-				//return this.operators()[operator](_.sum(values), this.parent.options.threshold);
 		}
 
 		get_daily_values(data) {
@@ -180,11 +171,11 @@ export default class ThresholdView extends View {
 						if (v.valid) {
 								validByMonth[month] = validByMonth[month] + 1
 						}
-
 				});
 
 				return (Object.keys(validByMonth).length === 12) && _.every(validByMonth, (valid, month) => {
-								return ((new Date(year, month, 0).getDate()) - valid) <= 1;
+
+								return ((new Date(year, month, 0).getDate()) - valid) <= 2;
 						}
 				);
 		}
