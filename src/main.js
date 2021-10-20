@@ -1,9 +1,11 @@
 import ThresholdView from "./views/annual_exceedance.js";
+import DailyPrecipitationAbsolute from "./views/daily_precipitation_absolute.js";
 
 export default class ClimateByStationWidget {
 
-		constructor(element, options = {}) {
+		constructor(element, options) {
 				this.options = {
+						view_type: 'annual_exceedance',
 						station: 'USC00094429',
 						sdate: 'por',
 						edate: (new Date().getFullYear()) + '-12-31',
@@ -54,13 +56,21 @@ export default class ClimateByStationWidget {
 
 				this.element.append(this.spinner_element);
 
-
-				this.update({});
+				this.update(options);
 		}
 
 		get_view_class() {
-			return ThresholdView;
+
+				switch(this.options.view_type) {
+						case 'annual_exceedance':
+								return ThresholdView;
+								break;
+						case 'daily_precipitation_absolute':
+								return DailyPrecipitationAbsolute;
+								break;
+				}
 		}
+
 
 		update(options) {
 
@@ -120,5 +130,23 @@ export default class ClimateByStationWidget {
 								text:"Events per Year Above Threshold"
 						}
 				}
+		}
+
+
+		validator(value) {
+
+				let _value = this._get_value(value);
+
+				return (!isNaN(_value) && Number.isFinite(_value));
+		}
+
+		_get_value(value) {
+				if(value === "T") {
+						value = 0.0;
+				}
+
+				value = Number.parseFloat(value);
+
+				return value;
 		}
 }

@@ -135,8 +135,8 @@ export default class ThresholdView extends View {
 		get_daily_values(data) {
 
 				return _.mapValues(_.fromPairs(data), (value) => {
-						let valid = this.validator(value);
-						return {value: valid ? Number.parseFloat(this._get_value(value)) : Number.NaN, valid: valid}
+						let valid = this.parent.validator(value);
+						return {value: valid ? Number.parseFloat(this.parent._get_value(value)) : Number.NaN, valid: valid}
 				})
 
 		}
@@ -149,23 +149,6 @@ export default class ThresholdView extends View {
 						'<=': (o1, o2) => o1 <= o2,
 						'<': (o1, o2) => o1 < o2,
 				}
-		}
-
-		validator(value) {
-
-				let _value = this._get_value(value);
-
-				return (!isNaN(_value) && Number.isFinite(_value));
-		}
-
-		_get_value(value) {
-				if(value === "T") {
-						value = 0.0;
-				}
-
-				value = Number.parseFloat(value);
-
-				return value;
 		}
 
 		_precipitation_year_validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues) {

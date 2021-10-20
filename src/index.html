@@ -70,6 +70,7 @@
 					<div class="col-12 col-md-8 d-flex">
 							<div id="threshold-graph" class="flex-grow-1"></div>
 					</div>
+					<div id="daily-absolute-graph" class="flex-grow-1"></div>
 			</div>
 
 	</div>
@@ -77,10 +78,13 @@
 		<script type="module">
 
 				let element = document.getElementById("threshold-graph");
+				let daily_absolute_element = document.getElementById("daily-absolute-graph");
 
-				const widget = new ClimateByStationWidget(element, {});
+				const widget = new ClimateByStationWidget(element, {view_type: 'annual_exceedance'});
+				const daily_absolute_widget = new ClimateByStationWidget(daily_absolute_element, {view_type: 'daily_precipitation_absolute'});
 
 				window.widget = widget;
+				window.daily_absolute_widget = daily_absolute_widget;
 
 				let stationElement = document.getElementById("station");
 				let updateElement = document.getElementById("update");
