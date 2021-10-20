@@ -11,8 +11,10 @@ export default class ThresholdView extends View {
 		async request_update() {
 
 				if(this.parent.daily_values === null) {
+						this.parent._show_spinner();
 						let data = await (await get_threshold_data(this.parent.options)).data;
 						this.parent.daily_values = this.get_daily_values(data);
+						this.parent._hide_spinner();
 				}
 
 				let exceedance = this.get_year_exceedance(this.parent.daily_values);
@@ -37,7 +39,14 @@ export default class ThresholdView extends View {
 						yaxis: this.parent._get_y_axis_layout(),
 						legend: {
 								"orientation": "h"
-						}
+						},
+						shapes: [{
+								type: 'line',
+								x0: years[0],
+								y0: this.parent.options.threshold,
+								x1: years[years.length - 1],
+								y1: this.parent.options.threshold
+						}]
 				}
 
 				let chart_data = [{

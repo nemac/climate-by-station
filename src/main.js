@@ -1,4 +1,4 @@
-import ThresholdView from "./views/threshold_view.js";
+import ThresholdView from "./views/annual_exceedance.js";
 
 export default class ClimateByStationWidget {
 
@@ -39,6 +39,22 @@ export default class ClimateByStationWidget {
 
 				this.element.append(this.view_container);
 
+				this.spinner_element = document.createElement("div");
+				this.spinner_element.classList.add("d-none");
+
+				this.spinner_styles = [
+						".climatebystation-spinner { border: 2px solid #e3e3e3;  border-top: 2px solid #6e6e6e; border-radius: 50%; width: 2rem; height: 2rem; animation: spin 2s linear infinite;}",
+						"@keyframes spin { 0% {transform: rotate(0deg);} 100% { transform: rotate(360deg); } }"
+				]
+
+				this.spinner_element.innerHTML = `
+					<style>${this.spinner_styles.join('')}</style>
+					<div class="climatebystation-spinner"></div>
+				`
+
+				this.element.append(this.spinner_element);
+
+
 				this.update({});
 		}
 
@@ -75,6 +91,18 @@ export default class ClimateByStationWidget {
 				}
 
 				await this.view.request_update();
+		}
+
+		_show_spinner() {
+				if(this.spinner_element.classList.contains("d-none")) {
+						this.spinner_element.classList.remove("d-none");
+				}
+		}
+
+		_hide_spinner() {
+				if(!this.spinner_element.classList.contains("d-none")) {
+						this.spinner_element.classList.add("d-none");
+				}
 		}
 
 		_get_x_axis_layout(x_axis_range) {
