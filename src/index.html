@@ -16,57 +16,63 @@
 		<script src="./climate_by_station_widget.js"></script>
 
 </head>
-<body>
+<body class="mt-3">
 
-	<div>
-			<div>
-					<label for="station">Station Id:</label>
-					<input name="station" id="station" value="USC00094429">
-					<div>
-							<button id="update" class="btn">Update</button>
+	<div class="container">
+			<div class="row">
+					<div class="col-12 col-md-4">
+							<div class="mb-2">
+									<div class="d-flex flex-column me-2">
+											<label for="station">Station Id:</label>
+											<input class="form-control" name="station" id="station" value="USC00094429">
+									</div>
+
+									<div>
+											<button id="update" class="btn btn-primary">Update</button>
+									</div>
+							</div>
+							<div class="mb-2">
+									<label for="variables">Variables:</label>
+
+									<select name="variables" id="variables" class="dropdown">
+											<option class="dropdown-item" value="precipitation">Precipitation</option>
+											<option class="dropdown-item" value="tmax">TMax</option>
+											<option class="dropdown-item" value="tmin">TMin</option>
+											<option class="dropdown-item" value="tavg">TAvg</option>
+									</select>
+							</div>
+							<div class="mb-2">
+									<label for="window">Window:</label>
+									<input type="number" name="window" id="window" value="1">
+							</div>
+							<div class="mb-2">
+									<label for="threshold">Threshold:</label>
+									<input type="number" step="0.5" name="threshold" id="threshold" value="1">
+							</div>
+							<div class="mb-2">
+									<label for="operators">Operators:</label>
+
+									<select name="operators" id="operators">
+											<option value=">=">at least (>=)</option>
+											<option value="<=">not more than (<=)</option>
+									</select>
+							</div>
+							<div class="mb-2">
+									<label for="percentile">Percentiles:</label>
+
+									<select name="percentile" id="percentile">
+											<option value="80">80th</option>
+											<option value="90">90th</option>
+											<option value="95">95th</option>
+									</select>
+							</div>
+					</div>
+					<div class="col-12 col-md-8 d-flex">
+							<div id="threshold-graph" class="flex-grow-1"></div>
 					</div>
 			</div>
-			<div>
-					<label for="variables">Variables:</label>
 
-					<select name="variables" id="variables">
-							<option value="precipitation">Precipitation</option>
-							<option value="tmax">TMax</option>
-							<option value="tmin">TMin</option>
-							<option value="tavg">TAvg</option>
-					</select>
-			</div>
-			<div>
-					<label for="window">Window:</label>
-					<input type="number" name="window" id="window" value="1">
-			</div>
-			<div>
-					<label for="threshold">Threshold:</label>
-					<input type="number" step="0.25" name="threshold" id="threshold" value="1">
-			</div>
-			<div>
-					<label for="operators">Operators:</label>
-
-					<select name="operators" id="operators">
-							<option value=">">Greater than | ></option>
-							<option value=">=">Greater than or Equals | >=</option>
-							<option value="<">Less than | <</option>
-							<option value="<=">Less than or Equals | <=</option>
-							<option value="==">Equals | ==</option>
-					</select>
-			</div>
-			<div>
-					<label for="percentile">Percentiles:</label>
-
-					<select name="percentile" id="percentile">
-							<option value="80">80th</option>
-							<option value="90">90th</option>
-							<option value="95">95th</option>
-					</select>
-			</div>
 	</div>
-
-	<div id="threshold-graph"></div>
 
 		<script type="module">
 

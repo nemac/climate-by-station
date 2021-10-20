@@ -55,14 +55,13 @@ export default class ClimateByStationWidget {
 								let key = updated_options[val];
 								let updated_value = options[key];
 
-								if(key === 'variable') {
+								if(key === 'variable' || key === 'station') {
 										this.daily_values = null;
 								}
 
-								if(this.options[key]) {
+								if(this.options.hasOwnProperty(key)) {
 										this.options[key] = updated_value;
 								}
-
 						}
 				}
 
@@ -84,6 +83,14 @@ export default class ClimateByStationWidget {
 						ticklabelmode: "period",
 						type: "date",
 						range: [x_axis_range].map(a => a + '-01-01')
+				}
+		}
+
+		_get_y_axis_layout() {
+				return {
+						title: {
+								text:"Events per Year Above Threshold"
+						}
 				}
 		}
 }

@@ -17,8 +17,6 @@ export default class ThresholdView extends View {
 
 				let exceedance = this.get_year_exceedance(this.parent.daily_values);
 
-				console.log(exceedance);
-
 				let years = [];
 				let exceedance_values = [];
 				let missing_values = [];
@@ -34,8 +32,12 @@ export default class ThresholdView extends View {
 						}
 				})
 
-				let chart_layout = {
-						xaxis: this.parent._get_x_axis_layout(years)
+				const chart_layout = {
+						xaxis: this.parent._get_x_axis_layout(years),
+						yaxis: this.parent._get_y_axis_layout(),
+						legend: {
+								"orientation": "h"
+						}
 				}
 
 				let chart_data = [{
@@ -50,7 +52,7 @@ export default class ThresholdView extends View {
 						name: "Invalid/missing daily values"
 				}]
 
-				Plotly.react(this.element, chart_data, chart_layout);
+				Plotly.react(this.element, chart_data, chart_layout, {modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
 
 		}
 
