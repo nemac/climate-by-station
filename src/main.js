@@ -1,5 +1,6 @@
-import ThresholdView from "./views/annual_exceedance.js";
+import AnnualExceedance from "./views/annual_exceedance.js";
 import DailyPrecipitationAbsolute from "./views/daily_precipitation_absolute.js";
+import DailyTemperatureAbsolute from "./views/daily_temperature_absolute";
 
 export default class ClimateByStationWidget {
 
@@ -27,6 +28,12 @@ export default class ClimateByStationWidget {
 								},
 								tavg: {
 										elements: [{"name": "avgt", "units": "degreeF"}]
+								},
+								temp: {
+										elements: [{"name": "maxt", "prec": 1, "units": "degreeF"}, {"name": "mint", "prec": 1, "units": "degreeF"}]
+								},
+								temp_normal: {
+										elements: [{"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}, {"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}]
 								}
 						}
 				};
@@ -63,10 +70,13 @@ export default class ClimateByStationWidget {
 
 				switch(this.options.view_type) {
 						case 'annual_exceedance':
-								return ThresholdView;
+								return AnnualExceedance;
 								break;
 						case 'daily_precipitation_absolute':
 								return DailyPrecipitationAbsolute;
+								break;
+						case 'daily_temperature_absolute':
+								return DailyTemperatureAbsolute;
 								break;
 				}
 		}
@@ -81,8 +91,32 @@ export default class ClimateByStationWidget {
 								let key = updated_options[val];
 								let updated_value = options[key];
 
-								if(key === 'variable' || key === 'station') {
+								/*
+								If the station gets updated all of the graphs need to be re-drawn.
+								 */
+								if(key === 'station') {
 										this.daily_values = null;
+								}
+
+								/*
+								If the variable gets updated, we only want to change the exceedance
+								graph with updated values, the daily values will not change and will
+								not need to be re-drawn.
+								 */
+								if(key === 'variable') {
+
+										if(this.options.view_type === 'annual_exceedance') {
+												this.daily_values = null;
+										}
+
+										if(this.options.view_type === 'daily_temperature_absolute') {
+
+												if(updated_value === ('tmax' || 'tmin' || 'tavg')) {
+														this.daily_values = null;
+												}
+
+										}
+
 								}
 
 								if(this.options.hasOwnProperty(key)) {

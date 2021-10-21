@@ -2,7 +2,7 @@ import View from "./view_base.js";
 import _ from "../../node_modules/lodash-es/lodash.js";
 import { get_threshold_data } from "../io.js";
 
-export default class ThresholdView extends View {
+export default class AnnualExceedance extends View {
 
 		constructor(parent, element) {
 				super(parent, element);
@@ -39,14 +39,7 @@ export default class ThresholdView extends View {
 						yaxis: this.parent._get_y_axis_layout(),
 						legend: {
 								"orientation": "h"
-						},
-						shapes: [{
-								type: 'line',
-								x0: years[0],
-								y0: this.parent.options.threshold,
-								x1: years[years.length - 1],
-								y1: this.parent.options.threshold
-						}]
+						}
 				}
 
 				let chart_data = [{

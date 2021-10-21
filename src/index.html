@@ -70,7 +70,8 @@
 					<div class="col-12 col-md-8 d-flex">
 							<div id="threshold-graph" class="flex-grow-1"></div>
 					</div>
-					<div id="daily-absolute-graph" class="flex-grow-1"></div>
+					<div id="daily-absolute-precip-graph" class="flex-grow-1"></div>
+					<div id="daily-absolute-temp-graph" class="flex-grow-1"></div>
 			</div>
 
 	</div>
@@ -78,13 +79,15 @@
 		<script type="module">
 
 				let element = document.getElementById("threshold-graph");
-				let daily_absolute_element = document.getElementById("daily-absolute-graph");
+				let daily_absolute_precip_element = document.getElementById("daily-absolute-precip-graph");
+				let daily_absolute_temp_element = document.getElementById("daily-absolute-temp-graph");
 
 				const widget = new ClimateByStationWidget(element, {view_type: 'annual_exceedance'});
-				const daily_absolute_widget = new ClimateByStationWidget(daily_absolute_element, {view_type: 'daily_precipitation_absolute'});
+				const daily_absolute_precip_widget = new ClimateByStationWidget(daily_absolute_precip_element, {view_type: 'daily_precipitation_absolute'});
+				const daily_absolute_temp_widget = new ClimateByStationWidget(daily_absolute_temp_element, {view_type: 'daily_temperature_absolute', variable: 'tmax'});
 
 				window.widget = widget;
-				window.daily_absolute_widget = daily_absolute_widget;
+				window.daily_absolute_precip_widget = daily_absolute_precip_widget;
 
 				let stationElement = document.getElementById("station");
 				let updateElement = document.getElementById("update");
@@ -136,7 +139,8 @@
 						}
 
 						thresholdElement.value = threshold;
-
+						daily_absolute_precip_widget.update({variable: value});
+						daily_absolute_temp_widget.update({variable: value});
 						widget.update({variable: value, threshold: threshold, window_behaviour: window_behaviour})
 				})
 

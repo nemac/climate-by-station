@@ -2,7 +2,7 @@ import View from "./view_base.js";
 import {get_threshold_data} from "../io";
 import _ from "lodash-es";
 
-export default class DailyPrecipitationAbsolute extends View {
+export default class DailyTemperatureAbsolute extends View {
 
 		async request_update() {
 
@@ -18,6 +18,7 @@ export default class DailyPrecipitationAbsolute extends View {
 				let daily_values = [];
 
 				Object.entries(this.parent.daily_values).forEach(e => {
+						// console.log(e);
 						if(e[1].valid) {
 								let year = e[0].slice(0, 4);
 								if(!years.includes(Number.parseInt(year))) {
@@ -30,14 +31,14 @@ export default class DailyPrecipitationAbsolute extends View {
 
 				const chart_layout = {
 						title: {
-								text: "Precipitation"
+								text: "Temperature"
 						},
 						xaxis: {
 								range: [(years[years.length - 1] - 30) + "-01-01", (years[years.length - 1]) + "-01-01"]
 						},
 						yaxis: {
 								title: {
-										text:"Daily Precipitation Values"
+										text:"Daily Temperature Values"
 								}
 						},
 						legend: {
