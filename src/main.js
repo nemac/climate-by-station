@@ -109,6 +109,10 @@ export default class ClimateByStationWidget {
 												this.daily_values = null;
 										}
 
+										/*
+										 For daily temperature, we want to only update the graph if only
+										 one of the temp variables are selected. (tmax by default)
+										 */
 										if(this.options.view_type === 'daily_temperature_absolute') {
 
 												if(updated_value === 'tmax' || updated_value === 'tmin' || updated_value === 'tavg') {

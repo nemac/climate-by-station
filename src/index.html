@@ -117,6 +117,8 @@
 
 						thresholdElement.value = value;
 						widget.update({threshold: Number.parseFloat(value)})
+						daily_absolute_precip_widget.update({threshold: Number.parseFloat(value)})
+						daily_absolute_temp_widget.update({threshold: Number.parseFloat(value)})
 				})
 
 				variableElement.addEventListener('change', function(e) {
@@ -169,6 +171,8 @@
 
 						thresholdElement.value = updatedThreshold;
 						widget.update({threshold: updatedThreshold});
+						daily_absolute_precip_widget.update({threshold: updatedThreshold})
+						daily_absolute_temp_widget.update({threshold: updatedThreshold})
 				})
 
 		</script>
