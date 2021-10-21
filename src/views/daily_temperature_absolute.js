@@ -11,6 +11,8 @@ export default class DailyTemperatureAbsolute extends View {
 						let data = await (await get_threshold_data(this.parent.options)).data;
 						this.parent.daily_values = this.get_daily_values(data);
 						this.parent._hide_spinner();
+
+						console.log(this.parent.options.view_type, "re-fetching data.", this.parent.options.variable)
 				}
 
 				let years = [];
@@ -18,7 +20,6 @@ export default class DailyTemperatureAbsolute extends View {
 				let daily_values = [];
 
 				Object.entries(this.parent.daily_values).forEach(e => {
-						// console.log(e);
 						if(e[1].valid) {
 								let year = e[0].slice(0, 4);
 								if(!years.includes(Number.parseInt(year))) {

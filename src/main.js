@@ -111,7 +111,7 @@ export default class ClimateByStationWidget {
 
 										if(this.options.view_type === 'daily_temperature_absolute') {
 
-												if(updated_value === ('tmax' || 'tmin' || 'tavg')) {
+												if(updated_value === 'tmax' || updated_value === 'tmin' || updated_value === 'tavg') {
 														this.daily_values = null;
 												}
 
