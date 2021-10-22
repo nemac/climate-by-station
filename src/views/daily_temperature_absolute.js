@@ -11,8 +11,8 @@ export default class DailyTemperatureAbsolute extends View {
 						let data = await (await get_threshold_data(this.parent.options)).data;
 						this.parent.daily_values = this.get_daily_values(data);
 						this.parent._hide_spinner();
-
-						console.log(this.parent.options.view_type, "re-fetching data.", this.parent.options.variable)
+						console.log("updated", this.parent.options.variable);
+						console.log(this.parent.daily_values);
 				}
 
 				let years = [];

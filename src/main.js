@@ -1,6 +1,7 @@
 import AnnualExceedance from "./views/annual_exceedance.js";
 import DailyPrecipitationAbsolute from "./views/daily_precipitation_absolute.js";
 import DailyTemperatureAbsolute from "./views/daily_temperature_absolute";
+import DailyTemperatureMinMax from "./views/daily_temperature_minmax";
 
 export default class ClimateByStationWidget {
 
@@ -29,8 +30,8 @@ export default class ClimateByStationWidget {
 								tavg: {
 										elements: [{"name": "avgt", "units": "degreeF"}]
 								},
-								temp: {
-										elements: [{"name": "maxt", "prec": 1, "units": "degreeF"}, {"name": "mint", "prec": 1, "units": "degreeF"}]
+								temp_min_max: {
+										elements: [{"name": "mint", "prec": 1, "units": "degreeF"}, {"name": "maxt", "prec": 1, "units": "degreeF"}]
 								},
 								temp_normal: {
 										elements: [{"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}, {"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}]
@@ -81,6 +82,9 @@ export default class ClimateByStationWidget {
 								break;
 						case 'daily_temperature_absolute':
 								return DailyTemperatureAbsolute;
+								break;
+						case 'daily_temperature_minmax':
+								return DailyTemperatureMinMax;
 								break;
 				}
 		}
