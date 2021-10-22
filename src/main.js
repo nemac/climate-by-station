@@ -50,6 +50,10 @@ export default class ClimateByStationWidget {
 
 				this.spinner_element = document.createElement("div");
 				this.spinner_element.classList.add("d-none");
+				this.spinner_element.classList.add("d-flex");
+				this.spinner_element.classList.add("justify-content-center");
+				this.spinner_element.classList.add("align-items-center");
+				this.spinner_element.classList.add("h-100");
 
 				this.spinner_styles = [
 						".climatebystation-spinner { border: 2px solid #e3e3e3;  border-top: 2px solid #6e6e6e; border-radius: 50%; width: 2rem; height: 2rem; animation: spin 2s linear infinite;}",
