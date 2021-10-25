@@ -57,7 +57,7 @@ export default class AnnualExceedance extends View {
 						name: "Invalid/missing daily values"
 				}]
 
-				Plotly.react(this.element, chart_data, chart_layout, {modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
+				Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
 
 		}
 

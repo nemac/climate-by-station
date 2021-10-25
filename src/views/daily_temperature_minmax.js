@@ -19,16 +19,37 @@ export default class DailyTemperatureMinMax extends View {
 				let days = [];
 
 				this.parent.daily_values.forEach(e => {
-						if(e.valid) {
-								let year = e.day.slice(0, 4);
-								if(!years.includes(Number.parseInt(year))) {
-										years.push(Number.parseInt(year));
-								}
-								days.push(e.day);
-								min.push(e.min);
-								max.push(e.max);
+
+						let year = e.day.slice(0, 4);
+						if(!years.includes(Number.parseInt(year))) {
+								years.push(Number.parseInt(year));
 						}
+
+						if(!e.valid) {
+								days.push(e.day);
+								min.push(Number.NaN);
+								max.push(Number.NaN);
+								return;
+						}
+
+						days.push(e.day);
+						min.push(e.min);
+						max.push(e.max);
+
 				})
+
+				let y_values = [];
+
+				max.forEach((e, i) => {
+						if(isNaN(e)) {
+								y_values.push(e);
+								return;
+						}
+
+						y_values.push(e - min[i]);
+				})
+				console.log("min", min);
+				console.log("max", max);
 
 				const chart_layout = {
 						title: {
@@ -47,21 +68,20 @@ export default class DailyTemperatureMinMax extends View {
 						}
 				}
 
-				let chart_data = [{
-						mode: "lines",
-						x: days,
-						y: min,
-						name: "Minimum Daily Temperature"
-				},
+				let chart_data = [
 						{
-						mode: "lines",
-						x: days,
-						y: max,
-						name: "Maximum Daily Temperature"
-				}
+								type: "bar",
+								x: days,
+								y: y_values,
+								base: min,
+								hovertemplate: 'Min: %{base} Max: %{y}',
+								marker: {
+										color: 'rgb(50,136,189)'
+								}
+						}
 				]
 
-				Plotly.react(this.element, chart_data, chart_layout, {modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
+				Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
 		}
 
 		get_daily_values(data) {
@@ -74,13 +94,6 @@ export default class DailyTemperatureMinMax extends View {
 								max: Number.parseFloat(d[2])
 						}
 				})
-				// console.log(data);
-
-				// return _.mapValues(_.fromPairs(data), (value, value1, value2) => {
-				// 		console.log(value, value1, value2);
-				// 		let valid = this.parent.validator(value);
-				// 		return {value: valid ? Number.parseFloat(this.parent._get_value(value)) : Number.NaN, valid: valid}
-				// })
 
 		}
 

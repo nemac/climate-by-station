@@ -18,14 +18,14 @@ export default class DailyPrecipitationAbsolute extends View {
 				let daily_values = [];
 
 				Object.entries(this.parent.daily_values).forEach(e => {
-						if(e[1].valid) {
-								let year = e[0].slice(0, 4);
-								if(!years.includes(Number.parseInt(year))) {
-										years.push(Number.parseInt(year));
-								}
-								days.push(e[0]);
-								daily_values.push(e[1].value);
+
+						let year = e[0].slice(0, 4);
+						if(!years.includes(Number.parseInt(year))) {
+								years.push(Number.parseInt(year));
 						}
+						days.push(e[0]);
+						daily_values.push(e[1].value);
+
 				})
 
 				const chart_layout = {
@@ -42,25 +42,33 @@ export default class DailyPrecipitationAbsolute extends View {
 						},
 						legend: {
 								"orientation": "h"
-						},
-						shapes: [{
-								type: 'line',
-								x0: (years[years.length - 1] - 30) + "-01-01",
-								y0: this.parent.options.threshold,
-								x1: (years[years.length - 1]) + "-01-01",
-								y1: this.parent.options.threshold
-						}]
+						}
 				}
 
-				let chart_data = [{
-						type: "bar",
-						x: days,
-						y: daily_values,
-						name: "Yearly Exceedance"
-					}
+				let chart_data = [
+						{
+								x: days,
+								y: daily_values,
+								name: "Daily Precipitation Values",
+								mode: 'lines',
+								line: {
+										color: 'rgb(84,155,198)',
+										width: 0.5
+								}
+						},
+						{
+								name: "Threshold",
+								x: [years[0], years[years.length - 1]],
+								y: [this.parent.options.threshold, this.parent.options.threshold],
+								mode: "lines",
+								line: {
+										color: 'rgb(0,0,0)',
+										width: 1
+								}
+						}
 				]
 
-				Plotly.react(this.element, chart_data, chart_layout, {modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
+				Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
 		}
 
 		get_daily_values(data) {
