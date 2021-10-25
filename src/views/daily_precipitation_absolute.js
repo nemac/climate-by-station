@@ -6,25 +6,42 @@ export default class DailyPrecipitationAbsolute extends View {
 
 		async request_update() {
 
-				if(this.parent.daily_values === null) {
+				let variables = this.parent.options.variables;
+				let variable = this.parent.options.variable;
+
+				let threshold = this.parent.options.threshold;
+
+				if(variables[variable].data === null) {
 						this.parent._show_spinner();
 						let data = await (await get_threshold_data(this.parent.options)).data;
-						this.parent.daily_values = this.get_daily_values(data);
+						variables[variable].data = this.get_daily_values(data);
 						this.parent._hide_spinner();
 				}
 
+				const daily_values = variables[variable].data;
+				const daily_values_entries = Object.entries(daily_values);
+
+				this.parent.options.variable = 'precipitation_normal';
+				this.parent.options.sdate = daily_values_entries[0][0];
+
+				const normal_data = await (await get_threshold_data(this.parent.options)).data;
+				const normal_daily_values = this.get_daily_values(normal_data);
+				const normal_values_entries = Object.entries(normal_daily_values);
+
 				let years = [];
 				let days = [];
-				let daily_values = [];
+				let values = [];
+				let normal_values = [];
 
-				Object.entries(this.parent.daily_values).forEach(e => {
+				daily_values_entries.forEach((e, i) => {
 
 						let year = e[0].slice(0, 4);
 						if(!years.includes(Number.parseInt(year))) {
 								years.push(Number.parseInt(year));
 						}
 						days.push(e[0]);
-						daily_values.push(e[1].value);
+						values.push(e[1].value);
+						normal_values.push(normal_values_entries[i][1].value);
 
 				})
 
@@ -48,18 +65,28 @@ export default class DailyPrecipitationAbsolute extends View {
 				let chart_data = [
 						{
 								x: days,
-								y: daily_values,
+								y: values,
 								name: "Daily Precipitation Values",
 								mode: 'lines',
 								line: {
 										color: 'rgb(84,155,198)',
-										width: 0.5
+										width: 1
+								}
+						},
+						{
+								x: days,
+								y: normal_values,
+								name: "Daily Precipitation Normal Values",
+								mode: 'lines',
+								line: {
+										color: 'rgb(171,221,164)',
+										width: 1
 								}
 						},
 						{
 								name: "Threshold",
 								x: [years[0], years[years.length - 1]],
-								y: [this.parent.options.threshold, this.parent.options.threshold],
+								y: [threshold, threshold],
 								mode: "lines",
 								line: {
 										color: 'rgb(0,0,0)',

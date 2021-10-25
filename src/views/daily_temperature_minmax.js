@@ -6,19 +6,24 @@ export default class DailyTemperatureMinMax extends View {
 
 		async request_update() {
 
-				if(this.parent.daily_values === null) {
+				let variables = this.parent.options.variables;
+				let variable = this.parent.options.variable;
+
+				if(variables[variable].data === null) {
 						this.parent._show_spinner();
 						let data = await (await get_threshold_data(this.parent.options)).data;
-						this.parent.daily_values = this.get_daily_values(data);
+						variables[variable].data = this.get_daily_values(data);
 						this.parent._hide_spinner();
 				}
+
+				const daily_values = variables[variable].data;
 
 				let years = [];
 				let min = [];
 				let max = [];
 				let days = [];
 
-				this.parent.daily_values.forEach(e => {
+				daily_values.forEach(e => {
 
 						let year = e.day.slice(0, 4);
 						if(!years.includes(Number.parseInt(year))) {
@@ -34,22 +39,14 @@ export default class DailyTemperatureMinMax extends View {
 
 						days.push(e.day);
 						min.push(e.min);
-						max.push(e.max);
+
+						/*
+						Since the min value will be the base of the bar graph, we need to subtract the max by min to get the
+						correct height of the bar.
+						*/
+						max.push(e.max - e.min);
 
 				})
-
-				let y_values = [];
-
-				max.forEach((e, i) => {
-						if(isNaN(e)) {
-								y_values.push(e);
-								return;
-						}
-
-						y_values.push(e - min[i]);
-				})
-				console.log("min", min);
-				console.log("max", max);
 
 				const chart_layout = {
 						title: {
@@ -72,7 +69,7 @@ export default class DailyTemperatureMinMax extends View {
 						{
 								type: "bar",
 								x: days,
-								y: y_values,
+								y: max,
 								base: min,
 								hovertemplate: 'Min: %{base} Max: %{y}',
 								marker: {

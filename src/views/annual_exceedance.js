@@ -10,14 +10,18 @@ export default class AnnualExceedance extends View {
 
 		async request_update() {
 
-				if(this.parent.daily_values === null) {
+				let variables = this.parent.options.variables;
+				let variable = this.parent.options.variable;
+
+				if(variables[variable].data === null) {
 						this.parent._show_spinner();
 						let data = await (await get_threshold_data(this.parent.options)).data;
-						this.parent.daily_values = this.get_daily_values(data);
+						variables[variable].data = this.get_daily_values(data);
 						this.parent._hide_spinner();
 				}
 
-				let exceedance = this.get_year_exceedance(this.parent.daily_values);
+				const daily_values = variables[variable].data;
+				let exceedance = this.get_year_exceedance(daily_values);
 
 				let years = [];
 				let exceedance_values = [];
@@ -63,7 +67,10 @@ export default class AnnualExceedance extends View {
 
 		get_year_exceedance(dailyValues) {
 				let validator;
-				if(this.parent.options.variable === 'precipitation') {
+				let variable = this.parent.options.variable;
+				let window = this.parent.options.window;
+
+				if(variable === 'precipitation') {
 						validator = this._precipitation_year_validator;
 				} else {
 						validator = this._temp_year_validator;
@@ -86,7 +93,7 @@ export default class AnnualExceedance extends View {
 										if (value.valid) {
 												valuesInWindow.push(value.value);
 										}
-										for (let i = this.parent.options.window - 1; i > 0; i--) {
+										for (let i = window - 1; i > 0; i--) {
 												let newdate = new Date(date);
 												newdate.setDate(newdate.getDate() - i);
 												newdate = newdate.toISOString().slice(0, 10);
@@ -189,7 +196,11 @@ export default class AnnualExceedance extends View {
 
 		_get_percentile_value(percentile) {
 				//get all valid values from _dailyValues
-				let dailyValues = _(this.parent.daily_values).filter((v) => v.valid && v.value > 0).sortBy((v) => v.value).value();
+
+				let variables = this.parent.options.variables;
+				let variable = this.parent.options.variable;
+
+				let dailyValues = _(variables[variable].data).filter((v) => v.valid && v.value > 0).sortBy((v) => v.value).value();
 
 				let len = dailyValues.length;
 				let index;

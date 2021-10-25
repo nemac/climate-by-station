@@ -19,22 +19,32 @@ export default class ClimateByStationWidget {
 						dataAPIEndpoint: 'https://data.rcc-acis.org/',
 						variables: {
 								precipitation: {
-										elements: [{"name": "pcpn", "units": "inch"}]
+										elements: [{"name": "pcpn", "units": "inch"}],
+										data: null
+								},
+								precipitation_normal: {
+										elements: [{"name": "pcpn", "prec": 1, "normal": "1", "units": "inch"}],
+										data: null
 								},
 								tmax: {
-										elements: [{"name": "maxt", "units": "degreeF"}]
+										elements: [{"name": "maxt", "units": "degreeF"}],
+										data: null
 								},
 								tmin: {
-										elements: [{"name": "mint", "units": "degreeF"}]
+										elements: [{"name": "mint", "units": "degreeF"}],
+										data: null
 								},
 								tavg: {
-										elements: [{"name": "avgt", "units": "degreeF"}]
+										elements: [{"name": "avgt", "units": "degreeF"}],
+										data: null
 								},
 								temp_min_max: {
-										elements: [{"name": "mint", "prec": 1, "units": "degreeF"}, {"name": "maxt", "prec": 1, "units": "degreeF"}]
+										elements: [{"name": "mint", "prec": 1, "units": "degreeF"}, {"name": "maxt", "prec": 1, "units": "degreeF"}],
+										data: null
 								},
 								temp_normal: {
-										elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}, {"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}]
+										elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}, {"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}],
+										data: null
 								}
 						}
 				};

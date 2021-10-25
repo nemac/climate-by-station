@@ -6,27 +6,32 @@ export default class DailyTemperatureAbsolute extends View {
 
 		async request_update() {
 
-				if(this.parent.daily_values === null) {
+				let variables = this.parent.options.variables;
+				let variable = this.parent.options.variable;
+
+				let threshold = this.parent.options.threshold;
+
+				if(variables[variable].data === null) {
 						this.parent._show_spinner();
 						let data = await (await get_threshold_data(this.parent.options)).data;
-						this.parent.daily_values = this.get_daily_values(data);
+						variables[variable].data = this.get_daily_values(data);
 						this.parent._hide_spinner();
-						console.log("updated", this.parent.options.variable);
-						console.log(this.parent.daily_values);
 				}
+
+				const daily_values = variables[variable].data;
 
 				let years = [];
 				let days = [];
-				let daily_values = [];
+				let values = [];
 
-				Object.entries(this.parent.daily_values).forEach(e => {
+				Object.entries(daily_values).forEach(e => {
 
 						let year = e[0].slice(0, 4);
 						if(!years.includes(Number.parseInt(year))) {
 								years.push(Number.parseInt(year));
 						}
 						days.push(e[0]);
-						daily_values.push(e[1].value);
+						values.push(e[1].value);
 
 				})
 
@@ -50,7 +55,7 @@ export default class DailyTemperatureAbsolute extends View {
 				let chart_data = [
 						{
 								x: days,
-								y: daily_values,
+								y: values,
 								name: "Daily Temperature Values",
 								mode: "lines",
 								line: {
@@ -61,7 +66,7 @@ export default class DailyTemperatureAbsolute extends View {
 						{
 								name: "Threshold",
 								x: [years[0], years[years.length - 1]],
-								y: [this.parent.options.threshold, this.parent.options.threshold],
+								y: [threshold, threshold],
 								mode: "lines",
 								line: {
 										color: 'rgb(0,0,0)',
