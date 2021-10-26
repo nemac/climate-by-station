@@ -15,7 +15,7 @@ export default class ClimateByStationWidget {
 						threshold: 1.0,
 						window: 1,
 						window_behaviour: 'rollingSum',
-						thresholdOperator: '>',
+						thresholdOperator: '>=',
 						dataAPIEndpoint: 'https://data.rcc-acis.org/',
 						variables: {
 								precipitation: {

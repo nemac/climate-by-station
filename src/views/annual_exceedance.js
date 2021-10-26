@@ -43,7 +43,11 @@ export default class AnnualExceedance extends View {
 								text: "Exceedance"
 						},
 						xaxis: this.parent._get_x_axis_layout(years),
-						yaxis: this.parent._get_y_axis_layout(),
+						yaxis: {
+								title: {
+										text: this._get_y_axis_title(this.parent.options.window, this.parent.options.variable, this.parent.options.threshold, this.parent.options.thresholdOperator)
+								}
+						},
 						legend: {
 								"orientation": "h"
 						}
@@ -224,6 +228,43 @@ export default class AnnualExceedance extends View {
 				// [3] Round up to the next index:
 				index = Math.ceil(index);
 				return _.round(dailyValues[index].value, 3);
+		}
+
+		_get_y_axis_title(window, variable, threshold, operator) {
+
+				let window_str;
+				let operator_str;
+				let threshold_str;
+				let variable_str;
+
+				if(window > 1) {
+						window_str = window + "-Day periods/year";
+				} else {
+						window_str = "Days/year";
+				}
+
+				if(variable === "precipitation") {
+						variable_str = "precipitation";
+						threshold_str = threshold + " inches";
+				} else if(variable === "tmax") {
+						variable_str = "maximum temperature";
+						threshold_str = threshold + " °F";
+				} else if(variable === "tmin") {
+						variable_str = "minimum temperature";
+						threshold_str = threshold + " °F";
+				} else if(variable === "tavg") {
+						variable_str = "average temperature";
+						threshold_str = threshold + " °F";
+				}
+
+				if(operator === ">=") {
+						operator_str = "at least";
+				} else if(operator === "<=") {
+						operator_str = "no more than";
+				}
+
+				return window_str + " with " + variable_str + " of " + operator_str + " " + threshold_str;
+
 		}
 }
 
