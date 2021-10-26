@@ -81,7 +81,23 @@ export default class DailyPrecipitationAbsolute extends View {
 						},
 						legend: {
 								"orientation": "h"
-						}
+						},
+						annotations: [
+								{
+										x: 1,
+										y: threshold,
+										xref: 'paper',
+										yref: 'y',
+										text: `Threshold of ${options.variable === 'precipitation' ? options.threshold + " inches" : options.threshold + " °F"}`,
+										xanchor: 'right',
+										yanchor: 'bottom',
+										showarrow: false,
+										font: {
+												size: 10
+										},
+										visible: true
+								}
+						]
 				}
 
 				let chart_data = [
@@ -109,7 +125,11 @@ export default class DailyPrecipitationAbsolute extends View {
 								name: "Threshold",
 								x: [years[0], years[years.length - 1]],
 								y: [threshold, threshold],
+								type: "scatter",
 								mode: "lines",
+								fill: 'none',
+								connectgaps: false,
+								visible: true,
 								line: {
 										color: 'rgb(0,0,0)',
 										width: 1

@@ -262,7 +262,6 @@ $.widget("fernleaf.item", {
 			return {x: String(v[0]), y: v[1].valid ? v[1].exceedance : Number.NaN}
 		}).sortBy('x').value();
 		this.exceedanceByYear = exceedanceBars;
-		console.log("Valid years: "+validYears);
 		this._views.$yearlyExceedanceGraph = $('<canvas></canvas>').uniqueId().appendTo(this.element);
 
 		// White background for downloaded images.

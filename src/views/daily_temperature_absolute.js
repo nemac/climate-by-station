@@ -76,7 +76,23 @@ export default class DailyTemperatureAbsolute extends View {
 						},
 						legend: {
 								"orientation": "h"
-						}
+						},
+						annotations: [
+								{
+										x: 1,
+										y: threshold,
+										xref: 'paper',
+										yref: 'y',
+										text: `Threshold of ${options.variable === 'precipitation' ? options.threshold + " inches" : options.threshold + " °F"}`,
+										xanchor: 'right',
+										yanchor: 'bottom',
+										showarrow: false,
+										font: {
+												size: 10
+										},
+										visible: true
+								}
+						]
 				}
 
 				let chart_data = [

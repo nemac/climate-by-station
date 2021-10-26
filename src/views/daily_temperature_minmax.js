@@ -32,8 +32,6 @@ export default class DailyTemperatureMinMax extends View {
 				const normal_values = options.normal_values;
 				const normal_entries = Object.entries(normal_values);
 
-				console.log(normal_entries);
-
 				let years = [];
 				let min = [];
 				let max = [];
@@ -102,7 +100,8 @@ export default class DailyTemperatureMinMax extends View {
 								y: normal_min,
 								marker: {
 										color: 'rgba(171,221,164, 0.3)'
-								}
+								},
+								legendgroup: 'normal_band'
 						},
 						{
 								type: "line",
@@ -111,7 +110,8 @@ export default class DailyTemperatureMinMax extends View {
 								fill: 'tonexty',
 								marker: {
 										color: 'rgba(171,221,164, 0.3)'
-								}
+								},
+								legendgroup: 'normal_band'
 						},
 						{
 								type: "bar",

@@ -116,7 +116,7 @@ export default class ClimateByStationWidget {
 								If the station gets updated all of the graphs need to be re-drawn.
 								 */
 								if(key === 'station') {
-										this.daily_values = null;
+										this.options.daily_values = null;
 								}
 
 								/*
@@ -127,7 +127,7 @@ export default class ClimateByStationWidget {
 								if(key === 'variable') {
 
 										if(this.options.view_type === 'annual_exceedance') {
-												this.daily_values = null;
+												this.options.daily_values = null;
 										}
 
 										/*
@@ -137,7 +137,7 @@ export default class ClimateByStationWidget {
 										if(this.options.view_type === 'daily_temperature_absolute') {
 
 												if(updated_value === 'tmax' || updated_value === 'tmin' || updated_value === 'tavg') {
-														this.daily_values = null;
+														this.options.daily_values = null;
 												}
 
 										}
