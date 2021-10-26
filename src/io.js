@@ -1,8 +1,6 @@
 
-export async function get_threshold_data(options) {
+export async function get_data(options, variables) {
 		const url = options.dataAPIEndpoint + "StnData";
-
-		console.log(options);
 
 		const response = await (await fetch(url, {
 				method: "POST",
@@ -10,7 +8,7 @@ export async function get_threshold_data(options) {
 				body: JSON.stringify({
 						"sdate": options.sdate,
 						"edate": options.edate,
-						"elems": options.variables[options.variable].elements,
+						"elems": variables[options.variable].elements,
 						"sid": options.station
 				})
 		})).json();

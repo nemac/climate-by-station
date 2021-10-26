@@ -1,6 +1,6 @@
 import View from "./view_base.js";
 import _ from "../../node_modules/lodash-es/lodash.js";
-import { get_threshold_data } from "../io.js";
+import { get_data } from "../io.js";
 
 export default class AnnualExceedance extends View {
 
@@ -10,17 +10,16 @@ export default class AnnualExceedance extends View {
 
 		async request_update() {
 
-				let variables = this.parent.options.variables;
-				let variable = this.parent.options.variable;
+				const options = this.parent.options;
 
-				if(variables[variable].data === null) {
+				if(options.daily_values === null) {
 						this.parent._show_spinner();
-						let data = await (await get_threshold_data(this.parent.options)).data;
-						variables[variable].data = this.get_daily_values(data);
+						let data = await (await get_data(options, this.parent.variables)).data;
+						options.daily_values = this.get_daily_values(data);
 						this.parent._hide_spinner();
 				}
 
-				const daily_values = variables[variable].data;
+				const daily_values = options.daily_values;
 				let exceedance = this.get_year_exceedance(daily_values);
 
 				let years = [];
@@ -45,7 +44,7 @@ export default class AnnualExceedance extends View {
 						xaxis: this.parent._get_x_axis_layout(years),
 						yaxis: {
 								title: {
-										text: this._get_y_axis_title(this.parent.options.window, this.parent.options.variable, this.parent.options.threshold, this.parent.options.thresholdOperator)
+										text: this._get_y_axis_title(options.window, options.variable, options.threshold, options.thresholdOperator)
 								}
 						},
 						legend: {
@@ -201,10 +200,9 @@ export default class AnnualExceedance extends View {
 		_get_percentile_value(percentile) {
 				//get all valid values from _dailyValues
 
-				let variables = this.parent.options.variables;
-				let variable = this.parent.options.variable;
+				const daily_values = this.parent.options.daily_values;
 
-				let dailyValues = _(variables[variable].data).filter((v) => v.valid && v.value > 0).sortBy((v) => v.value).value();
+				let dailyValues = _(daily_values).filter((v) => v.valid && v.value > 0).sortBy((v) => v.value).value();
 
 				let len = dailyValues.length;
 				let index;

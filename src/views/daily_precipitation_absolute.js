@@ -1,37 +1,44 @@
 import View from "./view_base.js";
-import {get_threshold_data} from "../io";
+import {get_data} from "../io";
 import _ from "lodash-es";
 
 export default class DailyPrecipitationAbsolute extends View {
 
 		async request_update() {
 
-				let variables = this.parent.options.variables;
-				let variable = this.parent.options.variable;
+				const options = this.parent.options;
 
-				let threshold = this.parent.options.threshold;
+				const threshold = options.threshold;
 
-				if(variables[variable].data === null) {
+				if(options.daily_values === null) {
 						this.parent._show_spinner();
-						let data = await (await get_threshold_data(this.parent.options)).data;
-						variables[variable].data = this.get_daily_values(data);
+						const data = await (await get_data(options, this.parent.variables)).data;
+						options.daily_values = this.get_daily_values(data);
+
+						const normal_options = {
+								station: options.station,
+								sdate: (new Date().getFullYear() - 4) + '-01-01',
+								edate: (new Date().getFullYear()) + '-12-31',
+								variable: options.variable + "_normal",
+								dataAPIEndpoint: 'https://data.rcc-acis.org/'
+						}
+
+						const normal_data = await(await get_data(normal_options, this.parent.variables)).data;
+						options.normal_values = this.get_daily_values(normal_data);
+
 						this.parent._hide_spinner();
 				}
 
-				const daily_values = variables[variable].data;
+				const daily_values = options.daily_values;
 				const daily_values_entries = Object.entries(daily_values);
 
-				this.parent.options.variable = 'precipitation_normal';
-				this.parent.options.sdate = daily_values_entries[0][0];
-
-				const normal_data = await (await get_threshold_data(this.parent.options)).data;
-				const normal_daily_values = this.get_daily_values(normal_data);
-				const normal_values_entries = Object.entries(normal_daily_values);
+				const normal_values = options.normal_values;
+				const normal_entries = Object.entries(normal_values);
 
 				let years = [];
 				let days = [];
 				let values = [];
-				let normal_values = [];
+				let normals = [];
 
 				daily_values_entries.forEach((e, i) => {
 
@@ -41,9 +48,24 @@ export default class DailyPrecipitationAbsolute extends View {
 						}
 						days.push(e[0]);
 						values.push(e[1].value);
-						normal_values.push(normal_values_entries[i][1].value);
+				});
 
-				})
+				/*
+				Get total number of days between first day of POR and last day of normal day.
+				Loop through the normals value and repeat the values for each day of the total
+				POR.
+				 */
+				const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][0]);
+				let counter = normal_entries.length - 1;
+				for(let i = diff_days; i > 0; i--) {
+						normals[i] = normal_entries[counter][1].value;
+
+						counter--;
+
+						if(counter < 0) {
+								counter = normal_entries.length - 1;
+						}
+				}
 
 				const chart_layout = {
 						title: {
@@ -75,7 +97,7 @@ export default class DailyPrecipitationAbsolute extends View {
 						},
 						{
 								x: days,
-								y: normal_values,
+								y: normals,
 								name: "Daily Precipitation Normal Values",
 								mode: 'lines',
 								line: {

@@ -1,22 +1,23 @@
 import View from "./view_base.js";
-import {get_threshold_data} from "../io";
+import {get_data} from "../io";
 import _ from "lodash-es";
 
 export default class DailyTemperatureMinMax extends View {
 
 		async request_update() {
 
-				let variables = this.parent.options.variables;
-				let variable = this.parent.options.variable;
+				const options = this.parent.options;
 
-				if(variables[variable].data === null) {
+				let threshold = options.threshold;
+
+				if(options.daily_values === null) {
 						this.parent._show_spinner();
-						let data = await (await get_threshold_data(this.parent.options)).data;
-						variables[variable].data = this.get_daily_values(data);
+						let data = await (await get_data(options, this.parent.variables)).data;
+						options.daily_values = this.get_daily_values(data);
 						this.parent._hide_spinner();
 				}
 
-				const daily_values = variables[variable].data;
+				const daily_values = options.daily_values;
 
 				let years = [];
 				let min = [];

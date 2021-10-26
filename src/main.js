@@ -17,39 +17,42 @@ export default class ClimateByStationWidget {
 						window_behaviour: 'rollingSum',
 						thresholdOperator: '>=',
 						dataAPIEndpoint: 'https://data.rcc-acis.org/',
-						variables: {
-								precipitation: {
-										elements: [{"name": "pcpn", "units": "inch"}],
-										data: null
-								},
-								precipitation_normal: {
-										elements: [{"name": "pcpn", "prec": 1, "normal": "1", "units": "inch"}],
-										data: null
-								},
-								tmax: {
-										elements: [{"name": "maxt", "units": "degreeF"}],
-										data: null
-								},
-								tmin: {
-										elements: [{"name": "mint", "units": "degreeF"}],
-										data: null
-								},
-								tavg: {
-										elements: [{"name": "avgt", "units": "degreeF"}],
-										data: null
-								},
-								temp_min_max: {
-										elements: [{"name": "mint", "prec": 1, "units": "degreeF"}, {"name": "maxt", "prec": 1, "units": "degreeF"}],
-										data: null
-								},
-								temp_normal: {
-										elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}, {"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}],
-										data: null
-								}
-						}
+						daily_values: null,
+						normal_values: null
 				};
 
-				this.daily_values = null;
+				this.variables = {
+						precipitation: {
+								elements: [{"name": "pcpn", "units": "inch"}]
+						},
+						precipitation_normal: {
+								elements: [{"name": "pcpn", "prec": 1, "normal": "1", "units": "inch"}]
+						},
+						tmax: {
+								elements: [{"name": "maxt", "units": "degreeF"}]
+						},
+						tmax_normal: {
+								elements: [{"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}]
+						},
+						tmin: {
+								elements: [{"name": "mint", "units": "degreeF"}]
+						},
+						tmin_normal: {
+								elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}]
+						},
+						tavg: {
+								elements: [{"name": "avgt", "units": "degreeF"}]
+						},
+						tavg_normal: {
+								elements: [{"name": "avgt", "prec": 1, "normal": "1", "units": "degreeF"}]
+						},
+						temp_min_max: {
+								elements: [{"name": "mint", "prec": 1, "units": "degreeF"}, {"name": "maxt", "prec": 1, "units": "degreeF"}]
+						},
+						temp_normal: {
+								elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}, {"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}]
+						}
+				}
 
 				this.view = null;
 				this.element = element;
@@ -204,5 +207,18 @@ export default class ClimateByStationWidget {
 				value = Number.parseFloat(value);
 
 				return value;
+		}
+
+		days_between(date1, date2) {
+				const d1 = new Date(date1);
+				const d2 = new Date(date2);
+
+				const dif = d2.getTime() - d1.getTime();
+
+				const oneDay = 1000 * 60 * 60 * 24;
+
+				const diffDays = Math.round(dif / oneDay);
+
+				return diffDays;
 		}
 }
