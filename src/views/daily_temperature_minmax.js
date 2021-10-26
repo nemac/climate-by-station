@@ -8,21 +8,38 @@ export default class DailyTemperatureMinMax extends View {
 
 				const options = this.parent.options;
 
-				let threshold = options.threshold;
-
 				if(options.daily_values === null) {
 						this.parent._show_spinner();
 						let data = await (await get_data(options, this.parent.variables)).data;
 						options.daily_values = this.get_daily_values(data);
+
+						const normal_options = {
+								station: options.station,
+								sdate: (new Date().getFullYear() - 4) + '-01-01',
+								edate: (new Date().getFullYear()) + '-12-31',
+								variable: "temp_min_max_normal",
+								dataAPIEndpoint: 'https://data.rcc-acis.org/'
+						}
+
+						const normal_data = await(await get_data(normal_options, this.parent.variables)).data;
+						options.normal_values = this.get_daily_values(normal_data);
+
 						this.parent._hide_spinner();
 				}
 
 				const daily_values = options.daily_values;
 
+				const normal_values = options.normal_values;
+				const normal_entries = Object.entries(normal_values);
+
+				console.log(normal_entries);
+
 				let years = [];
 				let min = [];
 				let max = [];
 				let days = [];
+				let normal_min = [];
+				let normal_max = [];
 
 				daily_values.forEach(e => {
 
@@ -49,6 +66,18 @@ export default class DailyTemperatureMinMax extends View {
 
 				})
 
+				const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][1].day);
+				let counter = normal_entries.length - 1;
+				for(let i = diff_days; i > 0; i--) {
+						normal_min[i] = normal_entries[counter][1].min;
+						normal_max[i] = normal_entries[counter][1].max;
+						counter--;
+
+						if(counter < 0) {
+								counter = normal_entries.length - 1;
+						}
+				}
+
 				const chart_layout = {
 						title: {
 								text: "Temperature Minimum and Maximum"
@@ -67,6 +96,23 @@ export default class DailyTemperatureMinMax extends View {
 				}
 
 				let chart_data = [
+						{
+								type: "line",
+								x: days,
+								y: normal_min,
+								marker: {
+										color: 'rgba(171,221,164, 0.3)'
+								}
+						},
+						{
+								type: "line",
+								x: days,
+								y: normal_max,
+								fill: 'tonexty',
+								marker: {
+										color: 'rgba(171,221,164, 0.3)'
+								}
+						},
 						{
 								type: "bar",
 								x: days,

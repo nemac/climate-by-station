@@ -49,7 +49,7 @@ export default class ClimateByStationWidget {
 						temp_min_max: {
 								elements: [{"name": "mint", "prec": 1, "units": "degreeF"}, {"name": "maxt", "prec": 1, "units": "degreeF"}]
 						},
-						temp_normal: {
+						temp_min_max_normal: {
 								elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}, {"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}]
 						}
 				}
