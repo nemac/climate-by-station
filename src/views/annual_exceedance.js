@@ -12,8 +12,6 @@ export default class AnnualExceedance extends View {
 
 				const options = this.parent.options;
 
-				console.log("requested update:", options.variable);
-
 				if(options.daily_values === null) {
 						this.parent._show_spinner();
 						let data = await (await get_data(options, this.parent.variables)).data;

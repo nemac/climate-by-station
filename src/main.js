@@ -8,7 +8,7 @@ export default class ClimateByStationWidget {
 
 		constructor(element, options) {
 				this.options = {
-						view_type: 'annual_exceedance',
+						view_type: (typeof options.view_type === 'undefined') ? 'annual_exceedance' : options.view_type,
 						station: 'USC00094429',
 						sdate: 'por',
 						edate: (new Date().getFullYear()) + '-12-31',
@@ -64,11 +64,14 @@ export default class ClimateByStationWidget {
 				this.element.append(this.view_container);
 
 				this.spinner_element = document.createElement("div");
+
+				this.spinner_element.style.position = "absolute";
+				this.spinner_element.style.left = "50%";
+				this.spinner_element.style.top = "0";
+				this.spinner_element.style.transform = "translateY(50%)";
+				this.spinner_element.style.height = "100%";
+
 				this.spinner_element.classList.add("d-none");
-				this.spinner_element.classList.add("d-flex");
-				this.spinner_element.classList.add("justify-content-center");
-				this.spinner_element.classList.add("align-items-center");
-				this.spinner_element.classList.add("h-100");
 
 				this.spinner_styles = [
 						".climatebystation-spinner { border: 2px solid #e3e3e3;  border-top: 2px solid #6e6e6e; border-radius: 50%; width: 2rem; height: 2rem; animation: spin 2s linear infinite;}",
@@ -135,6 +138,24 @@ export default class ClimateByStationWidget {
 
 				if(old_options.view_type !== this.options.view_type) {
 						this.destroy();
+						const view_type = this.options.view_type;
+						if(view_type === "annual_exceedance" || view_type === "daily_precipitation_absolute") {
+								this.options.variable = "precipitation";
+								this.options.sdate = "por";
+								this.options.edate = (new Date().getFullYear()) + "-12-31";
+								this.options.threshold = 1.0;
+								this.options.window = 1;
+						} else if(view_type === "daily_temperature_absolute") {
+								this.options.variable = "tmax";
+								this.options.sdate = "por";
+								this.options.edate = (new Date().getFullYear()) + "-12-31";
+								this.options.threshold = 95.0;
+								this.options.window = 1;
+						} else if(view_type === "daily_temperature_minmax") {
+								this.options.variable = "temp_min_max";
+								this.options.sdate = "por";
+								this.options.edate = (new Date().getFullYear()) + "-12-31";
+						}
 				}
 
 				this._update();
@@ -152,12 +173,14 @@ export default class ClimateByStationWidget {
 		_show_spinner() {
 				if(this.spinner_element.classList.contains("d-none")) {
 						this.spinner_element.classList.remove("d-none");
+						this.view_container.style.filter = "opacity(0.5)"
 				}
 		}
 
 		_hide_spinner() {
 				if(!this.spinner_element.classList.contains("d-none")) {
 						this.spinner_element.classList.add("d-none");
+						this.view_container.style.filter = "opacity(1)"
 				}
 		}
 
@@ -216,6 +239,7 @@ export default class ClimateByStationWidget {
 
 		destroy() {
 				this.view = null;
+				this._reset_widget();
 				// other stuff here
 		}
 }

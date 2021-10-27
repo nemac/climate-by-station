@@ -66,9 +66,19 @@
 											<option value="95">95th</option>
 									</select>
 							</div>
+							<div class="mb-2">
+									<label for="view-type">Views:</label>
+
+									<select name="view-type" id="view-type">
+											<option value="annual_exceedance">Annual Exceedance</option>
+											<option value="daily_precipitation_absolute">Daily Precipitation Absolute</option>
+											<option value="daily_temperature_absolute">Daily Temperature Absolute</option>
+											<option value="daily_temperature_minmax">Daily Temperature Minimum and Maximum</option>
+									</select>
+							</div>
 					</div>
 					<div class="col-12 col-md-8 d-flex">
-							<div id="threshold-graph" class="flex-grow-1"></div>
+							<div id="threshold-graph" class="flex-grow-1" style="position: relative;"></div>
 					</div>
 			</div>
 			<div class="row">
@@ -87,33 +97,12 @@
 		<script type="module">
 
 				let element = document.getElementById("threshold-graph");
-				let daily_absolute_precip_element = document.getElementById("daily-absolute-precip-graph");
-				let daily_absolute_temp_element = document.getElementById("daily-absolute-temp-graph");
-				let daily_temp_minmax_element = document.getElementById("daily-absolute-minmax");
 
 				const widget = new ClimateByStationWidget(element, {
 						view_type: 'annual_exceedance'
 				});
 
-				const daily_absolute_precip_widget = new ClimateByStationWidget(daily_absolute_precip_element, {
-						view_type: 'daily_precipitation_absolute'
-				});
-
-				const daily_absolute_temp_widget = new ClimateByStationWidget(daily_absolute_temp_element, {
-						view_type: 'daily_temperature_absolute',
-						variable: 'tmax',
-						threshold: 95.0
-				});
-
-				const daily_temp_minmax_widget = new ClimateByStationWidget(daily_temp_minmax_element, {
-						view_type: 'daily_temperature_minmax',
-						variable: 'temp_min_max'
-				});
-
 				window.widget = widget;
-				window.daily_absolute_precip_widget = daily_absolute_precip_widget;
-				window.daily_absolute_temp_element = daily_absolute_temp_element;
-				window.daily_temp_minmax_element = daily_temp_minmax_element;
 
 				let stationElement = document.getElementById("station");
 				let updateElement = document.getElementById("update");
@@ -122,6 +111,7 @@
 				let variableElement = document.getElementById("variables");
 				let operatorElement = document.getElementById("operators");
 				let percentileElement = document.getElementById("percentile");
+				let viewTypeElement = document.getElementById("view-type");
 
 				windowElement.addEventListener('change', function(e) {
 						let value = e.target.value;
@@ -143,15 +133,6 @@
 
 						thresholdElement.value = value;
 						widget.update({threshold: Number.parseFloat(value)})
-
-						if(widget.options.variable === 'precipitation') {
-								daily_absolute_precip_widget.update({threshold: Number.parseFloat(value)});
-								console.log('updating precip');
-						} else {
-								daily_absolute_temp_widget.update({threshold: Number.parseFloat(value)});
-								console.log('updating temp');
-						}
-
 				})
 
 				variableElement.addEventListener('change', function(e) {
@@ -212,6 +193,12 @@
 
 						thresholdElement.value = updatedThreshold;
 						widget.update({threshold: updatedThreshold});
+				})
+
+				viewTypeElement.addEventListener('change', function(e) {
+						let value = e.target.value;
+
+						widget.update({view_type: value});
 				})
 
 		</script>
