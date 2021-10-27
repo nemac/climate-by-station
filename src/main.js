@@ -2,6 +2,7 @@ import AnnualExceedance from "./views/annual_exceedance.js";
 import DailyPrecipitationAbsolute from "./views/daily_precipitation_absolute.js";
 import DailyTemperatureAbsolute from "./views/daily_temperature_absolute";
 import DailyTemperatureMinMax from "./views/daily_temperature_minmax";
+import _ from "../node_modules/lodash-es/lodash.js";
 
 export default class ClimateByStationWidget {
 
@@ -105,49 +106,35 @@ export default class ClimateByStationWidget {
 
 		update(options) {
 
-				if(options) {
-						let updated_options = Object.keys(options);
+				let old_options = Object.assign({}, this.options);
 
-						for(const val in updated_options) {
-								let key = updated_options[val];
-								let updated_value = options[key];
+				this.options = _.merge({}, old_options, options);
 
-								/*
-								If the station gets updated all of the graphs need to be re-drawn.
-								 */
-								if(key === 'station') {
-										this.options.daily_values = null;
+				if(old_options.station !== this.options.station) {
+						this._reset_widget();
+				}
+
+				if(old_options.variable !== this.options.variable) {
+
+						const view_type = this.options.view_type;
+						const variable = this.options.variable;
+
+						if(view_type === "annual_exceedance") {
+								this._reset_widget();
+						} else if(view_type === "daily_temperature_absolute") {
+								if(variable === "tmax" || variable === "tmin" || variable === "tavg") {
+										this._reset_widget();
 								}
-
-								/*
-								If the variable gets updated, we only want to change the exceedance
-								graph with updated values, the daily values will not change and will
-								not need to be re-drawn.
-								 */
-								if(key === 'variable') {
-
-										if(this.options.view_type === 'annual_exceedance') {
-												this.options.daily_values = null;
-										}
-
-										/*
-										 For daily temperature, we want to only update the graph if only
-										 one of the temp variables are selected. (tmax by default)
-										 */
-										if(this.options.view_type === 'daily_temperature_absolute') {
-
-												if(updated_value === 'tmax' || updated_value === 'tmin' || updated_value === 'tavg') {
-														this.options.daily_values = null;
-												}
-
-										}
-
-								}
-
-								if(this.options.hasOwnProperty(key)) {
-										this.options[key] = updated_value;
+						} else if(view_type === "daily_precipitation_absolute") {
+								if(variable === "precipitation") {
+										this._reset_widget();
 								}
 						}
+
+				}
+
+				if(old_options.view_type !== this.options.view_type) {
+						this.destroy();
 				}
 
 				this._update();
@@ -220,5 +207,15 @@ export default class ClimateByStationWidget {
 				const diffDays = Math.round(dif / oneDay);
 
 				return diffDays;
+		}
+
+		_reset_widget() {
+				this.options.daily_values = null;
+				this.options.normal_values = null;
+		}
+
+		destroy() {
+				this.view = null;
+				// other stuff here
 		}
 }

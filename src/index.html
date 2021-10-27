@@ -143,7 +143,15 @@
 
 						thresholdElement.value = value;
 						widget.update({threshold: Number.parseFloat(value)})
-						daily_absolute_precip_widget.update({threshold: Number.parseFloat(value)})
+
+						if(widget.options.variable === 'precipitation') {
+								daily_absolute_precip_widget.update({threshold: Number.parseFloat(value)});
+								console.log('updating precip');
+						} else {
+								daily_absolute_temp_widget.update({threshold: Number.parseFloat(value)});
+								console.log('updating temp');
+						}
+
 				})
 
 				variableElement.addEventListener('change', function(e) {
