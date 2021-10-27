@@ -85,6 +85,8 @@ export default class ClimateByStationWidget {
 
 				this.element.append(this.spinner_element);
 
+				this.data_cache = {}; // not implemented yet
+
 				this.update(options);
 		}
 
@@ -122,16 +124,61 @@ export default class ClimateByStationWidget {
 						const view_type = this.options.view_type;
 						const variable = this.options.variable;
 
-						if(view_type === "annual_exceedance") {
-								this._reset_widget();
-						} else if(view_type === "daily_temperature_absolute") {
-								if(variable === "tmax" || variable === "tmin" || variable === "tavg") {
-										this._reset_widget();
-								}
-						} else if(view_type === "daily_precipitation_absolute") {
+						this.options.window = 1;
+
+						if(view_type === "daily_precipitation_absolute") {
+
+								/*
+								If we are in daily_precipitation_absolute check if the variable selected is valid, if not default to
+								precipitation.
+								 */
+
 								if(variable === "precipitation") {
+										this.options.threshold = 1.0;
+										this._reset_widget();
+								} else {
+										this.options.variable = "precipitation";
+								}
+
+						} else if(view_type === "daily_temperature_absolute") {
+
+								/*
+								If we are in daily_temperature_absolute and the updated variable is valid (tmax, tmin, tavg), update the
+								values accordingly, otherwise (ex: selecting precipitation while in temp view) default to tmax.
+								 */
+
+								if(variable === "tmax") {
+										this.options.threshold = 95.0;
+										this._reset_widget();
+								} else if(variable === "tmin") {
+										this.options.threshold = 32.0;
+										this._reset_widget();
+								} else if(variable === "tavg") {
+										this.options.threshold = 72.0;
+										this._reset_widget();
+								} else {
+										this.options.variable = "tmax";
+										this.options.threshold = 95.0;
 										this._reset_widget();
 								}
+
+						} else if(view_type === "annual_exceedance") {
+								switch(variable) {
+										case "tmax":
+												this.options.threshold = 95.0;
+												break;
+										case "tmin":
+												this.options.threshold = 32.0;
+												break;
+										case "tavg":
+												this.options.threshold = 72.0;
+												break;
+										case "precipitation":
+												this.options.threshold = 1.0;
+												break;
+								}
+
+								this._reset_widget();
 						}
 
 				}

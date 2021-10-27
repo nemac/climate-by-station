@@ -78,25 +78,16 @@
 							</div>
 					</div>
 					<div class="col-12 col-md-8 d-flex">
-							<div id="threshold-graph" class="flex-grow-1" style="position: relative;"></div>
-					</div>
-			</div>
-			<div class="row">
-					<div class="col-12 col-md-6" style="min-height: 20rem;">
-							<div id="daily-absolute-precip-graph" class="flex-grow-1 h-100"></div>
-					</div>
-					<div class="align-items-center col-12 col-md-6" style="min-height: 20rem;">
-							<div id="daily-absolute-temp-graph" class="flex-grow-1 h-100"></div>
+							<div id="climate_by_station" class="flex-grow-1" style="position: relative;"></div>
 					</div>
 			</div>
 
-			<div id="daily-absolute-minmax" class="flex-grow-1 h-100"></div>
 
 	</div>
 
 		<script type="module">
 
-				let element = document.getElementById("threshold-graph");
+				let element = document.getElementById("climate_by_station");
 
 				const widget = new ClimateByStationWidget(element, {
 						view_type: 'annual_exceedance'
@@ -137,29 +128,10 @@
 
 				variableElement.addEventListener('change', function(e) {
 						let value = e.target.value;
-						let threshold;
-						let window_behaviour;
 
-						if(value === 'precipitation') {
-								threshold = 1.0;
-								window_behaviour = 'rollingSum';
-								daily_absolute_precip_widget.update({variable: value, threshold: threshold});
-						} else if(value === 'tmax') {
-								threshold = 95.0;
-								window_behaviour = 'all';
-								daily_absolute_temp_widget.update({variable: value, threshold: threshold});
-						} else if(value === 'tmin') {
-								threshold = 32.0;
-								window_behaviour = 'all';
-								daily_absolute_temp_widget.update({variable: value, threshold: threshold});
-						} else {
-								threshold = 70.0;
-								window_behaviour = 'all';
-								daily_absolute_temp_widget.update({variable: value, threshold: threshold});
-						}
-
-						thresholdElement.value = threshold;
-						widget.update({variable: value, threshold: threshold, window_behaviour: window_behaviour})
+						widget.update({variable: value})
+						thresholdElement.value = widget.options.threshold;
+						windowElement.value = widget.options.window;
 				})
 
 				stationElement.addEventListener('change', function(e) {
@@ -185,13 +157,6 @@
 
 						let updatedThreshold = widget.view._get_percentile_value(Number.parseInt(value));
 
-						if(widget.options.variable === 'precipitation') {
-								daily_absolute_precip_widget.update({threshold: updatedThreshold});
-						} else {
-								daily_absolute_temp_widget.update({threshold: updatedThreshold});
-						}
-
-						thresholdElement.value = updatedThreshold;
 						widget.update({threshold: updatedThreshold});
 				})
 

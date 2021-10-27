@@ -13,10 +13,37 @@ export default class AnnualExceedance extends View {
 				const options = this.parent.options;
 
 				if(options.daily_values === null) {
+
+						// if(this.parent.data_cache.hasOwnProperty(options.station) && !(typeof this.parent.data_cache[options.station].annual_exceedance[options.variable] === 'undefined')) {
+						// 		let cache = this.parent.data_cache[options.station].annual_exceedance[options.variable];
+						// 		options.daily_values = cache;
+						// } else {
+						// 		this.parent._show_spinner();
+						// 		let data = await (await get_data(options, this.parent.variables)).data;
+						// 		options.daily_values = this.get_daily_values(data);
+						//
+						// 		this.parent.data_cache[options.station] = {
+						// 				annual_exceedance: {
+						// 						[options.variable]: options.daily_values
+						// 			}
+						// 		};
+						//
+						// 		this.parent._hide_spinner();
+						// }
+
+
 						this.parent._show_spinner();
 						let data = await (await get_data(options, this.parent.variables)).data;
 						options.daily_values = this.get_daily_values(data);
+
+						// this.parent.data_cache[options.station] = {
+						// 		annual_exceedance: {
+						// 				[options.variable]: options.daily_values
+						// 		}
+						// };
+
 						this.parent._hide_spinner();
+
 				}
 
 				const daily_values = options.daily_values;
