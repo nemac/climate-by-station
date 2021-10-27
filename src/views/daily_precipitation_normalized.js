@@ -2,7 +2,7 @@ import View from "./view_base.js";
 import {get_data} from "../io";
 import _ from "lodash-es";
 
-export default class DailyPrecipitationAbsolute extends View {
+export default class DailyPrecipitationNormalized extends View {
 
 		async request_update() {
 
@@ -38,9 +38,8 @@ export default class DailyPrecipitationAbsolute extends View {
 				let years = [];
 				let days = [];
 				let values = [];
-				let normals = [];
 
-				daily_values_entries.forEach((e, i) => {
+				daily_values_entries.forEach(e => {
 
 						let year = e[0].slice(0, 4);
 						if(!years.includes(Number.parseInt(year))) {
@@ -58,7 +57,7 @@ export default class DailyPrecipitationAbsolute extends View {
 				const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][0]);
 				let counter = normal_entries.length - 1;
 				for(let i = diff_days; i > 0; i--) {
-						normals[i] = normal_entries[counter][1].value;
+						values[i] = values[i] - normal_entries[counter][1].value;
 
 						counter--;
 
@@ -101,20 +100,10 @@ export default class DailyPrecipitationAbsolute extends View {
 						{
 								x: days,
 								y: values,
-								name: "Daily Precipitation Values",
+								name: "Daily Normalized Precipitation Values",
 								mode: 'lines',
 								line: {
 										color: 'rgb(84,155,198)',
-										width: 1
-								}
-						},
-						{
-								x: days,
-								y: normals,
-								name: "Daily Precipitation Normal Values",
-								mode: 'lines',
-								line: {
-										color: 'rgb(171,221,164)',
 										width: 1
 								}
 						},

@@ -3,6 +3,8 @@ import DailyPrecipitationAbsolute from "./views/daily_precipitation_absolute.js"
 import DailyTemperatureAbsolute from "./views/daily_temperature_absolute";
 import DailyTemperatureMinMax from "./views/daily_temperature_minmax";
 import _ from "../node_modules/lodash-es/lodash.js";
+import DailyPrecipitationNormalized from "./views/daily_precipitation_normalized";
+import DailyTemperatureNormalized from "./views/daily_temperature_normalized";
 
 export default class ClimateByStationWidget {
 
@@ -95,16 +97,16 @@ export default class ClimateByStationWidget {
 				switch(this.options.view_type) {
 						case 'annual_exceedance':
 								return AnnualExceedance;
-								break;
 						case 'daily_precipitation_absolute':
 								return DailyPrecipitationAbsolute;
-								break;
 						case 'daily_temperature_absolute':
 								return DailyTemperatureAbsolute;
-								break;
 						case 'daily_temperature_minmax':
 								return DailyTemperatureMinMax;
-								break;
+						case 'daily_precipitation_normalized':
+								return DailyPrecipitationNormalized;
+						case 'daily_temperature_normalized':
+								return DailyTemperatureNormalized;
 				}
 		}
 
@@ -133,14 +135,14 @@ export default class ClimateByStationWidget {
 								precipitation.
 								 */
 
-								if(variable === "precipitation") {
+								if(variable === "precipitation" || view_type === "daily_precipitation_normalized") {
 										this.options.threshold = 1.0;
 										this._reset_widget();
 								} else {
 										this.options.variable = "precipitation";
 								}
 
-						} else if(view_type === "daily_temperature_absolute") {
+						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized") {
 
 								/*
 								If we are in daily_temperature_absolute and the updated variable is valid (tmax, tmin, tavg), update the

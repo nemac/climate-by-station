@@ -63,9 +63,6 @@ export default class DailyTemperatureAbsolute extends View {
 				}
 
 				const chart_layout = {
-						title: {
-								text: "Temperature"
-						},
 						xaxis: {
 								range: [(years[years.length - 1] - 30) + "-01-01", (years[years.length - 1]) + "-01-01"]
 						},

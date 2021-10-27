@@ -65,9 +65,6 @@ export default class AnnualExceedance extends View {
 				})
 
 				const chart_layout = {
-						title: {
-								text: "Exceedance"
-						},
 						xaxis: this.parent._get_x_axis_layout(years),
 						yaxis: {
 								title: {
