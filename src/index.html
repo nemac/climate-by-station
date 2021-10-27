@@ -157,9 +157,11 @@
 				percentileElement.addEventListener('change', function(e) {
 						let value = e.target.value;
 
-						let updatedThreshold = widget.view._get_percentile_value(Number.parseInt(value));
+						if(typeof widget.view._get_percentile_value === 'function') {
+								let updatedThreshold = widget.view._get_percentile_value(Number.parseInt(value));
 
-						widget.update({threshold: updatedThreshold});
+								widget.update({threshold: updatedThreshold});
+						}
 				})
 
 				viewTypeElement.addEventListener('change', function(e) {

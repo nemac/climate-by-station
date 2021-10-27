@@ -128,18 +128,20 @@ export default class ClimateByStationWidget {
 
 						this.options.window = 1;
 
-						if(view_type === "daily_precipitation_absolute") {
+						if(view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized") {
 
 								/*
 								If we are in daily_precipitation_absolute check if the variable selected is valid, if not default to
 								precipitation.
 								 */
 
-								if(variable === "precipitation" || view_type === "daily_precipitation_normalized") {
+								if(variable === "precipitation") {
 										this.options.threshold = 1.0;
 										this._reset_widget();
 								} else {
 										this.options.variable = "precipitation";
+										this.options.threshold = 1.0;
+										this._reset_widget();
 								}
 
 						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized") {
@@ -188,13 +190,13 @@ export default class ClimateByStationWidget {
 				if(old_options.view_type !== this.options.view_type) {
 						this.destroy();
 						const view_type = this.options.view_type;
-						if(view_type === "annual_exceedance" || view_type === "daily_precipitation_absolute") {
+						if(view_type === "annual_exceedance" || view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized") {
 								this.options.variable = "precipitation";
 								this.options.sdate = "por";
 								this.options.edate = (new Date().getFullYear()) + "-12-31";
 								this.options.threshold = 1.0;
 								this.options.window = 1;
-						} else if(view_type === "daily_temperature_absolute") {
+						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized") {
 								this.options.variable = "tmax";
 								this.options.sdate = "por";
 								this.options.edate = (new Date().getFullYear()) + "-12-31";
