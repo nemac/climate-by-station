@@ -359,6 +359,18 @@ export default class ClimateByStationWidget {
 				});
 		}
 
+		download_image() {
+				return new Promise((resolve, reject) => {
+						this.request_downloads().then((downloads) => {
+								const download = downloads.find((d) => d['filename'].slice(-3) === 'png')
+								if (!download) {
+										return reject(new Error('Chart image is not available for download'));
+								}
+								download.download().then(() => resolve())
+						})
+				});
+		}
+
 		/**
 		 * Gets the available downloads for the current view.
 		 * @return {Promise<*[]>}

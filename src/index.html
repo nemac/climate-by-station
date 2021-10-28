@@ -83,10 +83,14 @@
 							<div id="climate_by_station" class="flex-grow-1" style="position: relative;"></div>
 					</div>
 			</div>
-			<div>
-					<a id="download-data">Download Data</a>
+			<div class="d-flex">
+					<div class="me-2">
+							<a class="btn btn-primary" id="download-data">Download Data</a>
+					</div>
+					<div>
+							<a class="btn btn-secondary" id="download-image">Download Image</a>
+					</div>
 			</div>
-
 
 	</div>
 
@@ -193,7 +197,17 @@
 						} else if(widget.options.view_type === 'daily_precipitation_normalized') {
 								widget.download_daily_precipitation_normalized();
 						}
-				})
+				});
+
+				let downloadImage = document.getElementById("download-image");
+
+				downloadImage.addEventListener('click', function(e) {
+						if(!widget) return;
+
+						e.preventDefault();
+
+						widget.download_image();
+				});
 
 		</script>
 </body>
