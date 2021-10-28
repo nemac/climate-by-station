@@ -1,6 +1,7 @@
 import View from "./view_base.js";
 import {get_data} from "../io";
 import _ from "lodash-es";
+import {format_export_data} from "../utils";
 
 export default class DailyTemperatureAbsolute extends View {
 
@@ -38,6 +39,7 @@ export default class DailyTemperatureAbsolute extends View {
 				let days = [];
 				let values = [];
 				let normals = [];
+				let download_data = [];
 
 				Object.entries(daily_values).forEach(e => {
 
@@ -52,14 +54,19 @@ export default class DailyTemperatureAbsolute extends View {
 
 				const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][0]);
 				let counter = normal_entries.length - 1;
-				for(let i = diff_days; i > 0; i--) {
+				for(let i = diff_days; i >= 0; i--) {
 						normals[i] = normal_entries[counter][1].value;
+						download_data[i] = [days[i], values[i], normal_entries[counter][1].value];
 
 						counter--;
 
 						if(counter < 0) {
 								counter = normal_entries.length - 1;
 						}
+				}
+
+				this._download_callbacks = {
+						daily_temperature_absolute: async() => format_export_data(['day', options.variable, 'normal_value'], download_data, null, null)
 				}
 
 				const chart_layout = {
@@ -135,6 +142,41 @@ export default class DailyTemperatureAbsolute extends View {
 						return {value: valid ? Number.parseFloat(this.parent._get_value(value)) : Number.NaN, valid: valid}
 				})
 
+		}
+
+		async request_downloads() {
+				const {station, variable} = this.parent.options;
+				return [
+						{
+								label: 'Daily Temperature Absolute',
+								icon: 'bar-chart',
+								attribution: 'ACIS: livneh',
+								when_data: this._download_callbacks['daily_temperature_absolute'],
+								filename: [
+										station,
+										"daily_temperature_absolute",
+										variable
+								].join('-').replace(/ /g, '_') + '.csv'
+						},
+						{
+								label: 'Chart image',
+								icon: 'picture-o',
+								attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
+								when_data: async () => {
+										let {width, height} = window.getComputedStyle(this.element);
+										width = Number.parseFloat(width) * 1.2;
+										height = Number.parseFloat(height) * 1.2;
+										return await Plotly.toImage(this.element, {
+												format: 'png', width: width, height: height
+										});
+								},
+								filename: [
+										station,
+										variable,
+										"graph"
+								].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
+						},
+				]
 		}
 
 

@@ -1,6 +1,7 @@
 import View from "./view_base.js";
 import _ from "../../node_modules/lodash-es/lodash.js";
 import { get_data } from "../io.js";
+import {format_export_data} from "../utils.js";
 
 export default class AnnualExceedance extends View {
 
@@ -14,33 +15,9 @@ export default class AnnualExceedance extends View {
 
 				if(options.daily_values === null) {
 
-						// if(this.parent.data_cache.hasOwnProperty(options.station) && !(typeof this.parent.data_cache[options.station].annual_exceedance[options.variable] === 'undefined')) {
-						// 		let cache = this.parent.data_cache[options.station].annual_exceedance[options.variable];
-						// 		options.daily_values = cache;
-						// } else {
-						// 		this.parent._show_spinner();
-						// 		let data = await (await get_data(options, this.parent.variables)).data;
-						// 		options.daily_values = this.get_daily_values(data);
-						//
-						// 		this.parent.data_cache[options.station] = {
-						// 				annual_exceedance: {
-						// 						[options.variable]: options.daily_values
-						// 			}
-						// 		};
-						//
-						// 		this.parent._hide_spinner();
-						// }
-
-
 						this.parent._show_spinner();
 						let data = await (await get_data(options, this.parent.variables)).data;
 						options.daily_values = this.get_daily_values(data);
-
-						// this.parent.data_cache[options.station] = {
-						// 		annual_exceedance: {
-						// 				[options.variable]: options.daily_values
-						// 		}
-						// };
 
 						this.parent._hide_spinner();
 
@@ -52,17 +29,33 @@ export default class AnnualExceedance extends View {
 				let years = [];
 				let exceedance_values = [];
 				let missing_values = [];
+				let download_data = [];
 
 				Object.entries(exceedance).forEach(e => {
-						// If the
+
+						const year = e[0];
+						const exceedance = e[1].exceedance;
+						const missing =  _.size(_.filter(e[1].dailyValues, (v) => {
+								return !v.valid;
+						}));
+
 						if(e[1].valid) {
-								years.push(e[0]);
-								exceedance_values.push(e[1].exceedance);
-								missing_values.push( _.size(_.filter(e[1].dailyValues, (v) => {
-										return !v.valid;
-								})) );
+								years.push(year);
+								exceedance_values.push(exceedance);
+								missing_values.push(missing);
+								download_data.push([year, exceedance, missing]);
+						} else {
+								years.push(year);
+								exceedance_values.push(Number.NaN);
+								missing_values.push(Number.NaN);
+								download_data.push([year, Number.NaN, Number.NaN]);
 						}
+
 				})
+
+				this._download_callbacks = {
+						annual_exceedance: async() => format_export_data(['year', 'annual_exceedance', 'missing_value'], download_data, null, null)
+				}
 
 				const chart_layout = {
 						xaxis: this.parent._get_x_axis_layout(years),
@@ -287,6 +280,41 @@ export default class AnnualExceedance extends View {
 
 				return window_str + " with " + variable_str + " of " + operator_str + " " + threshold_str;
 
+		}
+
+		async request_downloads() {
+				const {station, variable} = this.parent.options;
+				return [
+						{
+								label: 'Annual Exceedance',
+								icon: 'bar-chart',
+								attribution: 'ACIS: livneh',
+								when_data: this._download_callbacks['annual_exceedance'],
+								filename: [
+										station,
+										"annual_exceedance",
+										variable
+								].join('-').replace(/ /g, '_') + '.csv'
+						},
+						{
+								label: 'Chart image',
+								icon: 'picture-o',
+								attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
+								when_data: async () => {
+										let {width, height} = window.getComputedStyle(this.element);
+										width = Number.parseFloat(width) * 1.2;
+										height = Number.parseFloat(height) * 1.2;
+										return await Plotly.toImage(this.element, {
+												format: 'png', width: width, height: height
+										});
+								},
+								filename: [
+										station,
+										variable,
+										"graph"
+								].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
+						},
+				]
 		}
 }
 

@@ -83,6 +83,9 @@
 							<div id="climate_by_station" class="flex-grow-1" style="position: relative;"></div>
 					</div>
 			</div>
+			<div>
+					<a id="download-data">Download Data</a>
+			</div>
 
 
 	</div>
@@ -168,6 +171,28 @@
 						let value = e.target.value;
 
 						widget.update({view_type: value});
+				})
+
+				let downloadData = document.getElementById("download-data");
+
+				downloadData.addEventListener('click', function(e) {
+						if(!widget) return;
+
+						e.preventDefault();
+
+						if(widget.options.view_type === 'annual_exceedance') {
+								widget.download_annual_exceedance();
+						} else if(widget.options.view_type === 'daily_precipitation_absolute') {
+								widget.download_daily_precipitation_absolute();
+						} else if(widget.options.view_type === 'daily_temperature_absolute') {
+								widget.download_daily_temperature_absolute();
+						} else if(widget.options.view_type === 'daily_temperature_minmax') {
+								widget.download_daily_temperature_minmax();
+						} else if(widget.options.view_type === 'daily_temperature_normalized') {
+								widget.download_daily_temperature_normalized();
+						} else if(widget.options.view_type === 'daily_precipitation_normalized') {
+								widget.download_daily_precipitation_normalized();
+						}
 				})
 
 		</script>

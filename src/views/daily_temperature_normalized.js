@@ -1,6 +1,7 @@
 import View from "./view_base.js";
 import {get_data} from "../io";
 import _ from "lodash-es";
+import {format_export_data} from "../utils";
 
 export default class DailyTemperatureNormalized extends View {
 
@@ -37,7 +38,7 @@ export default class DailyTemperatureNormalized extends View {
 				let years = [];
 				let days = [];
 				let values = [];
-				let normals = [];
+				let download_data = [];
 
 				Object.entries(daily_values).forEach(e => {
 
@@ -52,14 +53,19 @@ export default class DailyTemperatureNormalized extends View {
 
 				const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][0]);
 				let counter = normal_entries.length - 1;
-				for(let i = diff_days; i > 0; i--) {
+				for(let i = diff_days; i >= 0; i--) {
 						values[i] = values[i] - normal_entries[counter][1].value;
+						download_data[i] = [days[i], values[i]];
 
 						counter--;
 
 						if(counter < 0) {
 								counter = normal_entries.length - 1;
 						}
+				}
+
+				this._download_callbacks = {
+						daily_temperature_normalized: async() => format_export_data(['day', 'normalized_' + options.variable], download_data, null, 1)
 				}
 
 				const chart_layout = {
@@ -127,5 +133,39 @@ export default class DailyTemperatureNormalized extends View {
 
 		}
 
+		async request_downloads() {
+				const {station, variable} = this.parent.options;
+				return [
+						{
+								label: 'Daily Temperature Normalized',
+								icon: 'bar-chart',
+								attribution: 'ACIS: livneh',
+								when_data: this._download_callbacks['daily_temperature_normalized'],
+								filename: [
+										station,
+										"daily_temperature_normalized",
+										variable
+								].join('-').replace(/ /g, '_') + '.csv'
+						},
+						{
+								label: 'Chart image',
+								icon: 'picture-o',
+								attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
+								when_data: async () => {
+										let {width, height} = window.getComputedStyle(this.element);
+										width = Number.parseFloat(width) * 1.2;
+										height = Number.parseFloat(height) * 1.2;
+										return await Plotly.toImage(this.element, {
+												format: 'png', width: width, height: height
+										});
+								},
+								filename: [
+										station,
+										"daily_temperature_normalized",
+										"graph"
+								].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
+						},
+				]
+		}
 
 }

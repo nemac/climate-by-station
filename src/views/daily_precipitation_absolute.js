@@ -1,6 +1,7 @@
 import View from "./view_base.js";
-import {get_data} from "../io";
-import _ from "lodash-es";
+import {get_data} from "../io.js";
+import _ from "../../node_modules/lodash-es/lodash.js";
+import {format_export_data} from "../utils.js";
 
 export default class DailyPrecipitationAbsolute extends View {
 
@@ -39,6 +40,7 @@ export default class DailyPrecipitationAbsolute extends View {
 				let days = [];
 				let values = [];
 				let normals = [];
+				let download_data = [];
 
 				daily_values_entries.forEach((e, i) => {
 
@@ -57,14 +59,19 @@ export default class DailyPrecipitationAbsolute extends View {
 				 */
 				const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][0]);
 				let counter = normal_entries.length - 1;
-				for(let i = diff_days; i > 0; i--) {
+				for(let i = diff_days; i >= 0; i--) {
 						normals[i] = normal_entries[counter][1].value;
+						download_data[i] = [days[i], values[i], normal_entries[counter][1].value];
 
 						counter--;
 
 						if(counter < 0) {
 								counter = normal_entries.length - 1;
 						}
+				}
+
+				this._download_callbacks = {
+						daily_precipitation_absolute: async() => format_export_data(['day', 'precipitation', 'normal_value'], download_data, null, null)
 				}
 
 				const chart_layout = {
@@ -144,6 +151,41 @@ export default class DailyPrecipitationAbsolute extends View {
 						return {value: valid ? Number.parseFloat(this.parent._get_value(value)) : Number.NaN, valid: valid}
 				})
 
+		}
+
+		async request_downloads() {
+				const {station} = this.parent.options;
+				return [
+						{
+								label: 'Daily Precipitation Absolute',
+								icon: 'bar-chart',
+								attribution: 'ACIS: livneh',
+								when_data: this._download_callbacks['daily_precipitation_absolute'],
+								filename: [
+										station,
+										"daily_precipitation_absolute",
+										"precipitation"
+								].join('-').replace(/ /g, '_') + '.csv'
+						},
+						{
+								label: 'Chart image',
+								icon: 'picture-o',
+								attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
+								when_data: async () => {
+										let {width, height} = window.getComputedStyle(this.element);
+										width = Number.parseFloat(width) * 1.2;
+										height = Number.parseFloat(height) * 1.2;
+										return await Plotly.toImage(this.element, {
+												format: 'png', width: width, height: height
+										});
+								},
+								filename: [
+										station,
+										"precipitation",
+										"graph"
+								].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
+						},
+				]
 		}
 
 

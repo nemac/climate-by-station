@@ -5,6 +5,7 @@ import DailyTemperatureMinMax from "./views/daily_temperature_minmax";
 import _ from "../node_modules/lodash-es/lodash.js";
 import DailyPrecipitationNormalized from "./views/daily_precipitation_normalized";
 import DailyTemperatureNormalized from "./views/daily_temperature_normalized";
+import { save_file } from './utils.js';
 
 export default class ClimateByStationWidget {
 
@@ -109,7 +110,6 @@ export default class ClimateByStationWidget {
 								return DailyTemperatureNormalized;
 				}
 		}
-
 
 		update(options) {
 
@@ -252,7 +252,6 @@ export default class ClimateByStationWidget {
 				}
 		}
 
-
 		validator(value) {
 
 				let _value = this._get_value(value);
@@ -287,6 +286,108 @@ export default class ClimateByStationWidget {
 				this.options.daily_values = null;
 				this.options.normal_values = null;
 		}
+
+		download_annual_exceedance() {
+				return new Promise((resolve, reject) => {
+						this.request_downloads().then((downloads) => {
+								const download = downloads.find((d) => d['label'] === 'Annual Exceedance')
+								if (!download) {
+										return reject(new Error('Annual Exceedance is not available for download'));
+								}
+								download.download().then(() => resolve())
+						})
+				});
+		}
+
+		download_daily_precipitation_absolute() {
+				return new Promise((resolve, reject) => {
+						this.request_downloads().then((downloads) => {
+								const download = downloads.find((d) => d['label'] === 'Daily Precipitation Absolute')
+								if (!download) {
+										return reject(new Error('Daily Precipitation Absolute is not available for download'));
+								}
+								download.download().then(() => resolve())
+						})
+				});
+		}
+
+		download_daily_temperature_absolute() {
+				return new Promise((resolve, reject) => {
+						this.request_downloads().then((downloads) => {
+								const download = downloads.find((d) => d['label'] === 'Daily Temperature Absolute')
+								if (!download) {
+										return reject(new Error('Daily Temperature Absolute is not available for download'));
+								}
+								download.download().then(() => resolve())
+						})
+				});
+		}
+
+		download_daily_temperature_minmax() {
+				return new Promise((resolve, reject) => {
+						this.request_downloads().then((downloads) => {
+								const download = downloads.find((d) => d['label'] === 'Daily Temperature Minimum and Maximum')
+								if (!download) {
+										return reject(new Error('Daily Temperature Minimum and Maximum is not available for download'));
+								}
+								download.download().then(() => resolve())
+						})
+				});
+		}
+
+		download_daily_temperature_normalized() {
+				return new Promise((resolve, reject) => {
+						this.request_downloads().then((downloads) => {
+								const download = downloads.find((d) => d['label'] === 'Daily Temperature Normalized')
+								if (!download) {
+										return reject(new Error('Daily Temperature Normalized is not available for download'));
+								}
+								download.download().then(() => resolve())
+						})
+				});
+		}
+
+		download_daily_precipitation_normalized() {
+				return new Promise((resolve, reject) => {
+						this.request_downloads().then((downloads) => {
+								const download = downloads.find((d) => d['label'] === 'Daily Precipitation Normalized')
+								if (!download) {
+										return reject(new Error('Daily Precipitation Normalized is not available for download'));
+								}
+								download.download().then(() => resolve())
+						})
+				});
+		}
+
+		/**
+		 * Gets the available downloads for the current view.
+		 * @return {Promise<*[]>}
+		 */
+		async request_downloads() {
+				if (this.view) {
+						return (await this.view.request_downloads()).map((d) => new Proxy(
+								d,
+								{
+										get: (target, prop) => {
+												if (prop === 'download') {
+														return async () => {
+																try {
+																		const url = await target.when_data();
+
+																		return await save_file(url, target['filename'])
+																} catch (e) {
+																		console.log('Failed download with message', e)
+																		throw new Error('Failed to download ' + target['label'])
+																}
+														}
+												}
+												return target[prop]
+										}
+								}));
+				}
+				return [];
+		}
+
 
 		destroy() {
 				this.view = null;

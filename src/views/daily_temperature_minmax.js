@@ -1,6 +1,7 @@
 import View from "./view_base.js";
 import {get_data} from "../io";
 import _ from "lodash-es";
+import {format_export_data} from "../utils";
 
 export default class DailyTemperatureMinMax extends View {
 
@@ -38,6 +39,7 @@ export default class DailyTemperatureMinMax extends View {
 				let days = [];
 				let normal_min = [];
 				let normal_max = [];
+				let download_data = [];
 
 				daily_values.forEach(e => {
 
@@ -66,14 +68,19 @@ export default class DailyTemperatureMinMax extends View {
 
 				const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][1].day);
 				let counter = normal_entries.length - 1;
-				for(let i = diff_days; i > 0; i--) {
+				for(let i = diff_days; i >= 0; i--) {
 						normal_min[i] = normal_entries[counter][1].min;
 						normal_max[i] = normal_entries[counter][1].max;
+						download_data[i] = [days[i], min[i], (max[i] + min[i]), normal_entries[counter][1].min, normal_entries[counter][1].max];
 						counter--;
 
 						if(counter < 0) {
 								counter = normal_entries.length - 1;
 						}
+				}
+
+				this._download_callbacks = {
+						daily_temperature_minmax: async() => format_export_data(['day', 'minimum', 'maximum', 'normal_minimum', 'normal_maximum'], download_data, null, null)
 				}
 
 				const chart_layout = {
@@ -138,5 +145,38 @@ export default class DailyTemperatureMinMax extends View {
 
 		}
 
+		async request_downloads() {
+				const {station} = this.parent.options;
+				return [
+						{
+								label: 'Daily Temperature Minimum and Maximum',
+								icon: 'bar-chart',
+								attribution: 'ACIS: livneh',
+								when_data: this._download_callbacks['daily_temperature_minmax'],
+								filename: [
+										station,
+										"daily_temperature_minmax"
+								].join('-').replace(/ /g, '_') + '.csv'
+						},
+						{
+								label: 'Chart image',
+								icon: 'picture-o',
+								attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
+								when_data: async () => {
+										let {width, height} = window.getComputedStyle(this.element);
+										width = Number.parseFloat(width) * 1.2;
+										height = Number.parseFloat(height) * 1.2;
+										return await Plotly.toImage(this.element, {
+												format: 'png', width: width, height: height
+										});
+								},
+								filename: [
+										station,
+										"daily_temperature_minmax",
+										"graph"
+								].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
+						},
+				]
+		}
 
 }
