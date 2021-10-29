@@ -61,7 +61,10 @@ export default class AnnualExceedance extends View {
 						xaxis: this.parent._get_x_axis_layout(years),
 						yaxis: {
 								title: {
-										text: this._get_y_axis_title(options.window, options.variable, options.threshold, options.thresholdOperator)
+										text: this._get_y_axis_title(options.window, options.variable, options.threshold, options.thresholdOperator),
+										font: {
+												size: 12
+										}
 								}
 						},
 						legend: {
@@ -73,12 +76,9 @@ export default class AnnualExceedance extends View {
 						type: "bar",
 						x: years,
 						y: exceedance_values,
-						name: "Yearly Exceedance"
-				},{
-						type: "bar",
-						x: years,
-						y: missing_values,
-						name: "Invalid/missing daily values"
+						name: "Yearly Exceedance",
+						customdata: missing_values,
+						hovertemplate: "Exceedance: %{y} Missing values: %{customdata}"
 				}]
 
 				Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
