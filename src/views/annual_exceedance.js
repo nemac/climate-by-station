@@ -58,15 +58,8 @@ export default class AnnualExceedance extends View {
 				}
 
 				const chart_layout = {
-						xaxis: this.parent._get_x_axis_layout(years),
-						yaxis: {
-								title: {
-										text: this._get_y_axis_title(options.window, options.variable, options.threshold, options.thresholdOperator),
-										font: {
-												size: 12
-										}
-								}
-						},
+						xaxis: this._get_x_axis_layout(years),
+						yaxis: this._get_y_axis_layout(options),
 						legend: {
 								"orientation": "h"
 						}
@@ -280,6 +273,27 @@ export default class AnnualExceedance extends View {
 
 				return window_str + " with " + variable_str + " of " + operator_str + " " + threshold_str;
 
+		}
+
+		_get_x_axis_layout(x_axis_range) {
+				return {
+						tickformat: "%Y",
+						ticklabelmode: "period",
+						type: "date",
+						range: [x_axis_range].map(a => a + '-01-01'),
+						linecolor: "#828282"
+				}
+		}
+
+		_get_y_axis_layout(options) {
+				return {
+						title: {
+								text: this._get_y_axis_title(options.window, options.variable, options.threshold, options.thresholdOperator),
+								font: {
+										size: 12
+								}
+						}
+				}
 		}
 
 		async request_downloads() {

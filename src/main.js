@@ -18,6 +18,7 @@ export default class ClimateByStationWidget {
 						variable: 'precipitation',
 						threshold: 1.0,
 						window: 1,
+						measurement: "Inches",
 						window_behaviour: 'rollingSum',
 						thresholdOperator: '>=',
 						dataAPIEndpoint: 'https://data.rcc-acis.org/',
@@ -144,6 +145,8 @@ export default class ClimateByStationWidget {
 										this._reset_widget();
 								}
 
+								this.options.measurement = "Inches";
+
 						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized") {
 
 								/*
@@ -166,19 +169,25 @@ export default class ClimateByStationWidget {
 										this._reset_widget();
 								}
 
+								this.options.measurement = "°F";
+
 						} else if(view_type === "annual_exceedance") {
 								switch(variable) {
 										case "tmax":
 												this.options.threshold = 95.0;
+												this.options.measurement = "°F";
 												break;
 										case "tmin":
 												this.options.threshold = 32.0;
+												this.options.measurement = "°F";
 												break;
 										case "tavg":
 												this.options.threshold = 72.0;
+												this.options.measurement = "°F";
 												break;
 										case "precipitation":
 												this.options.threshold = 1.0;
+												this.options.measurement = "Inches";
 												break;
 								}
 
@@ -192,12 +201,14 @@ export default class ClimateByStationWidget {
 						const view_type = this.options.view_type;
 						if(view_type === "annual_exceedance" || view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized") {
 								this.options.variable = "precipitation";
+								this.options.measurement = "Inches";
 								this.options.sdate = "por";
 								this.options.edate = (new Date().getFullYear()) + "-12-31";
 								this.options.threshold = 1.0;
 								this.options.window = 1;
 						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized") {
 								this.options.variable = "tmax";
+								this.options.measurement = "°F";
 								this.options.sdate = "por";
 								this.options.edate = (new Date().getFullYear()) + "-12-31";
 								this.options.threshold = 95.0;
@@ -232,23 +243,6 @@ export default class ClimateByStationWidget {
 				if(!this.spinner_element.classList.contains("d-none")) {
 						this.spinner_element.classList.add("d-none");
 						this.view_container.style.filter = "opacity(1)"
-				}
-		}
-
-		_get_x_axis_layout(x_axis_range) {
-				return {
-						tickformat: "%Y",
-						ticklabelmode: "period",
-						type: "date",
-						range: [x_axis_range].map(a => a + '-01-01')
-				}
-		}
-
-		_get_y_axis_layout() {
-				return {
-						title: {
-								text:"Events per Year Above Threshold"
-						}
 				}
 		}
 

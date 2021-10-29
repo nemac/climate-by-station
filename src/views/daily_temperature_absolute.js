@@ -70,14 +70,8 @@ export default class DailyTemperatureAbsolute extends View {
 				}
 
 				const chart_layout = {
-						xaxis: {
-								range: [(years[years.length - 1] - 30) + "-01-01", (years[years.length - 1]) + "-01-01"]
-						},
-						yaxis: {
-								title: {
-										text:"Daily Temperature Values"
-								}
-						},
+						xaxis: this._get_x_axis_layout(years),
+						yaxis: this._get_y_axis_layout(),
 						legend: {
 								"orientation": "h"
 						},
@@ -142,6 +136,23 @@ export default class DailyTemperatureAbsolute extends View {
 						return {value: valid ? Number.parseFloat(this.parent._get_value(value)) : Number.NaN, valid: valid}
 				})
 
+		}
+		_get_x_axis_layout(x_axis_range) {
+				return {
+						range: [(x_axis_range[x_axis_range.length - 1] - 30) + "-01-01", (x_axis_range[x_axis_range.length - 1]) + "-01-01"],
+						linecolor: "#828282"
+				}
+		}
+
+		_get_y_axis_layout() {
+				return {
+						title: {
+								text:"Daily Temperature Values in °F",
+								font: {
+										size: 12
+								}
+						}
+				}
 		}
 
 		async request_downloads() {

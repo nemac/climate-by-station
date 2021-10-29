@@ -75,14 +75,8 @@ export default class DailyPrecipitationAbsolute extends View {
 				}
 
 				const chart_layout = {
-						xaxis: {
-								range: [(years[years.length - 1] - 30) + "-01-01", (years[years.length - 1]) + "-01-01"]
-						},
-						yaxis: {
-								title: {
-										text:"Daily Precipitation Values"
-								}
-						},
+						xaxis: this._get_x_axis_layout(years),
+						yaxis: this._get_y_axis_layout(),
 						legend: {
 								"orientation": "h"
 						},
@@ -108,7 +102,7 @@ export default class DailyPrecipitationAbsolute extends View {
 						{
 								x: days,
 								y: values,
-								name: "Daily Precipitation Values",
+								name: "Daily Precipitation Values in Inches",
 								mode: 'lines',
 								line: {
 										color: 'rgb(84,155,198)',
@@ -118,7 +112,7 @@ export default class DailyPrecipitationAbsolute extends View {
 						{
 								x: days,
 								y: normals,
-								name: "Daily Precipitation Normal Values",
+								name: "Daily Precipitation Normal Values in Inches",
 								mode: 'lines',
 								line: {
 										color: 'rgb(171,221,164)',
@@ -126,7 +120,7 @@ export default class DailyPrecipitationAbsolute extends View {
 								}
 						},
 						{
-								name: "Threshold",
+								name: "Threshold in Inches",
 								x: [years[0], years[years.length - 1]],
 								y: [threshold, threshold],
 								type: "scatter",
@@ -151,6 +145,24 @@ export default class DailyPrecipitationAbsolute extends View {
 						return {value: valid ? Number.parseFloat(this.parent._get_value(value)) : Number.NaN, valid: valid}
 				})
 
+		}
+
+		_get_x_axis_layout(x_axis_range) {
+				return {
+						range: [(x_axis_range[x_axis_range.length - 1] - 30) + "-01-01", (x_axis_range[x_axis_range.length - 1]) + "-01-01"],
+						linecolor: "#828282"
+				}
+		}
+
+		_get_y_axis_layout() {
+				return {
+						title: {
+								text:"Daily Precipitation Values in Inches",
+								font: {
+										size: 12
+								}
+						}
+				}
 		}
 
 		async request_downloads() {
@@ -187,6 +199,5 @@ export default class DailyPrecipitationAbsolute extends View {
 						},
 				]
 		}
-
 
 }

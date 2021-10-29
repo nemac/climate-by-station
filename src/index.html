@@ -21,10 +21,11 @@
 	<div class="container">
 			<div class="row" style="min-height: 30rem;">
 					<div class="col-12 col-md-4">
-							<div class="mb-2">
-									<div class="d-flex flex-column me-2">
-											<label for="station">Station Id:</label>
-											<input class="form-control" name="station" id="station" value="USC00094429">
+							<div class="d-flex mb-2">
+
+									<div class="input-group me-2">
+											<span class="input-group-text">Station ID</span>
+											<input id="station" type="text" class="form-control">
 									</div>
 
 									<div>
@@ -32,63 +33,74 @@
 									</div>
 							</div>
 							<div class="mb-2">
-									<label for="variables">Variables:</label>
-
-									<select name="variables" id="variables" class="dropdown">
-											<option class="dropdown-item" value="precipitation">Precipitation</option>
-											<option class="dropdown-item" value="tmax">TMax</option>
-											<option class="dropdown-item" value="tmin">TMin</option>
-											<option class="dropdown-item" value="tavg">TAvg</option>
-									</select>
+									<div class="input-group">
+											<label class="input-group-text" for="variables">Variables</label>
+											<select class="form-select" id="variables">
+													<option value="precipitation" selected>Precipitation</option>
+													<option value="tmax">TMax</option>
+													<option value="tmin">TMin</option>
+													<option value="tavg">TAvg</option>
+											</select>
+									</div>
 							</div>
 							<div class="mb-2">
-									<label for="window">Window:</label>
-									<input type="number" name="window" id="window" value="1">
+									<div class="input-group mb-3">
+											<span class="input-group-text">Window</span>
+											<input id="window" class="form-control" type="number" name="window" value="1">
+											<span class="input-group-text">Days</span>
+									</div>
 							</div>
 							<div class="mb-2">
-									<label for="threshold">Threshold:</label>
-									<input type="number" step="0.5" name="threshold" id="threshold" value="1">
+									<div class="input-group mb-3">
+											<span class="input-group-text">Threshold</span>
+											<input id="threshold" class="form-control" type="number" step="0.5" name="threshold" value="1">
+											<span class="input-group-text threshold-measurement">Inches</span>
+									</div>
 							</div>
 							<div class="mb-2">
-									<label for="operators">Operators:</label>
-
-									<select name="operators" id="operators">
-											<option value=">=">at least (>=)</option>
-											<option value="<=">not more than (<=)</option>
-									</select>
+									<div class="input-group">
+											<label class="input-group-text" for="operators">Operators</label>
+											<select class="form-select" id="operators">
+													<option value=">=">at least (>=)</option>
+													<option value="<=">not more than (<=)</option>
+											</select>
+									</div>
 							</div>
 							<div class="mb-2">
-									<label for="percentile">Percentiles:</label>
-
-									<select name="percentile" id="percentile">
-											<option value="80">80th</option>
-											<option value="90">90th</option>
-											<option value="95">95th</option>
-									</select>
+									<div class="input-group">
+											<label class="input-group-text" for="percentile">Percentiles</label>
+											<select class="form-select" id="percentile">
+													<option selected></option>
+													<option value="80">80th</option>
+													<option value="90">90th</option>
+													<option value="95">95th</option>
+											</select>
+									</div>
 							</div>
 							<div class="mb-2">
-									<label for="view-type">Views:</label>
-
-									<select name="view-type" id="view-type">
-											<option value="annual_exceedance">Annual Exceedance</option>
-											<option value="daily_precipitation_absolute">Daily Precipitation Absolute</option>
-											<option value="daily_temperature_absolute">Daily Temperature Absolute</option>
-											<option value="daily_temperature_minmax">Daily Temperature Minimum and Maximum</option>
-											<option value="daily_precipitation_normalized">Daily Precipitation Normalized</option>
-											<option value="daily_temperature_normalized">Daily Temperature Normalized</option>
-									</select>
+									<div class="input-group">
+											<label class="input-group-text" for="view-type">Views</label>
+											<select class="form-select" id="view-type">
+													<option value="annual_exceedance" selected>Annual Exceedance</option>
+													<option value="daily_precipitation_absolute">Daily Precipitation Absolute</option>
+													<option value="daily_temperature_absolute">Daily Temperature Absolute</option>
+													<option value="daily_temperature_minmax">Daily Temperature Minimum and Maximum</option>
+													<option value="daily_precipitation_normalized">Daily Precipitation Normalized</option>
+													<option value="daily_temperature_normalized">Daily Temperature Normalized</option>
+											</select>
+									</div>
+							</div>
+							<div class="d-flex mb-2">
+									<div class="me-2">
+											<a class="btn btn-primary" id="download-data">Download Data</a>
+									</div>
+									<div>
+											<a class="btn btn-secondary" id="download-image">Download Image</a>
+									</div>
 							</div>
 					</div>
 					<div class="col-12 col-md-8 d-flex">
 							<div id="climate_by_station" class="flex-grow-1" style="position: relative;"></div>
-					</div>
-			</div>
-			<div class="d-flex">
-					<div class="me-2">
-							<a class="btn btn-primary" id="download-data">Download Data</a>
-					</div>
-					<div>
-							<a class="btn btn-secondary" id="download-image">Download Image</a>
 					</div>
 			</div>
 
@@ -106,12 +118,15 @@
 
 				let stationElement = document.getElementById("station");
 				let updateElement = document.getElementById("update");
-				let windowElement = document.getElementById("window");
-				let thresholdElement = document.getElementById("threshold");
-				let variableElement = document.getElementById("variables");
+				let windowElement = document.getElementById("window"); //works
+				let thresholdElement = document.getElementById("threshold"); //works
+				let variableElement = document.getElementById("variables"); //works
 				let operatorElement = document.getElementById("operators");
 				let percentileElement = document.getElementById("percentile");
 				let viewTypeElement = document.getElementById("view-type");
+				let measurementElement = document.querySelector('.threshold-measurement');
+
+				stationElement.placeholder = widget.options.station;
 
 				windowElement.addEventListener('change', function(e) {
 						let value = e.target.value;
@@ -138,9 +153,12 @@
 				variableElement.addEventListener('change', function(e) {
 						let value = e.target.value;
 
-						widget.update({variable: value})
+						widget.update({variable: value});
+
 						thresholdElement.value = widget.options.threshold;
 						windowElement.value = widget.options.window;
+						measurementElement.innerText = widget.options.measurement;
+						percentileElement.selectedIndex = 0;
 				})
 
 				stationElement.addEventListener('change', function(e) {
@@ -152,12 +170,14 @@
 						e.preventDefault();
 
 						let value = stationElement.value;
+
 						widget.update({station: value});
+
+						stationElement.placeholder = widget.options.station;
 				})
 
 				operatorElement.addEventListener('change', function(e) {
 						let value = e.target.value;
-
 						widget.update({thresholdOperator: value});
 				})
 
@@ -168,6 +188,7 @@
 								let updatedThreshold = widget.view._get_percentile_value(Number.parseInt(value));
 
 								widget.update({threshold: updatedThreshold});
+								thresholdElement.value = widget.options.threshold;
 						}
 				})
 
@@ -175,6 +196,11 @@
 						let value = e.target.value;
 
 						widget.update({view_type: value});
+
+						thresholdElement.value = widget.options.threshold;
+						windowElement.value = widget.options.window;
+						measurementElement.innerText = widget.options.measurement;
+						percentileElement.selectedIndex = 0;
 				})
 
 				let downloadData = document.getElementById("download-data");

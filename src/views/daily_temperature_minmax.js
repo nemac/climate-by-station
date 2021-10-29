@@ -84,14 +84,8 @@ export default class DailyTemperatureMinMax extends View {
 				}
 
 				const chart_layout = {
-						xaxis: {
-								range: [(years[years.length - 1] - 30) + "-01-01", (years[years.length - 1]) + "-01-01"]
-						},
-						yaxis: {
-								title: {
-										text:"Daily Minimum and Maximum Temperature Values"
-								}
-						},
+						xaxis: this._get_x_axis_layout(years),
+						yaxis: this._get_y_axis_layout(),
 						legend: {
 								"orientation": "h"
 						}
@@ -99,23 +93,14 @@ export default class DailyTemperatureMinMax extends View {
 
 				let chart_data = [
 						{
-								type: "line",
+								mode: "lines",
 								x: days,
 								y: normal_min,
-								marker: {
-										color: 'rgba(171,221,164, 0.3)'
+								line: {
+									color: 'transparent'
 								},
-								legendgroup: 'normal_band'
-						},
-						{
-								type: "line",
-								x: days,
-								y: normal_max,
-								fill: 'tonexty',
-								marker: {
-										color: 'rgba(171,221,164, 0.3)'
-								},
-								legendgroup: 'normal_band'
+								legendgroup: 'normal_band',
+								name: "Normal Minimum and Maximum Values in °F"
 						},
 						{
 								type: "bar",
@@ -125,7 +110,21 @@ export default class DailyTemperatureMinMax extends View {
 								hovertemplate: 'Min: %{base} Max: %{y}',
 								marker: {
 										color: 'rgb(50,136,189)'
-								}
+								},
+								name: "Daily Minimum and Maximum Values in °F"
+						},
+						{
+								mode: "lines",
+								x: days,
+								y: normal_max,
+								fill: 'tonexty',
+								fillcolor: 'rgba(171,221,164, 0.5)',
+								line: {
+									color: 'transparent'
+								},
+								legendgroup: 'normal_band',
+								name: 'Normal Minimum and Maximum Values in °F',
+								showlegend: false
 						}
 				]
 
@@ -143,6 +142,24 @@ export default class DailyTemperatureMinMax extends View {
 						}
 				})
 
+		}
+
+		_get_x_axis_layout(x_axis_range) {
+				return {
+						range: [(x_axis_range[x_axis_range.length - 1] - 30) + "-01-01", (x_axis_range[x_axis_range.length - 1]) + "-01-01"],
+						linecolor: "#828282"
+				}
+		}
+
+		_get_y_axis_layout() {
+				return {
+						title: {
+								text:"Daily Minimum and Maximum Temperature Values in °F",
+								font: {
+										size: 12
+								}
+						}
+				}
 		}
 
 		async request_downloads() {
