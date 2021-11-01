@@ -86,46 +86,61 @@ export default class DailyTemperatureMinMax extends View {
 				const chart_layout = {
 						xaxis: this._get_x_axis_layout(years),
 						yaxis: this._get_y_axis_layout(),
+						yaxis2: {
+							type: 'linear',
+							matches: 'y',
+							overlaying: 'y',
+							showline: false,
+							showgrid: false,
+							showticklabels: false,
+							nticks: 0
+						},
 						legend: {
 								"orientation": "h"
-						}
+						},
+					bargap : 0.05
 				}
 
 				let chart_data = [
-						{
-								mode: "lines",
-								x: days,
-								y: normal_min,
-								line: {
-									color: 'transparent'
-								},
-								legendgroup: 'normal_band',
-								name: "Normal Minimum and Maximum Values in °F"
+
+					{
+						mode: "lines",
+						x: days,
+						y: normal_min,
+						fill: 'none',
+						line: {
+							color: 'transparent'
 						},
-						{
-								type: "bar",
-								x: days,
-								y: max,
-								base: min,
-								hovertemplate: 'Min: %{base} Max: %{y}',
-								marker: {
-										color: 'rgb(50,136,189)'
-								},
-								name: "Daily Minimum and Maximum Values in °F"
+						legendgroup: 'normal_band',
+						showlegend: false,
+						name: "Normal min / max temperature"
+					},
+					{
+						mode: "lines",
+						x: days,
+						y: normal_max,
+						fill: 'tonexty',
+						fillcolor: '#abdda4',
+						line: {
+							color: 'transparent'
 						},
-						{
-								mode: "lines",
-								x: days,
-								y: normal_max,
-								fill: 'tonexty',
-								fillcolor: 'rgba(171,221,164, 0.5)',
-								line: {
-									color: 'transparent'
-								},
-								legendgroup: 'normal_band',
-								name: 'Normal Minimum and Maximum Values in °F',
-								showlegend: false
-						}
+						legendgroup: 'normal_band',
+						name: 'Normal min / max temperature',
+					},
+
+					{
+						type: "bar",
+						x: days,
+						y: max,
+						yaxis: 'y2',
+						base: min,
+						hovertemplate: 'Min: %{base} Max: %{y}',
+						marker: {
+							color: 'rgba(50, 136, 189, 0.95)'
+
+						},
+						name: "Actual min / max temperature"
+					}
 				]
 
 				Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
@@ -146,7 +161,7 @@ export default class DailyTemperatureMinMax extends View {
 
 		_get_x_axis_layout(x_axis_range) {
 				return {
-						range: [(x_axis_range[x_axis_range.length - 1] - 30) + "-01-01", (x_axis_range[x_axis_range.length - 1]) + "-01-01"],
+						range: [(x_axis_range[x_axis_range.length - 1] - 12) + "-01-01", (x_axis_range[x_axis_range.length - 1]) + "-01-01"],
 						linecolor: "#828282"
 				}
 		}
@@ -154,7 +169,7 @@ export default class DailyTemperatureMinMax extends View {
 		_get_y_axis_layout() {
 				return {
 						title: {
-								text:"Daily Minimum and Maximum Temperature Values in °F",
+								text:"Daily min / max temperature (°F)",
 								font: {
 										size: 12
 								}
@@ -166,9 +181,9 @@ export default class DailyTemperatureMinMax extends View {
 				const {station} = this.parent.options;
 				return [
 						{
-								label: 'Daily Temperature Minimum and Maximum',
+								label: 'Daily min / max temperature',
 								icon: 'bar-chart',
-								attribution: 'ACIS: livneh',
+								attribution: 'ACIS: GHCN-D',
 								when_data: this._download_callbacks['daily_temperature_minmax'],
 								filename: [
 										station,
@@ -178,7 +193,7 @@ export default class DailyTemperatureMinMax extends View {
 						{
 								label: 'Chart image',
 								icon: 'picture-o',
-								attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
+								attribution: 'ACIS: GHCN-D',
 								when_data: async () => {
 										let {width, height} = window.getComputedStyle(this.element);
 										width = Number.parseFloat(width) * 1.2;
