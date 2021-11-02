@@ -40,13 +40,14 @@ whether at least 293 days (80%) had valid data. In the new Module the validity i
 🚧: Work in progress.
 ☑️: Done, but requires testing.
 ✅: Completed.
-* ☑️ Update frontend UI for the demo to use bootstrap.
+* ✅️ Update frontend UI for the demo to use bootstrap.
 * ✅ annual_exceedance
 * ✅️ daily_precipitation_absolute
-* ☑️ daily_precipitation_normalized
-* 🔲 daily_precipitation_ytd
+* ✅️ daily_precipitation_normalized
+* ☑️ daily_precipitation_ytd
 * ✅️ daily_temperature_absolute
-* ☑️ daily_temperature_normalized
-* ☑️ daily_temperature_minmax
-* 🔲 daily_histogram
+* ✅️ daily_temperature_normalized
+* ✅️ daily_temperature_minmax
+* ☑️ daily_precipitation_histogram
+* ☑️ daily_temperature_histogram
 * 🔲 annual_exceedance_summary (the semantic digest view)

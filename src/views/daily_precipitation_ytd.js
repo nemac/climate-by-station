@@ -1,19 +1,19 @@
 import View from "./view_base.js";
-import {get_data} from "../io";
-import _ from "lodash-es";
-import {format_export_data} from "../utils";
+import {get_data} from "../io.js";
+import _ from "../../node_modules/lodash-es/lodash.js";
+import {format_export_data} from "../utils.js";
 
-export default class DailyTemperatureNormalized extends View {
+export default class DailyPrecipitationYtd extends View {
 
 		async request_update() {
 
 				const options = this.parent.options;
 
-				let threshold = options.threshold;
+				const threshold = options.threshold;
 
 				if(options.daily_values === null) {
 						this.parent._show_spinner();
-						let data = await (await get_data(options, this.parent.variables)).data;
+						const data = await (await get_data(options, this.parent.variables)).data;
 						options.daily_values = this.get_daily_values(data);
 
 						const normal_options = {
@@ -31,6 +31,7 @@ export default class DailyTemperatureNormalized extends View {
 				}
 
 				const daily_values = options.daily_values;
+				const daily_values_entries = Object.entries(daily_values);
 
 				const normal_values = options.normal_values;
 				const normal_entries = Object.entries(normal_values);
@@ -38,24 +39,47 @@ export default class DailyTemperatureNormalized extends View {
 				let years = [];
 				let days = [];
 				let values = [];
+				let normals = [];
 				let download_data = [];
 
-				Object.entries(daily_values).forEach(e => {
+				let prev_year = null;
+				let accumulator = 0;
+
+				daily_values_entries.forEach((e, i) => {
 
 						let year = e[0].slice(0, 4);
+
+						if(prev_year == null) {
+								prev_year = year;
+						}
+
+						if(year === prev_year) {
+								accumulator += e[1].value;
+						} else {
+								accumulator = e[1].value;
+						}
+
+						values.push(accumulator);
+
 						if(!years.includes(Number.parseInt(year))) {
 								years.push(Number.parseInt(year));
 						}
+
 						days.push(e[0]);
-						values.push(e[1].value);
 
-				})
+						prev_year = year;
+				});
 
+				/*
+				Get total number of days between first day of POR and last day of normal day.
+				Loop through the normals value and repeat the values for each day of the total
+				POR.
+				 */
 				const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][0]);
 				let counter = normal_entries.length - 1;
 				for(let i = diff_days; i >= 0; i--) {
-						values[i] = values[i] - normal_entries[counter][1].value;
-						download_data[i] = [days[i], values[i]];
+						normals[i] = normal_entries[counter][1].value;
+						download_data[i] = [days[i], values[i], normal_entries[counter][1].value];
 
 						counter--;
 
@@ -64,19 +88,36 @@ export default class DailyTemperatureNormalized extends View {
 						}
 				}
 
+
+				let normal_accumulator = 0;
+				let _normals = [];
+				prev_year = null;
+
+				normals.forEach((e, i) => {
+						let year = days[i].slice(0, 4);
+
+						if(prev_year == null) {
+								prev_year = year;
+						}
+
+						if(year === prev_year) {
+								normal_accumulator += normals[i];
+						} else {
+								normal_accumulator = normals[i];
+						}
+
+						_normals.push(normal_accumulator);
+
+						prev_year = year;
+				})
+
 				this._download_callbacks = {
-						daily_temperature_normalized: async() => format_export_data(['day', 'normalized_' + options.variable], download_data, null, 1)
+						daily_precipitation_absolute: async() => format_export_data(['day', 'precipitation', 'normal_value'], download_data, null, null)
 				}
 
 				const chart_layout = {
-						xaxis: {
-								range: [(years[years.length - 1] - 30) + "-01-01", (years[years.length - 1]) + "-01-01"]
-						},
-						yaxis: {
-								title: {
-										text:"Daily temperature normalized values (°F)"
-								}
-						},
+						xaxis: this._get_x_axis_layout(years),
+						yaxis: this._get_y_axis_layout(),
 						legend: {
 								"orientation": "h"
 						}
@@ -86,11 +127,22 @@ export default class DailyTemperatureNormalized extends View {
 						{
 								x: days,
 								y: values,
-								name: "Daily temperature normalized",
-								mode: "lines",
+								name: "Daily precipitation",
+								mode: 'lines',
+								fill: 'tozeroy',
 								line: {
-										color: 'rgb(50,136,189)',
-										width: 0.5
+										color: 'rgb(84,155,198)',
+										width: 1
+								}
+						},
+						{
+								x: days,
+								y: _normals,
+								name: "Daily Normals precipitation",
+								mode: 'lines',
+								line: {
+										color: 'rgb(1,29,68)',
+										width: 1
 								}
 						}
 				]
@@ -107,18 +159,36 @@ export default class DailyTemperatureNormalized extends View {
 
 		}
 
+		_get_x_axis_layout(x_axis_range) {
+				return {
+						range: [(x_axis_range[x_axis_range.length - 1] - 30) + "-01-01", (x_axis_range[x_axis_range.length - 1]) + "-01-01"],
+						linecolor: "#828282"
+				}
+		}
+
+		_get_y_axis_layout() {
+				return {
+						title: {
+								text:"Daily precipitation (in)",
+								font: {
+										size: 12
+								}
+						}
+				}
+		}
+
 		async request_downloads() {
-				const {station, variable} = this.parent.options;
+				const {station} = this.parent.options;
 				return [
 						{
-								label: 'Daily Temperature Normalized',
+								label: 'Daily Precipitation Absolute',
 								icon: 'bar-chart',
 								attribution: 'ACIS: livneh',
-								when_data: this._download_callbacks['daily_temperature_normalized'],
+								when_data: this._download_callbacks['daily_precipitation_absolute'],
 								filename: [
 										station,
-										"daily_temperature_normalized",
-										variable
+										"daily_precipitation_absolute",
+										"precipitation"
 								].join('-').replace(/ /g, '_') + '.csv'
 						},
 						{
@@ -135,7 +205,7 @@ export default class DailyTemperatureNormalized extends View {
 								},
 								filename: [
 										station,
-										"daily_temperature_normalized",
+										"precipitation",
 										"graph"
 								].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
 						},

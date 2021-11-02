@@ -70,6 +70,7 @@ export default class DailyPrecipitationAbsolute extends View {
 						}
 				}
 
+
 				this._download_callbacks = {
 						daily_precipitation_absolute: async() => format_export_data(['day', 'precipitation', 'normal_value'], download_data, null, null)
 				}
@@ -86,7 +87,7 @@ export default class DailyPrecipitationAbsolute extends View {
 										y: threshold,
 										xref: 'paper',
 										yref: 'y',
-										text: `Threshold of ${options.variable === 'precipitation' ? options.threshold + " inches" : options.threshold + " °F"}`,
+										text: `Threshold ${options.variable === 'precipitation' ? options.threshold + " (in)" : options.threshold + " (°F)"}`,
 										xanchor: 'right',
 										yanchor: 'bottom',
 										showarrow: false,
@@ -102,7 +103,7 @@ export default class DailyPrecipitationAbsolute extends View {
 						{
 								x: days,
 								y: values,
-								name: "Daily Precipitation Values in Inches",
+								name: "Daily precipitation",
 								mode: 'lines',
 								line: {
 										color: 'rgb(84,155,198)',
@@ -112,7 +113,7 @@ export default class DailyPrecipitationAbsolute extends View {
 						{
 								x: days,
 								y: normals,
-								name: "Daily Precipitation Normal Values in Inches",
+								name: "Daily precipitation normal",
 								mode: 'lines',
 								line: {
 										color: 'rgb(171,221,164)',
@@ -120,7 +121,7 @@ export default class DailyPrecipitationAbsolute extends View {
 								}
 						},
 						{
-								name: "Threshold in Inches",
+								name: "Threshold",
 								x: [years[0], years[years.length - 1]],
 								y: [threshold, threshold],
 								type: "scatter",
@@ -157,7 +158,7 @@ export default class DailyPrecipitationAbsolute extends View {
 		_get_y_axis_layout() {
 				return {
 						title: {
-								text:"Daily Precipitation Values in Inches",
+								text:"Daily precipitation (in)",
 								font: {
 										size: 12
 								}

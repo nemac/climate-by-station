@@ -81,7 +81,7 @@ export default class DailyTemperatureAbsolute extends View {
 										y: threshold,
 										xref: 'paper',
 										yref: 'y',
-										text: `Threshold of ${options.variable === 'precipitation' ? options.threshold + " inches" : options.threshold + " °F"}`,
+										text: `Threshold ${options.variable === 'precipitation' ? options.threshold + " (in)" : options.threshold + " (°F)"}`,
 										xanchor: 'right',
 										yanchor: 'bottom',
 										showarrow: false,
@@ -97,7 +97,7 @@ export default class DailyTemperatureAbsolute extends View {
 						{
 								x: days,
 								y: values,
-								name: "Daily Temperature Values",
+								name: "Daily temperature",
 								mode: "lines",
 								line: {
 										color: 'rgb(50,136,189)',
@@ -107,7 +107,7 @@ export default class DailyTemperatureAbsolute extends View {
 						{
 								x: days,
 								y: normals,
-								name: "Daily Temperature Normal Values",
+								name: "Daily temperature normal",
 								mode: 'lines',
 								line: {
 										color: 'rgb(171,221,164)',
@@ -147,7 +147,7 @@ export default class DailyTemperatureAbsolute extends View {
 		_get_y_axis_layout() {
 				return {
 						title: {
-								text:"Daily Temperature Values in °F",
+								text:"Daily temperature (°F)",
 								font: {
 										size: 12
 								}

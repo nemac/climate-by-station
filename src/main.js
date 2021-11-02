@@ -1,11 +1,14 @@
 import AnnualExceedance from "./views/annual_exceedance.js";
 import DailyPrecipitationAbsolute from "./views/daily_precipitation_absolute.js";
-import DailyTemperatureAbsolute from "./views/daily_temperature_absolute";
-import DailyTemperatureMinMax from "./views/daily_temperature_minmax";
+import DailyTemperatureAbsolute from "./views/daily_temperature_absolute.js";
+import DailyTemperatureMinMax from "./views/daily_temperature_minmax.js";
 import _ from "../node_modules/lodash-es/lodash.js";
-import DailyPrecipitationNormalized from "./views/daily_precipitation_normalized";
-import DailyTemperatureNormalized from "./views/daily_temperature_normalized";
+import DailyPrecipitationNormalized from "./views/daily_precipitation_normalized.js";
+import DailyTemperatureNormalized from "./views/daily_temperature_normalized.js";
 import { save_file } from './utils.js';
+import DailyPrecipitationHistogram from "./views/daily_precipitation_histogram.js";
+import DailyTemperatureHistogram from "./views/daily_temperature_histogram.js";
+import DailyPrecipitationYtd from "./views/daily_precipitation_ytd";
 
 export default class ClimateByStationWidget {
 
@@ -109,6 +112,12 @@ export default class ClimateByStationWidget {
 								return DailyPrecipitationNormalized;
 						case 'daily_temperature_normalized':
 								return DailyTemperatureNormalized;
+						case 'daily_precipitation_histogram':
+								return DailyPrecipitationHistogram;
+						case 'daily_temperature_histogram':
+								return DailyTemperatureHistogram;
+						case 'daily_precipitation_ytd':
+								return DailyPrecipitationYtd;
 				}
 		}
 
@@ -129,7 +138,7 @@ export default class ClimateByStationWidget {
 
 						this.options.window = 1;
 
-						if(view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized") {
+						if(view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized" || view_type === "daily_precipitation_histogram") {
 
 								/*
 								If we are in daily_precipitation_absolute check if the variable selected is valid, if not default to
@@ -147,7 +156,7 @@ export default class ClimateByStationWidget {
 
 								this.options.measurement = "Inches";
 
-						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized") {
+						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized" || view_type === "daily_temperature_histogram") {
 
 								/*
 								If we are in daily_temperature_absolute and the updated variable is valid (tmax, tmin, tavg), update the
@@ -199,14 +208,14 @@ export default class ClimateByStationWidget {
 				if(old_options.view_type !== this.options.view_type) {
 						this.destroy();
 						const view_type = this.options.view_type;
-						if(view_type === "annual_exceedance" || view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized") {
+						if(view_type === "annual_exceedance" || view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized" || view_type === "daily_precipitation_histogram") {
 								this.options.variable = "precipitation";
 								this.options.measurement = "Inches";
 								this.options.sdate = "por";
 								this.options.edate = (new Date().getFullYear()) + "-12-31";
 								this.options.threshold = 1.0;
 								this.options.window = 1;
-						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized") {
+						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized" || view_type === "daily_temperature_histogram") {
 								this.options.variable = "tmax";
 								this.options.measurement = "°F";
 								this.options.sdate = "por";
