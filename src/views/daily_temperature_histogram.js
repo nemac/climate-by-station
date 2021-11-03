@@ -49,7 +49,32 @@ export default class DailyTemperatureHistogram extends View {
 						yaxis: this._get_y_axis_layout(),
 						legend: {
 								"orientation": "h"
-						}
+						},
+						bargap: 0.05,
+						yaxis2: {
+								type: 'linear',
+								overlaying: 'y',
+								autorange: false,
+								range: [0, 1],
+								zeroline: false,
+								showticklabels: false
+						},
+						annotations: [
+								{
+										x: threshold,
+										y: 1,
+										xref: 'x',
+										yref: 'paper',
+										text: `Threshold ${options.variable === 'precipitation' ? options.threshold + " (in)" : options.threshold + " (°F)"}`,
+										xanchor: 'left',
+										yanchor: 'top',
+										showarrow: false,
+										font: {
+												size: 10
+										},
+										visible: true
+								}
+						]
 				}
 
 				let chart_data = [
@@ -59,6 +84,17 @@ export default class DailyTemperatureHistogram extends View {
 								type: 'histogram',
 								nbinsx: 17,
 								hovertemplate: 'Bin range: (%{x})<br>Count: %{y}'
+						},
+						{
+								mode: "lines",
+								x: [threshold, threshold],
+								y: [0, 1],
+								yaxis: 'y2',
+								hovertemplate: 'x %{x}, y y%{y}',
+								line: {
+										color: 'rgb(0,0,0)',
+										width: 1
+								}
 						}
 				]
 
@@ -87,7 +123,7 @@ export default class DailyTemperatureHistogram extends View {
 
 		_get_y_axis_layout() {
 				return {
-						type: 'log'
+						// type: 'log'
 				}
 		}
 

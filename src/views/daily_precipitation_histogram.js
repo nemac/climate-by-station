@@ -34,8 +34,6 @@ export default class DailyPrecipitationHistogram extends View {
 								years.push(Number.parseInt(year));
 						}
 
-						if(e[0].value > 0)
-
 						days.push(e[0]);
 						values.push(e[1].value);
 				});
@@ -44,25 +42,78 @@ export default class DailyPrecipitationHistogram extends View {
 						daily_precipitation_histogram: async() => format_export_data(['day', 'precipitation', 'normal_value'], values, null, null)
 				}
 
+				const values_filtered = values.filter(e => {
+						if(e !== Number.NaN) {
+								return e;
+						}
+				})
+
+				const max_val = Math.max(...values_filtered);
+				const min_val = Math.min(...values_filtered);
+				const bin_size = 17;
+
+				const bin_width = Math.ceil((max_val - min_val) / bin_size);
+
+				let count = [];
+				let bins = [];
+
 				const chart_layout = {
 						xaxis: this._get_x_axis_layout(),
 						yaxis: this._get_y_axis_layout(),
 						legend: {
 								"orientation": "h"
-						}
+						},
+						bargap: 0.05,
+						yaxis2: {
+								type: 'linear',
+								overlaying: 'y',
+								autorange: false,
+								range: [0, 1],
+								zeroline: false,
+								showticklabels: false
+						},
+						annotations: [
+								{
+										x: threshold,
+										y: 1,
+										xref: 'x',
+										yref: 'paper',
+										text: `Threshold ${options.variable === 'precipitation' ? options.threshold + " (in)" : options.threshold + " (°F)"}`,
+										xanchor: 'left',
+										yanchor: 'top',
+										showarrow: false,
+										font: {
+												size: 10
+										},
+										visible: true
+								}
+						]
 				}
 
 				let chart_data = [
 						{
-								name: "Daily precipitation data",
 								x: values,
 								type: 'histogram',
 								nbinsx: 17,
 								hovertemplate: 'Bin range: (%{x})<br>Count: %{y}'
+						},
+						{
+								mode: "lines",
+								x: [threshold, threshold],
+								y: [0, 1],
+								yaxis: 'y2',
+								hovertemplate: 'x %{x}, y y%{y}',
+								line: {
+										color: 'rgb(0,0,0)',
+										width: 1
+								}
 						}
 				]
 
 				Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
+
+				this.element.on('plotly_afterplot', (gd) => {
+				})
 		}
 
 		get_daily_values(data) {
@@ -87,7 +138,10 @@ export default class DailyPrecipitationHistogram extends View {
 
 		_get_y_axis_layout() {
 				return {
-						type: 'log'
+						type: 'log',
+						exponentformat: 'B', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-exponentformat
+						dtick: 'tick0', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-dtick
+						autorange: true
 				}
 		}
 
