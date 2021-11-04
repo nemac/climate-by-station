@@ -112,8 +112,19 @@ export default class DailyPrecipitationHistogram extends View {
 
 				Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
 
-				this.element.on('plotly_afterplot', (gd) => {
-				})
+				this._click_handler = (data) => {
+						options.threshold = data.points[0].x;
+						const update = {
+								x: [[options.threshold, options.threshold]],
+								y: [[0, 1]]
+						}
+
+						Plotly.update(this.element, update, {}, [1]);
+				}
+
+				// https://stackoverflow.com/questions/60678586/update-x-and-y-values-of-a-trace-using-plotly-update
+				this.element.on('plotly_click', this._click_handler);
+
 		}
 
 		get_daily_values(data) {
@@ -180,4 +191,8 @@ export default class DailyPrecipitationHistogram extends View {
 				]
 		}
 
+		destroy() {
+				super.destroy();
+				this.element.removeListener('plotly_click', this._click_handler);
+		}
 }

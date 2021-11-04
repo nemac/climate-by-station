@@ -62,6 +62,7 @@ export default class ClimateByStationWidget {
 						}
 				}
 
+				this.clickhandler = null;
 				this.view = null;
 				this.element = element;
 
@@ -405,8 +406,10 @@ export default class ClimateByStationWidget {
 
 
 		destroy() {
-				this.view = null;
-				this._reset_widget();
-				// other stuff here
+				if(this.view) {
+						this.view.destroy();
+						this._reset_widget();
+						this.view = null;
+				}
 		}
 }

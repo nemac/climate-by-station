@@ -330,5 +330,6 @@ export default class AnnualExceedance extends View {
 						},
 				]
 		}
+
 }
 
