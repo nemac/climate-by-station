@@ -67,7 +67,7 @@ export default class ClimateByStationWidget {
 				this.element = element;
 
 				this.view_container = document.createElement("div");
-				this.view_container.classList.add("climate_by_station_view");
+				this.view_container.classList.add("climate-by-station-view");
 
 				this.element.append(this.view_container);
 

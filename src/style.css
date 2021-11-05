@@ -1,0 +1,28 @@
+.graph-container {
+		position: relative;
+		display: flex;
+}
+
+.graph-wrapper {
+		position: relative;
+		display: flex;
+
+		flex: 1 1 auto;
+
+		border: 1px solid red;
+}
+
+.graph-item {
+		position: relative;
+
+		display: flex;
+
+		flex: 1 1 auto;
+
+		border: 1px solid blue;
+}
+
+.climate-by-station-view {
+		position: relative;
+		flex-grow: 1;
+}

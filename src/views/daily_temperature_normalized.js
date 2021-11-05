@@ -77,6 +77,7 @@ export default class DailyTemperatureNormalized extends View {
 										text:"Daily temperature normalized values (°F)"
 								}
 						},
+						autosize: true,
 						legend: {
 								"orientation": "h"
 						}

@@ -82,6 +82,7 @@ export default class DailyPrecipitationNormalized extends View {
 										text:"Daily precipitation normalized values (in)"
 								}
 						},
+						autosize: true,
 						legend: {
 								"orientation": "h"
 						}

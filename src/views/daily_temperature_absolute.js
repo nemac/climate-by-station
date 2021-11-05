@@ -75,6 +75,7 @@ export default class DailyTemperatureAbsolute extends View {
 						legend: {
 								"orientation": "h"
 						},
+						autosize: true,
 						annotations: [
 								{
 										x: 1,

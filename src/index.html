@@ -15,6 +15,7 @@
 
 		<script src="./climate_by_station_widget.js"></script>
 
+		<link rel="stylesheet" href="style.css">
 </head>
 <body class="mt-3">
 
@@ -107,6 +108,21 @@
 					</div>
 			</div>
 
+			<!--Testing stuff below-->
+			<div class="row">
+					<div class="graph-container col-6">
+							<div class="graph-wrapper">
+									<div id="climate_by_station_1" class="graph-item"></div>
+							</div>
+					</div>
+					<div class="graph-container col-6">
+							<div class="graph-wrapper">
+									<div id="climate_by_station_2" class="graph-item"></div>
+							</div>
+					</div>
+			</div>
+
+
 	</div>
 
 		<script type="module">
@@ -116,6 +132,19 @@
 				const widget = new ClimateByStationWidget(element, {
 						view_type: 'annual_exceedance'
 				});
+
+				const test1 = new ClimateByStationWidget(document.getElementById('climate_by_station_1'), {
+						view_type: 'annual_exceedance'
+				});
+
+				const test2 = new ClimateByStationWidget(document.getElementById('climate_by_station_2'), {
+						view_type: 'daily_temperature_minmax'
+				});
+				//
+				// const test3 = new ClimateByStationWidget(document.getElementById('climate_by_station_3'), {
+				// 		view_type: 'daily_precipitation_histogram'
+				// });
+
 
 				window.widget = widget;
 

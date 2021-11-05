@@ -118,6 +118,7 @@ export default class DailyPrecipitationYtd extends View {
 				const chart_layout = {
 						xaxis: this._get_x_axis_layout(years),
 						yaxis: this._get_y_axis_layout(),
+						autosize: true,
 						legend: {
 								"orientation": "h"
 						}

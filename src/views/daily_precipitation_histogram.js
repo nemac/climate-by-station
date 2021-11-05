@@ -64,6 +64,7 @@ export default class DailyPrecipitationHistogram extends View {
 								"orientation": "h"
 						},
 						bargap: 0.05,
+						autosize: true,
 						yaxis2: {
 								type: 'linear',
 								overlaying: 'y',

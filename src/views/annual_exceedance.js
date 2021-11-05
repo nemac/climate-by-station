@@ -62,7 +62,8 @@ export default class AnnualExceedance extends View {
 						yaxis: this._get_y_axis_layout(options),
 						legend: {
 								"orientation": "h"
-						}
+						},
+						autosize: true
 				}
 
 				let chart_data = [{

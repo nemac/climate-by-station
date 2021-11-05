@@ -81,6 +81,7 @@ export default class DailyPrecipitationAbsolute extends View {
 						legend: {
 								"orientation": "h"
 						},
+						autosize: true,
 						annotations: [
 								{
 										x: 1,

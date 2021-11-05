@@ -95,6 +95,7 @@ export default class DailyTemperatureMinMax extends View {
 							showticklabels: false,
 							nticks: 0
 						},
+						autosize: true,
 						legend: {
 								"orientation": "h"
 						},
