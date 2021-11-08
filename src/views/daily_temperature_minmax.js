@@ -9,28 +9,28 @@ export default class DailyTemperatureMinMax extends View {
 
 				const options = this.parent.options;
 
-				if(options.daily_values === null) {
+				if(this.parent.daily_values === null) {
 						this.parent._show_spinner();
 						let data = await (await get_data(options, this.parent.variables)).data;
-						options.daily_values = this.get_daily_values(data);
+						this.parent.daily_values = this.get_daily_values(data);
 
 						const normal_options = {
 								station: options.station,
 								sdate: (new Date().getFullYear() - 4) + '-01-01',
 								edate: (new Date().getFullYear()) + '-12-31',
 								variable: "temp_min_max_normal",
-								dataAPIEndpoint: 'https://data.rcc-acis.org/'
+								data_api_endpoint: 'https://data.rcc-acis.org/'
 						}
 
 						const normal_data = await(await get_data(normal_options, this.parent.variables)).data;
-						options.normal_values = this.get_daily_values(normal_data);
+						this.parent.normal_values = this.get_daily_values(normal_data);
 
 						this.parent._hide_spinner();
 				}
 
-				const daily_values = options.daily_values;
+				const daily_values = this.parent.daily_values;
 
-				const normal_values = options.normal_values;
+				const normal_values = this.parent.normal_values;
 				const normal_entries = Object.entries(normal_values);
 
 				let years = [];

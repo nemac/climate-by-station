@@ -10,8 +10,10 @@
 		<script src='https://cdn.plot.ly/plotly-2.4.2.min.js'></script>
 
 		<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
 
 		<script src="./climate_by_station_widget.js"></script>
 
@@ -22,15 +24,31 @@
 	<div class="container">
 			<div class="row" style="min-height: 30rem;">
 					<div class="col-12 col-md-4">
+							<div class="mb-2">
+									<div class="input-group">
+											<label class="input-group-text" for="view_type">Views</label>
+											<select class="form-select" id="view_type">
+													<option value="annual_exceedance" selected>Annual Exceedance</option>
+													<option value="daily_precipitation_absolute">Daily Precipitation Absolute</option>
+													<option value="daily_temperature_absolute">Daily Temperature Absolute</option>
+													<option value="daily_temperature_minmax">Daily Temperature Minimum and Maximum</option>
+													<option value="daily_precipitation_normalized">Daily Precipitation Normalized</option>
+													<option value="daily_temperature_normalized">Daily Temperature Normalized</option>
+													<option value="daily_precipitation_histogram">Daily Precipitation Histogram</option>
+													<option value="daily_temperature_histogram">Daily Temperature Histogram</option>
+													<option value="daily_precipitation_ytd">Daily Precipitation Year to Date</option>
+											</select>
+									</div>
+							</div>
 							<div class="d-flex mb-2">
 
 									<div class="input-group me-2">
-											<span class="input-group-text">Station ID</span>
-											<input id="station" type="text" class="form-control">
+											<label for="station" class="input-group-text">Station ID</label>
+											<input id="station" type="text" class="form-control" value="USC00094429">
 									</div>
 
 									<div>
-											<button id="update" class="btn btn-primary">Update</button>
+											<button id="update-station-btn" class="btn btn-primary">Update</button>
 									</div>
 							</div>
 							<div class="mb-2">
@@ -46,22 +64,22 @@
 							</div>
 							<div class="mb-2">
 									<div class="input-group mb-3">
-											<span class="input-group-text">Window</span>
-											<input id="window" class="form-control" type="number" name="window" value="1">
+											<label for="window_days" class="input-group-text">Window</label>
+											<input id="window_days" class="form-control" type="number" name="window_days" value="1" min="1" max="30">
 											<span class="input-group-text">Days</span>
 									</div>
 							</div>
 							<div class="mb-2">
 									<div class="input-group mb-3">
-											<span class="input-group-text">Threshold</span>
+											<label class="input-group-text" for="threshold">Threshold</label>
 											<input id="threshold" class="form-control" type="number" step="0.5" name="threshold" value="1">
-											<span class="input-group-text threshold-measurement">Inches</span>
+											<span id="variable_unit_label" class="input-group-text">Inches</span>
 									</div>
 							</div>
 							<div class="mb-2">
 									<div class="input-group">
-											<label class="input-group-text" for="operators">Operators</label>
-											<select class="form-select" id="operators">
+											<label class="input-group-text" for="threshold_operator">Operators</label>
+											<select class="form-select" id="threshold_operator">
 													<option value=">=">at least (>=)</option>
 													<option value="<=">not more than (<=)</option>
 											</select>
@@ -69,31 +87,18 @@
 							</div>
 							<div class="mb-2">
 									<div class="input-group">
-											<label class="input-group-text" for="percentile">Percentiles</label>
-											<select class="form-select" id="percentile">
+											<label class="input-group-text" for="threshold_percentile">Percentiles</label>
+											<select class="form-select" id="threshold_percentile">
 													<option selected></option>
-													<option value="80">80th</option>
+													<option value="10">10th</option>
+													<option value="25">25th</option>
+													<option value="50">50th</option>
+													<option value="75">75th</option>
 													<option value="90">90th</option>
-													<option value="95">95th</option>
 											</select>
 									</div>
 							</div>
-							<div class="mb-2">
-									<div class="input-group">
-											<label class="input-group-text" for="view-type">Views</label>
-											<select class="form-select" id="view-type">
-													<option value="annual_exceedance" selected>Annual Exceedance</option>
-													<option value="daily_precipitation_absolute">Daily Precipitation Absolute</option>
-													<option value="daily_temperature_absolute">Daily Temperature Absolute</option>
-													<option value="daily_temperature_minmax">Daily Temperature Minimum and Maximum</option>
-													<option value="daily_precipitation_normalized">Daily Precipitation Normalized</option>
-													<option value="daily_temperature_normalized">Daily Temperature Normalized</option>
-													<option value="daily_precipitation_histogram">Daily Precipitation Histogram</option>
-													<option value="daily_temperature_histogram">Daily Temperature Histogram</option>
-													<option value="daily_precipitation_ytd">Daily Precipitation Year to Date</option>
-											</select>
-									</div>
-							</div>
+
 							<div class="d-flex mb-2">
 									<div class="me-2">
 											<a class="btn btn-primary" id="download-data">Download Data</a>
@@ -102,6 +107,15 @@
 											<a class="btn btn-secondary" id="download-image">Download Image</a>
 									</div>
 							</div>
+							<div class="d-flex flex-column mb-2">
+									<span>Presets:</span>
+									<button id="preset-1" class="btn btn-link text-start">3-day precipitation at least 90th percentile</button>
+									<button id="preset-2" class="btn btn-link text-start">1-day precipitation no more than 0.01in (dry days)</button>
+									<button id="preset-3" class="btn btn-link text-start">1-day max temp at least 95 °F</button>
+									<button id="preset-4" class="btn btn-link text-start">3-day min temp at least 90 °F (hot-nights)</button>
+									<button id="preset-5" class="btn btn-link text-start">1-day min temp no more than 32 °F (frost days)</button>
+									<button id="preset-6" class="btn btn-link text-start">1-day max temp no more than 32 °F (icing days)</button>
+							</div>
 					</div>
 					<div class="col-12 col-md-8 d-flex">
 							<div id="climate_by_station" class="flex-grow-1" style="position: relative;"></div>
@@ -109,18 +123,18 @@
 			</div>
 
 			<!--Testing stuff below-->
-			<div class="row">
-					<div class="graph-container col-6">
-							<div class="graph-wrapper">
-									<div id="climate_by_station_1" class="graph-item"></div>
-							</div>
-					</div>
-					<div class="graph-container col-6">
-							<div class="graph-wrapper">
-									<div id="climate_by_station_2" class="graph-item"></div>
-							</div>
-					</div>
-			</div>
+<!--			<div class="row">-->
+<!--					<div class="graph-container col-12 col-lg-6">-->
+<!--							<div class="graph-wrapper">-->
+<!--									<div id="climate_by_station_1" class="graph-item"></div>-->
+<!--							</div>-->
+<!--					</div>-->
+<!--					<div class="graph-container col-12 col-lg-6">-->
+<!--							<div class="graph-wrapper">-->
+<!--									<div id="climate_by_station_2" class="graph-item"></div>-->
+<!--							</div>-->
+<!--					</div>-->
+<!--			</div>-->
 
 
 	</div>
@@ -129,111 +143,104 @@
 
 				let element = document.getElementById("climate_by_station");
 
-				const widget = new ClimateByStationWidget(element, {
-						view_type: 'annual_exceedance'
+				const widget = window.widget = new ClimateByStationWidget(element);
+
+				const update_graph = (e) => {
+						widget.update({
+								view_type: document.getElementById("view_type").value,
+								station: document.getElementById("station").value,
+								variable: document.getElementById("variables").value,
+								threshold: Array.from(document.querySelectorAll("#variables, #view_type, #threshold_percentile")).includes(e.currentTarget) ? null : document.getElementById("threshold").value,
+								threshold_percentile: e.currentTarget === document.getElementById("threshold_percentile") ? document.getElementById("threshold_percentile").value : null,
+								window_days: document.getElementById("window_days").value,
+								threshold_operator: document.getElementById("threshold_operator").value
+						});
+				}
+
+				// add event handlers to controls
+				for (const el of document.querySelectorAll("#variables, #threshold, #threshold_percentile, #window_days, #threshold_operator, #view_type")) {
+						el.addEventListener('change', update_graph);
+				}
+				document.querySelector('#update-station-btn').addEventListener('click', update_graph);
+
+				// update controls when the widget changes
+				widget.element.addEventListener('update_complete', function(e) {
+						document.getElementById("view_type").value = widget.options.view_type;
+						document.getElementById("station").value = widget.options.station;
+						document.getElementById("variables").value = widget.options.variable;
+						document.getElementById("threshold").value = widget.options.threshold;
+						document.getElementById("window_days").value = widget.options.window_days;
+						document.getElementById("threshold_operator").value = widget.options.threshold_operator;
+						document.getElementById("threshold_percentile").value = widget.options.threshold_percentile;
+						document.getElementById("variable_unit_label").innerText = widget.variable_unit;
+				})
+
+				update_graph({})
+
+				document.getElementById("preset-1").addEventListener('click', function(e) {
+						widget.update({
+								view_type: 'annual_exceedance',
+								variable: 'precipitation',
+								window_days: 3,
+								threshold_operator: ">=",
+								threshold_percentile: 90
+						});
 				});
 
-				const test1 = new ClimateByStationWidget(document.getElementById('climate_by_station_1'), {
-						view_type: 'annual_exceedance'
+				document.getElementById("preset-2").addEventListener('click', function(e) {
+						widget.update({
+								view_type: 'annual_exceedance',
+								variable: 'precipitation',
+								window_days: 1,
+								threshold: 0.01,
+								threshold_operator: "<=",
+								threshold_percentile: null
+						});
 				});
 
-				const test2 = new ClimateByStationWidget(document.getElementById('climate_by_station_2'), {
-						view_type: 'daily_temperature_minmax'
+				document.getElementById("preset-3").addEventListener('click', function(e) {
+						widget.update({
+								view_type: 'annual_exceedance',
+								variable: 'tmax',
+								window_days: 1,
+								threshold: 95,
+								threshold_operator: ">=",
+								threshold_percentile: null
+						});
 				});
-				//
-				// const test3 = new ClimateByStationWidget(document.getElementById('climate_by_station_3'), {
-				// 		view_type: 'daily_precipitation_histogram'
-				// });
 
+				document.getElementById("preset-4").addEventListener('click', function(e) {
+						widget.update({
+								view_type: 'annual_exceedance',
+								variable: 'tmin',
+								window_days: 3,
+								threshold: 90,
+								threshold_operator: ">=",
+								threshold_percentile: null
+						});
+				});
 
-				window.widget = widget;
+				document.getElementById("preset-5").addEventListener('click', function(e) {
+						widget.update({
+								view_type: 'annual_exceedance',
+								variable: 'tmin',
+								window_days: 1,
+								threshold: 32,
+								threshold_operator: "<=",
+								threshold_percentile: null
+						});
+				});
 
-				let stationElement = document.getElementById("station");
-				let updateElement = document.getElementById("update");
-				let windowElement = document.getElementById("window"); //works
-				let thresholdElement = document.getElementById("threshold"); //works
-				let variableElement = document.getElementById("variables"); //works
-				let operatorElement = document.getElementById("operators");
-				let percentileElement = document.getElementById("percentile");
-				let viewTypeElement = document.getElementById("view-type");
-				let measurementElement = document.querySelector('.threshold-measurement');
-
-				stationElement.placeholder = widget.options.station;
-
-				windowElement.addEventListener('change', function(e) {
-						let value = e.target.value;
-
-						if(value < 1) {
-								value = 1;
-						}
-
-						windowElement.value = value;
-					  widget.update({window: Number.parseInt(value)})
-				})
-
-				thresholdElement.addEventListener('change', function(e) {
-						let value = e.target.value;
-
-						if(value < 0.0) {
-								value = 0.0;
-						}
-
-						thresholdElement.value = value;
-						widget.update({threshold: Number.parseFloat(value)})
-				})
-
-				variableElement.addEventListener('change', function(e) {
-						let value = e.target.value;
-
-						widget.update({variable: value});
-
-						thresholdElement.value = widget.options.threshold;
-						windowElement.value = widget.options.window;
-						measurementElement.innerText = widget.options.measurement;
-						percentileElement.selectedIndex = 0;
-				})
-
-				stationElement.addEventListener('change', function(e) {
-						let value = e.target.value;
-						stationElement.value = value;
-				})
-
-				updateElement.addEventListener('click', function(e) {
-						e.preventDefault();
-
-						let value = stationElement.value;
-
-						widget.update({station: value});
-
-						stationElement.placeholder = widget.options.station;
-				})
-
-				operatorElement.addEventListener('change', function(e) {
-						let value = e.target.value;
-						widget.update({thresholdOperator: value});
-				})
-
-				percentileElement.addEventListener('change', function(e) {
-						let value = e.target.value;
-
-						if(typeof widget.view._get_percentile_value === 'function') {
-								let updatedThreshold = widget.view._get_percentile_value(Number.parseInt(value));
-
-								widget.update({threshold: updatedThreshold});
-								thresholdElement.value = widget.options.threshold;
-						}
-				})
-
-				viewTypeElement.addEventListener('change', function(e) {
-						let value = e.target.value;
-
-						widget.update({view_type: value});
-
-						thresholdElement.value = widget.options.threshold;
-						windowElement.value = widget.options.window;
-						measurementElement.innerText = widget.options.measurement;
-						percentileElement.selectedIndex = 0;
-				})
+				document.getElementById("preset-6").addEventListener('click', function(e) {
+						widget.update({
+								view_type: 'annual_exceedance',
+								variable: 'tmax',
+								window_days: 1,
+								threshold: 32,
+								threshold_operator: "<=",
+								threshold_percentile: -1
+						});
+				});
 
 				let downloadData = document.getElementById("download-data");
 

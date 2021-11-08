@@ -11,15 +11,15 @@ export default class DailyPrecipitationHistogram extends View {
 
 				const threshold = options.threshold;
 
-				if(options.daily_values === null) {
+				if(this.parent.daily_values === null) {
 						this.parent._show_spinner();
 						const data = await (await get_data(options, this.parent.variables)).data;
-						options.daily_values = this.get_daily_values(data);
+						this.parent.daily_values = this.get_daily_values(data);
 
 						this.parent._hide_spinner();
 				}
 
-				const daily_values = options.daily_values;
+				const daily_values = this.parent.daily_values;
 				const daily_values_entries = Object.entries(daily_values);
 
 				let years = [];

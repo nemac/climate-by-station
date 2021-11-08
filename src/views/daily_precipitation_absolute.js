@@ -9,31 +9,34 @@ export default class DailyPrecipitationAbsolute extends View {
 
 				const options = this.parent.options;
 
-				const threshold = options.threshold;
-
-				if(options.daily_values === null) {
+				if(this.parent.daily_values === null) {
 						this.parent._show_spinner();
 						const data = await (await get_data(options, this.parent.variables)).data;
-						options.daily_values = this.get_daily_values(data);
+						this.parent.daily_values = this.get_daily_values(data);
 
 						const normal_options = {
 								station: options.station,
 								sdate: (new Date().getFullYear() - 4) + '-01-01',
 								edate: (new Date().getFullYear()) + '-12-31',
 								variable: options.variable + "_normal",
-								dataAPIEndpoint: 'https://data.rcc-acis.org/'
+								data_api_endpoint: 'https://data.rcc-acis.org/'
 						}
 
 						const normal_data = await(await get_data(normal_options, this.parent.variables)).data;
-						options.normal_values = this.get_daily_values(normal_data);
+						this.parent.normal_values = this.get_daily_values(normal_data);
 
 						this.parent._hide_spinner();
 				}
 
-				const daily_values = options.daily_values;
+
+				if(options.threshold == null && options.threshold_percentile >= 0) {
+						options.threshold = this._get_percentile_value(options.threshold_percentile);
+				}
+
+				const daily_values = this.parent.daily_values;
 				const daily_values_entries = Object.entries(daily_values);
 
-				const normal_values = options.normal_values;
+				const normal_values = this.parent.normal_values;
 				const normal_entries = Object.entries(normal_values);
 
 				let years = [];
@@ -85,7 +88,7 @@ export default class DailyPrecipitationAbsolute extends View {
 						annotations: [
 								{
 										x: 1,
-										y: threshold,
+										y: options.threshold,
 										xref: 'paper',
 										yref: 'y',
 										text: `Threshold ${options.variable === 'precipitation' ? options.threshold + " (in)" : options.threshold + " (°F)"}`,
@@ -124,7 +127,7 @@ export default class DailyPrecipitationAbsolute extends View {
 						{
 								name: "Threshold",
 								x: [years[0], years[years.length - 1]],
-								y: [threshold, threshold],
+								y: [options.threshold, options.threshold],
 								type: "scatter",
 								mode: "lines",
 								fill: 'none',
@@ -165,6 +168,38 @@ export default class DailyPrecipitationAbsolute extends View {
 								}
 						}
 				}
+		}
+
+		_get_percentile_value(percentile) {
+				//get all valid values from _dailyValues
+
+				const daily_values = this.parent.daily_values;
+
+				let dailyValues = _(daily_values).filter((v) => v.valid && v.value > 0).sortBy((v) => v.value).value();
+
+				let len = dailyValues.length;
+				let index;
+				percentile = percentile / 100;
+				// [0] 0th percentile is the minimum value...
+				if (percentile <= 0.0) {
+						return dailyValues[0].value;
+				}
+				// [1] 100th percentile is the maximum value...
+				if (percentile >= 1.0) {
+						return dailyValues[len - 1].value;
+				}
+				// Calculate the vector index marking the percentile:
+				index = (len * percentile) - 1;
+
+				// [2] Is the index an integer?
+				if (index === Math.floor(index)) {
+						// Value is the average between the value at index and index+1:
+
+						return _.round((dailyValues[index].value + dailyValues[index + 1].value) / 2.0, 3);
+				}
+				// [3] Round up to the next index:
+				index = Math.ceil(index);
+				return _.round(dailyValues[index].value, 3);
 		}
 
 		async request_downloads() {

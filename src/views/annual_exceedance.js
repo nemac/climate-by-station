@@ -13,17 +13,20 @@ export default class AnnualExceedance extends View {
 
 				const options = this.parent.options;
 
-				if(options.daily_values === null) {
+				if(this.parent.daily_values === null) {
 
 						this.parent._show_spinner();
 						let data = await (await get_data(options, this.parent.variables)).data;
-						options.daily_values = this.get_daily_values(data);
+						this.parent.daily_values = this.get_daily_values(data);
 
 						this.parent._hide_spinner();
-
 				}
 
-				const daily_values = options.daily_values;
+				if(options.threshold == null && options.threshold_percentile !== null) {
+						options.threshold = this._get_percentile_value(options.threshold_percentile);
+				}
+
+				const daily_values = this.parent.daily_values;
 				let exceedance = this.get_year_exceedance(daily_values);
 
 				let years = [];
@@ -82,7 +85,7 @@ export default class AnnualExceedance extends View {
 		get_year_exceedance(dailyValues) {
 				let validator;
 				let variable = this.parent.options.variable;
-				let window = this.parent.options.window;
+				let window = this.parent.options.window_days;
 
 				if(variable === 'precipitation') {
 						validator = this._precipitation_year_validator;
@@ -135,8 +138,8 @@ export default class AnnualExceedance extends View {
 
 		_threshold_function(values) {
 
-				let operator = this.parent.options.thresholdOperator;
-				let operator_function = this.operators()[operator];
+				let operator = this.parent.options.threshold_operator;
+				let operator_function = this.operators[operator];
 
 				switch(this.parent.options.window_behaviour) {
 						case 'rollingSum':
@@ -158,7 +161,7 @@ export default class AnnualExceedance extends View {
 
 		}
 
-		operators() {
+		get operators() {
 				return {
 						'==': (o1, o2) => o1 === o2,
 						'>=': (o1, o2) => o1 >= o2,
@@ -211,7 +214,9 @@ export default class AnnualExceedance extends View {
 		_get_percentile_value(percentile) {
 				//get all valid values from _dailyValues
 
-				const daily_values = this.parent.options.daily_values;
+				percentile = Number.parseFloat(percentile);
+
+				const daily_values = this.parent.daily_values;
 
 				let dailyValues = _(daily_values).filter((v) => v.valid && v.value > 0).sortBy((v) => v.value).value();
 
@@ -289,7 +294,7 @@ export default class AnnualExceedance extends View {
 		_get_y_axis_layout(options) {
 				return {
 						title: {
-								text: this._get_y_axis_title(options.window, options.variable, options.threshold, options.thresholdOperator),
+								text: this._get_y_axis_title(options.window_days, options.variable, options.threshold, options.threshold_operator),
 								font: {
 										size: 12
 								}

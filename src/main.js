@@ -5,29 +5,36 @@ import DailyTemperatureMinMax from "./views/daily_temperature_minmax.js";
 import _ from "../node_modules/lodash-es/lodash.js";
 import DailyPrecipitationNormalized from "./views/daily_precipitation_normalized.js";
 import DailyTemperatureNormalized from "./views/daily_temperature_normalized.js";
-import { save_file } from './utils.js';
+import {save_file} from './utils.js';
 import DailyPrecipitationHistogram from "./views/daily_precipitation_histogram.js";
 import DailyTemperatureHistogram from "./views/daily_temperature_histogram.js";
 import DailyPrecipitationYtd from "./views/daily_precipitation_ytd";
 
 export default class ClimateByStationWidget {
 
-		constructor(element, options) {
+		/**
+		 *
+		 * @param element
+		 * @param {Object} options
+		 * @param {number} options.threshold_percentile - Allows setting the threshold based on percentile of daily values. When updated, set options.threshold to null to signify that percentile should be calculated.
+		 */
+		constructor(element, options = {}) {
 				this.options = {
-						view_type: (typeof options.view_type === 'undefined') ? 'annual_exceedance' : options.view_type,
-						station: 'USC00094429',
+						view_type: !!options.view_type ? 'annual_exceedance' : options.view_type,
+						station: null,
 						sdate: 'por',
 						edate: (new Date().getFullYear()) + '-12-31',
 						variable: 'precipitation',
 						threshold: 1.0,
-						window: 1,
-						measurement: "Inches",
+						threshold_percentile: null,
+						window_days: 1,
 						window_behaviour: 'rollingSum',
-						thresholdOperator: '>=',
-						dataAPIEndpoint: 'https://data.rcc-acis.org/',
-						daily_values: null,
-						normal_values: null
+						threshold_operator: '>=',
+						data_api_endpoint: 'https://data.rcc-acis.org/'
 				};
+
+				this.daily_values = null;
+				this.normal_values = null;
 
 				this.variables = {
 						precipitation: {
@@ -55,10 +62,19 @@ export default class ClimateByStationWidget {
 								elements: [{"name": "avgt", "prec": 1, "normal": "1", "units": "degreeF"}]
 						},
 						temp_min_max: {
-								elements: [{"name": "mint", "prec": 1, "units": "degreeF"}, {"name": "maxt", "prec": 1, "units": "degreeF"}]
+								elements: [{"name": "mint", "prec": 1, "units": "degreeF"}, {
+										"name": "maxt",
+										"prec": 1,
+										"units": "degreeF"
+								}]
 						},
 						temp_min_max_normal: {
-								elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}, {"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}]
+								elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}, {
+										"name": "maxt",
+										"prec": 1,
+										"normal": "1",
+										"units": "degreeF"
+								}]
 						}
 				}
 
@@ -100,7 +116,7 @@ export default class ClimateByStationWidget {
 
 		get_view_class() {
 
-				switch(this.options.view_type) {
+				switch (this.options.view_type) {
 						case 'annual_exceedance':
 								return AnnualExceedance;
 						case 'daily_precipitation_absolute':
@@ -128,106 +144,53 @@ export default class ClimateByStationWidget {
 
 				this.options = _.merge({}, old_options, options);
 
-				if(old_options.station !== this.options.station) {
+				if (old_options.station !== this.options.station) {
 						this._reset_widget();
 				}
 
-				if(old_options.variable !== this.options.variable) {
-
-						const view_type = this.options.view_type;
-						const variable = this.options.variable;
-
-						this.options.window = 1;
-
-						if(view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized" || view_type === "daily_precipitation_histogram") {
-
-								/*
-								If we are in daily_precipitation_absolute check if the variable selected is valid, if not default to
-								precipitation.
-								 */
-
-								if(variable === "precipitation") {
-										this.options.threshold = 1.0;
-										this._reset_widget();
-								} else {
-										this.options.variable = "precipitation";
-										this.options.threshold = 1.0;
-										this._reset_widget();
-								}
-
-								this.options.measurement = "Inches";
-
-						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized" || view_type === "daily_temperature_histogram") {
-
-								/*
-								If we are in daily_temperature_absolute and the updated variable is valid (tmax, tmin, tavg), update the
-								values accordingly, otherwise (ex: selecting precipitation while in temp view) default to tmax.
-								 */
-
-								if(variable === "tmax") {
-										this.options.threshold = 95.0;
-										this._reset_widget();
-								} else if(variable === "tmin") {
-										this.options.threshold = 32.0;
-										this._reset_widget();
-								} else if(variable === "tavg") {
-										this.options.threshold = 72.0;
-										this._reset_widget();
-								} else {
-										this.options.variable = "tmax";
-										this.options.threshold = 95.0;
-										this._reset_widget();
-								}
-
-								this.options.measurement = "°F";
-
-						} else if(view_type === "annual_exceedance") {
-								switch(variable) {
-										case "tmax":
-												this.options.threshold = 95.0;
-												this.options.measurement = "°F";
-												break;
-										case "tmin":
-												this.options.threshold = 32.0;
-												this.options.measurement = "°F";
-												break;
-										case "tavg":
-												this.options.threshold = 72.0;
-												this.options.measurement = "°F";
-												break;
-										case "precipitation":
-												this.options.threshold = 1.0;
-												this.options.measurement = "Inches";
-												break;
-								}
-
-								this._reset_widget();
-						}
-
-				}
-
-				if(old_options.view_type !== this.options.view_type) {
+				if (old_options.view_type !== this.options.view_type) {
 						this.destroy();
 						const view_type = this.options.view_type;
-						if(view_type === "annual_exceedance" || view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized" || view_type === "daily_precipitation_histogram") {
+
+						this.options.sdate = "por";
+						this.options.edate = (new Date().getFullYear()) + "-12-31";
+
+						if (view_type === "annual_exceedance" || view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized" || view_type === "daily_precipitation_histogram") {
 								this.options.variable = "precipitation";
-								this.options.measurement = "Inches";
-								this.options.sdate = "por";
-								this.options.edate = (new Date().getFullYear()) + "-12-31";
-								this.options.threshold = 1.0;
-								this.options.window = 1;
-						} else if(view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized" || view_type === "daily_temperature_histogram") {
+								this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 1.0: options.threshold ;
+								this.options.window_days = options.hasOwnProperty("window_days") ? options.window_days : 1;
+						} else if (view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized" || view_type === "daily_temperature_histogram") {
 								this.options.variable = "tmax";
-								this.options.measurement = "°F";
-								this.options.sdate = "por";
-								this.options.edate = (new Date().getFullYear()) + "-12-31";
-								this.options.threshold = 95.0;
-								this.options.window = 1;
-						} else if(view_type === "daily_temperature_minmax") {
+								this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 95.0 : options.threshold;
+						} else if (view_type === "daily_temperature_minmax") {
 								this.options.variable = "temp_min_max";
-								this.options.sdate = "por";
-								this.options.edate = (new Date().getFullYear()) + "-12-31";
 						}
+				}
+
+				if (old_options.variable !== this.options.variable) {
+						const view_type = this.options.view_type;
+
+						this.options.window_days = options.hasOwnProperty("window_days") ? options.window_days : 1;
+
+						if (view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized" || view_type === "daily_precipitation_histogram") {
+								this.options.variable = "precipitation";
+						} else if (view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized" || view_type === "daily_temperature_histogram") {
+								this.options.variable = this.options.variable === 'precipitation' ? old_options.variable || "tmax" : this.options.variable;
+						}
+
+						if (this.options.variable === "precipitation") {
+								this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 1.0 : options.threshold;
+						} else {
+								if (this.options.variable === "tmin") {
+										this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 32.0 : options.threshold;
+								} else if (this.options.variable === "tavg") {
+										this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 72.0 : options.threshold;
+								} else { // catchall set to tmax
+										this.options.variable = "tmax";
+										this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 95.0 : options.threshold;
+								}
+						}
+						this._reset_widget();
 				}
 
 				this._update();
@@ -235,22 +198,31 @@ export default class ClimateByStationWidget {
 
 		async _update() {
 
-				if(this.view === null) {
-						this.view = new (this.get_view_class())(this, this.view_container);
+				if (this.view === null) {
+						const view_class = this.get_view_class();
+						if (!view_class) {
+								return
+						}
+						this.view = new view_class(this, this.view_container);
 				}
 
 				await this.view.request_update();
+
+
+				window.setTimeout(() => {
+						this.element.dispatchEvent(new CustomEvent('update_complete', {detail: this.options}));
+				});
 		}
 
 		_show_spinner() {
-				if(this.spinner_element.classList.contains("d-none")) {
+				if (this.spinner_element.classList.contains("d-none")) {
 						this.spinner_element.classList.remove("d-none");
 						this.view_container.style.filter = "opacity(0.5)"
 				}
 		}
 
 		_hide_spinner() {
-				if(!this.spinner_element.classList.contains("d-none")) {
+				if (!this.spinner_element.classList.contains("d-none")) {
 						this.spinner_element.classList.add("d-none");
 						this.view_container.style.filter = "opacity(1)"
 				}
@@ -264,7 +236,7 @@ export default class ClimateByStationWidget {
 		}
 
 		_get_value(value) {
-				if(value === "T") {
+				if (value === "T") {
 						value = 0.0;
 				}
 
@@ -287,8 +259,8 @@ export default class ClimateByStationWidget {
 		}
 
 		_reset_widget() {
-				this.options.daily_values = null;
-				this.options.normal_values = null;
+				this.daily_values = null;
+				this.normal_values = null;
 		}
 
 		download_annual_exceedance() {
@@ -404,9 +376,12 @@ export default class ClimateByStationWidget {
 				return [];
 		}
 
+		get variable_unit() {
+				return this.options.variable === "precipitation" ? "Inches" : "°F";
+		}
 
 		destroy() {
-				if(this.view) {
+				if (this.view) {
 						this.view.destroy();
 						this._reset_widget();
 						this.view = null;
