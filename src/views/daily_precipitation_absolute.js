@@ -9,24 +9,24 @@ export default class DailyPrecipitationAbsolute extends View {
 
 		const options = this.parent.options;
 
-		let daily_values = this.parent.daily_values;
+		let daily_values = this.parent.get_daily_values(options.station, options.variable, false);
 
 		if (daily_values === null) {
 			this.parent._show_spinner();
 			// create a promise for data and set it on parent.daily_values so that it gets cached.
-			daily_values = this.parent.daily_values = fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements).then(a=>a.data).then(this.get_daily_values.bind(this))
+			daily_values = this.parent.set_daily_values(options.station, options.variable, false,fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements).then(a=>a.data).then(this.get_daily_values.bind(this)))
 		}
 
-		let normal_values = this.parent.normal_values;
+		let normal_values = this.parent.get_daily_values(options.station, options.variable, true);
 		if (normal_values === null) {
 			this.parent._show_spinner();
 			// create a promise for data and set it on parent.daily_values so that it gets cached.
-			normal_values = this.parent.normal_values = fetch_acis_station_data({
+			normal_values = this.parent.set_daily_values(options.station, options.variable, true,fetch_acis_station_data({
 				station: options.station,
 				sdate: (new Date().getFullYear() - 4) + '-01-01',
 				edate: (new Date().getFullYear()) + '-12-31',
 				data_api_endpoint: 'https://data.rcc-acis.org/'
-			}, this.parent.variables[options.variable + "_normal"].acis_elements).then(a=>a.data).then(this.get_daily_values.bind(this))
+			}, this.parent.variables[options.variable + "_normal"].acis_elements).then(a=>a.data).then(this.get_daily_values.bind(this)))
 		}
 
 		// unwrap/await daily values if they are promises.

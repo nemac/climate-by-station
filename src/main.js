@@ -382,8 +382,16 @@ export default class ClimateByStationWidget {
 		return this._cache_objs
 	}
 
-	get daily_values() {
-		const v = get_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'observed'].join('_'))
+	/**
+	 * Retrieves the cached daily values based on the station/variable/whether the data are observations or normals.
+	 *
+	 * @param station The station
+	 * @param variable The variable
+	 * @param normals Whether the daily values represent normals (true) or observed(false) data
+	 * @return {Object|Promise<Object>|null} May return the daily values directly, a promise which will will resolve to the values, or null.
+	 */
+	get_daily_values(station, variable, normals=false) {
+		const v = get_cache_item(this.cache_objs, [station,variable, normals? 'normals' : 'observed'].join('_'))
 		if (!v){
 			return null
 		}
@@ -394,26 +402,20 @@ export default class ClimateByStationWidget {
 		}
 	}
 
-	set daily_values(values) {
-		set_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'observed'].join('_'), values)
+	/**
+	 * Caches the given daily values according to the station/variable/whether the data are observations or normals. Unpacks promises.
+	 *
+	 * @param station The station
+	 * @param variable The variable
+	 * @param normals Whether the daily values represent normals (true) or observed(false) data
+	 * @param values The daily values or a promise that will resolved to give the daily values.
+	 * @return {Object|Promise<Object>}
+	 */
+	set_daily_values(station, variable, normals=false, values) {
+		set_cache_item(this.cache_objs, [this.options.station,this.options.variable, normals? 'normals' : 'observed'].join('_'), values)
 		return values
 	}
 
-	get normal_values() {
-		const v = get_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'normals'].join('_'))
-		if (!v){
-			return null
-		}
-		if (typeof v === "object" && typeof v.then === "function"){
-			return v
-		} else {
-			return Promise.resolve(v)
-		}
-	}
-
-	set normal_values(values) {
-		return set_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'normals'].join('_'), values)
-	}
 
 	destroy() {
 		if (this.view) {
