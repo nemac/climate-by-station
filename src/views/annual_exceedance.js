@@ -1,341 +1,308 @@
 import View from "./view_base.js";
 import _ from "../../node_modules/lodash-es/lodash.js";
-import { get_data } from "../io.js";
-import {format_export_data} from "../utils.js";
+import {fetch_acis_station_data} from "../io.js";
+import {format_export_data, get_percentile_value} from "../utils.js";
 
 export default class AnnualExceedance extends View {
 
-		constructor(parent, element) {
-				super(parent, element);
+	constructor(parent, element) {
+		super(parent, element);
+	}
+
+	async request_update() {
+
+		const options = this.parent.options;
+
+		if (this.parent.daily_values === null) {
+
+			this.parent._show_spinner();
+			let data = await (await fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements)).data;
+			this.parent.daily_values = this.get_daily_values(data);
+
+			this.parent._hide_spinner();
 		}
 
-		async request_update() {
+		if (options.threshold == null && options.threshold_percentile !== null) {
+			options.threshold = get_percentile_value(options.threshold_percentile, this.parent.daily_values, options.variable === 'precipitation');
+		}
 
-				const options = this.parent.options;
+		const daily_values = this.parent.daily_values;
+		let exceedance = this.get_year_exceedance(daily_values);
 
-				if(this.parent.daily_values === null) {
+		let years = [];
+		let exceedance_values = [];
+		let missing_values = [];
+		let download_data = [];
 
-						this.parent._show_spinner();
-						let data = await (await get_data(options, this.parent.variables)).data;
-						this.parent.daily_values = this.get_daily_values(data);
+		Object.entries(exceedance).forEach(e => {
 
-						this.parent._hide_spinner();
-				}
+			const year = e[0];
+			const exceedance = e[1].exceedance;
+			const missing = _.size(_.filter(e[1].dailyValues, (v) => {
+				return !v.valid;
+			}));
 
-				if(options.threshold == null && options.threshold_percentile !== null) {
-						options.threshold = this._get_percentile_value(options.threshold_percentile);
-				}
+			if (e[1].valid) {
+				years.push(year);
+				exceedance_values.push(exceedance);
+				missing_values.push(missing);
+				download_data.push([year, exceedance, missing]);
+			} else {
+				years.push(year);
+				exceedance_values.push(Number.NaN);
+				missing_values.push(Number.NaN);
+				download_data.push([year, Number.NaN, Number.NaN]);
+			}
 
-				const daily_values = this.parent.daily_values;
-				let exceedance = this.get_year_exceedance(daily_values);
+		})
 
-				let years = [];
-				let exceedance_values = [];
-				let missing_values = [];
-				let download_data = [];
+		this._download_callbacks = {
+			annual_exceedance: async () => format_export_data(['year', 'annual_exceedance', 'missing_value'], download_data, null, null)
+		}
 
-				Object.entries(exceedance).forEach(e => {
+		const chart_layout = {
+			xaxis: this._get_x_axis_layout(years),
+			yaxis: this._get_y_axis_layout(options),
+			legend: {
+				"orientation": "h"
+			},
+			autosize: true
+		}
 
-						const year = e[0];
-						const exceedance = e[1].exceedance;
-						const missing =  _.size(_.filter(e[1].dailyValues, (v) => {
-								return !v.valid;
-						}));
+		let chart_data = [{
+			type: "bar",
+			x: years,
+			y: exceedance_values,
+			name: "Yearly Exceedance",
+			customdata: missing_values,
+			hovertemplate: "Exceedance: %{y} Missing values: %{customdata}"
+		}]
 
-						if(e[1].valid) {
-								years.push(year);
-								exceedance_values.push(exceedance);
-								missing_values.push(missing);
-								download_data.push([year, exceedance, missing]);
-						} else {
-								years.push(year);
-								exceedance_values.push(Number.NaN);
-								missing_values.push(Number.NaN);
-								download_data.push([year, Number.NaN, Number.NaN]);
+		Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
+
+	}
+
+	get_year_exceedance(dailyValues) {
+		let validator;
+		let variable = this.parent.options.variable;
+		let window = this.parent.options.window_days;
+
+		if (variable === 'precipitation') {
+			validator = this._precipitation_year_validator;
+		} else {
+			validator = this._temp_year_validator;
+		}
+
+		return _.chain(dailyValues)
+			// Group daily values by year
+			.reduce((dailyValuesByYear, value, date) => {
+				let year = String(date).slice(0, 4);
+				dailyValuesByYear[year] = dailyValuesByYear[year] || {};
+				dailyValuesByYear[year][date] = value;
+				return dailyValuesByYear;
+			}, {})
+			// For each year group...
+			.mapValues((dailyValuesByYear, year, allDailyValuesByYear) => {
+				// Sum the number of days which exceeded the threshold.
+				let exceedance = _.reduce(dailyValuesByYear, (exceedance, value, date) => {
+					//gather values from window
+					let valuesInWindow = [];
+					if (value.valid) {
+						valuesInWindow.push(value.value);
+					}
+					for (let i = window - 1; i > 0; i--) {
+						let newdate = new Date(date);
+						newdate.setDate(newdate.getDate() - i);
+						newdate = newdate.toISOString().slice(0, 10);
+						if (undefined !== dailyValues[newdate] && dailyValues[newdate].valid) {
+							valuesInWindow.push(dailyValues[newdate].value);
 						}
+					}
 
-				})
+					if (valuesInWindow.length > 0 && this._threshold_function(valuesInWindow)) {
+						return exceedance + 1;
+					}
+					return exceedance;
+				}, 0);
+				// Validate year
+				let valid = validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues);
 
-				this._download_callbacks = {
-						annual_exceedance: async() => format_export_data(['year', 'annual_exceedance', 'missing_value'], download_data, null, null)
-				}
-
-				const chart_layout = {
-						xaxis: this._get_x_axis_layout(years),
-						yaxis: this._get_y_axis_layout(options),
-						legend: {
-								"orientation": "h"
-						},
-						autosize: true
-				}
-
-				let chart_data = [{
-						type: "bar",
-						x: years,
-						y: exceedance_values,
-						name: "Yearly Exceedance",
-						customdata: missing_values,
-						hovertemplate: "Exceedance: %{y} Missing values: %{customdata}"
-				}]
-
-				Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
-
-		}
-
-		get_year_exceedance(dailyValues) {
-				let validator;
-				let variable = this.parent.options.variable;
-				let window = this.parent.options.window_days;
-
-				if(variable === 'precipitation') {
-						validator = this._precipitation_year_validator;
-				} else {
-						validator = this._temp_year_validator;
-				}
-
-				return _.chain(dailyValues)
-						// Group daily values by year
-						.reduce((dailyValuesByYear, value, date) => {
-								let year = String(date).slice(0, 4);
-								dailyValuesByYear[year] = dailyValuesByYear[year] || {};
-								dailyValuesByYear[year][date] = value;
-								return dailyValuesByYear;
-						}, {})
-						// For each year group...
-						.mapValues((dailyValuesByYear, year, allDailyValuesByYear) => {
-								// Sum the number of days which exceeded the threshold.
-								let exceedance = _.reduce(dailyValuesByYear, (exceedance, value, date) => {
-										//gather values from window
-										let valuesInWindow = [];
-										if (value.valid) {
-												valuesInWindow.push(value.value);
-										}
-										for (let i = window - 1; i > 0; i--) {
-												let newdate = new Date(date);
-												newdate.setDate(newdate.getDate() - i);
-												newdate = newdate.toISOString().slice(0, 10);
-												if (undefined !== dailyValues[newdate] && dailyValues[newdate].valid) {
-														valuesInWindow.push(dailyValues[newdate].value);
-												}
-										}
-
-										if (valuesInWindow.length > 0 && this._threshold_function(valuesInWindow)) {
-												return exceedance + 1;
-										}
-										return exceedance;
-								}, 0);
-								// Validate year
-								let valid = validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues);
-
-								return {
-										exceedance: exceedance,
-										valid: valid,
-										dailyValues: dailyValuesByYear
-								}
-						})
-						.value();
-		}
-
-		_threshold_function(values) {
-
-				let operator = this.parent.options.threshold_operator;
-				let operator_function = this.operators[operator];
-
-				switch(this.parent.options.window_behaviour) {
-						case 'rollingSum':
-								return operator_function(_.sum(values), this.parent.options.threshold);
-								break;
-						case 'all':
-								return _.every(values, (value) => operator_function(value, this.parent.options.threshold));
-								break;
-				}
-
-		}
-
-		get_daily_values(data) {
-
-				return _.mapValues(_.fromPairs(data), (value) => {
-						let valid = this.parent.validator(value);
-						return {value: valid ? Number.parseFloat(this.parent._get_value(value)) : Number.NaN, valid: valid}
-				})
-
-		}
-
-		get operators() {
 				return {
-						'==': (o1, o2) => o1 === o2,
-						'>=': (o1, o2) => o1 >= o2,
-						'>': (o1, o2) => o1 > o2,
-						'<=': (o1, o2) => o1 <= o2,
-						'<': (o1, o2) => o1 < o2,
+					exceedance: exceedance,
+					valid: valid,
+					dailyValues: dailyValuesByYear
 				}
+			})
+			.value();
+	}
+
+	_threshold_function(values) {
+
+		let operator = this.parent.options.threshold_operator;
+		let operator_function = this.operators[operator];
+
+		switch (this.parent.options.window_behaviour) {
+			case 'rollingSum':
+				return operator_function(_.sum(values), this.parent.options.threshold);
+				break;
+			case 'all':
+				return _.every(values, (value) => operator_function(value, this.parent.options.threshold));
+				break;
 		}
 
-		_precipitation_year_validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues) {
-				let validByMonth = {};
+	}
 
-				// Loop through each daily value and separate them by month.
-				// Add one to that months total if the value is valid.
+	get_daily_values(data) {
+		return _.mapValues(_.fromPairs(data), (value) => {
+			let valid = this.parent.validator(value);
+			return {value: valid ? Number.parseFloat(this.parent._get_value(value)) : Number.NaN, valid: valid}
+		})
+	}
 
-				_.forEach(dailyValuesByYear, (v, date) => {
-						let month = date.substring(date.indexOf('-') + 1, date.indexOf('-') + 3);
-						if (!validByMonth.hasOwnProperty(month)) {
-								validByMonth[month] = 0
-						}
-						if (v.valid) {
-								validByMonth[month] = validByMonth[month] + 1
-						}
-				});
+	get operators() {
+		return {
+			'==': (o1, o2) => o1 === o2,
+			'>=': (o1, o2) => o1 >= o2,
+			'>': (o1, o2) => o1 > o2,
+			'<=': (o1, o2) => o1 <= o2,
+			'<': (o1, o2) => o1 < o2,
+		}
+	}
 
-				return (Object.keys(validByMonth).length === 12) && _.every(validByMonth, (valid, month) => {
+	_precipitation_year_validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues) {
+		let validByMonth = {};
 
-								return ((new Date(year, month, 0).getDate()) - valid) <= 2;
-						}
-				);
+		// Loop through each daily value and separate them by month.
+		// Add one to that months total if the value is valid.
+
+		_.forEach(dailyValuesByYear, (v, date) => {
+			let month = date.substring(date.indexOf('-') + 1, date.indexOf('-') + 3);
+			if (!validByMonth.hasOwnProperty(month)) {
+				validByMonth[month] = 0
+			}
+			if (v.valid) {
+				validByMonth[month] = validByMonth[month] + 1
+			}
+		});
+
+		return (Object.keys(validByMonth).length === 12) && _.every(validByMonth, (valid, month) => {
+
+				return ((new Date(year, month, 0).getDate()) - valid) <= 2;
+			}
+		);
+	}
+
+	_temp_year_validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues) {
+		let validByMonth = {};
+		_.forEach(dailyValuesByYear, (v, date) => {
+			let month = date.substring(date.indexOf('-') + 1, date.indexOf('-') + 3);
+			if (!validByMonth.hasOwnProperty(month)) {
+				validByMonth[month] = 0
+			}
+			if (v.valid) {
+				validByMonth[month] = validByMonth[month] + 1
+			}
+		});
+		return (Object.keys(validByMonth).length === 12) && _.every(validByMonth, (valid, month) => {
+				return ((new Date(year, month, 0).getDate()) - valid) <= 5;
+			}
+		);
+	}
+
+
+
+	_get_y_axis_title(window, variable, threshold, operator) {
+
+		let window_str;
+		let operator_str;
+		let threshold_str;
+		let variable_str;
+
+		if (window > 1) {
+			window_str = window + "-Day periods/year";
+		} else {
+			window_str = "Days/year";
 		}
 
-		_temp_year_validator(exceedance, dailyValuesByYear, year, allDailyValuesByYear, dailyValues) {
-				let validByMonth = {};
-				_.forEach(dailyValuesByYear, (v, date) => {
-						let month = date.substring(date.indexOf('-') + 1, date.indexOf('-') + 3);
-						if (!validByMonth.hasOwnProperty(month)) {
-								validByMonth[month] = 0
-						}
-						if (v.valid) {
-								validByMonth[month] = validByMonth[month] + 1
-						}
-				});
-				return (Object.keys(validByMonth).length === 12) && _.every(validByMonth, (valid, month) => {
-								return ((new Date(year, month, 0).getDate()) - valid) <= 5;
-						}
-				);
+		if (variable === "precipitation") {
+			variable_str = "precipitation";
+			threshold_str = threshold + " in";
+		} else if (variable === "tmax") {
+			variable_str = "maximum temperature";
+			threshold_str = threshold + " °F";
+		} else if (variable === "tmin") {
+			variable_str = "minimum temperature";
+			threshold_str = threshold + " °F";
+		} else if (variable === "tavg") {
+			variable_str = "average temperature";
+			threshold_str = threshold + " °F";
 		}
 
-		_get_percentile_value(percentile) {
-				//get all valid values from _dailyValues
-
-				percentile = Number.parseFloat(percentile);
-
-				const daily_values = this.parent.daily_values;
-
-				let dailyValues = _(daily_values).filter((v) => v.valid && v.value > 0).sortBy((v) => v.value).value();
-
-				let len = dailyValues.length;
-				let index;
-				percentile = percentile / 100;
-				// [0] 0th percentile is the minimum value...
-				if (percentile <= 0.0) {
-						return dailyValues[0].value;
-				}
-				// [1] 100th percentile is the maximum value...
-				if (percentile >= 1.0) {
-						return dailyValues[len - 1].value;
-				}
-				// Calculate the vector index marking the percentile:
-				index = (len * percentile) - 1;
-
-				// [2] Is the index an integer?
-				if (index === Math.floor(index)) {
-						// Value is the average between the value at index and index+1:
-						return _.round((dailyValues[index].value + dailyValues[index + 1].value) / 2.0, 3);
-				}
-				// [3] Round up to the next index:
-				index = Math.ceil(index);
-				return _.round(dailyValues[index].value, 3);
+		if (operator === ">=") {
+			operator_str = "at least";
+		} else if (operator === "<=") {
+			operator_str = "no more than";
 		}
 
-		_get_y_axis_title(window, variable, threshold, operator) {
+		return window_str + " with " + variable_str + " of " + operator_str + " " + threshold_str;
 
-				let window_str;
-				let operator_str;
-				let threshold_str;
-				let variable_str;
+	}
 
-				if(window > 1) {
-						window_str = window + "-Day periods/year";
-				} else {
-						window_str = "Days/year";
-				}
-
-				if(variable === "precipitation") {
-						variable_str = "precipitation";
-						threshold_str = threshold + " inches";
-				} else if(variable === "tmax") {
-						variable_str = "maximum temperature";
-						threshold_str = threshold + " °F";
-				} else if(variable === "tmin") {
-						variable_str = "minimum temperature";
-						threshold_str = threshold + " °F";
-				} else if(variable === "tavg") {
-						variable_str = "average temperature";
-						threshold_str = threshold + " °F";
-				}
-
-				if(operator === ">=") {
-						operator_str = "at least";
-				} else if(operator === "<=") {
-						operator_str = "no more than";
-				}
-
-				return window_str + " with " + variable_str + " of " + operator_str + " " + threshold_str;
-
+	_get_x_axis_layout(x_axis_range) {
+		return {
+			tickformat: "%Y",
+			ticklabelmode: "period",
+			type: "date",
+			range: [x_axis_range].map(a => a + '-01-01'),
+			linecolor: "#828282"
 		}
+	}
 
-		_get_x_axis_layout(x_axis_range) {
-				return {
-						tickformat: "%Y",
-						ticklabelmode: "period",
-						type: "date",
-						range: [x_axis_range].map(a => a + '-01-01'),
-						linecolor: "#828282"
+	_get_y_axis_layout(options) {
+		return {
+			title: {
+				text: this._get_y_axis_title(options.window_days, options.variable, options.threshold, options.threshold_operator),
+				font: {
+					size: 12
 				}
+			}
 		}
+	}
 
-		_get_y_axis_layout(options) {
-				return {
-						title: {
-								text: this._get_y_axis_title(options.window_days, options.variable, options.threshold, options.threshold_operator),
-								font: {
-										size: 12
-								}
-						}
-				}
-		}
-
-		async request_downloads() {
-				const {station, variable} = this.parent.options;
-				return [
-						{
-								label: 'Annual Exceedance',
-								icon: 'bar-chart',
-								attribution: 'ACIS: livneh',
-								when_data: this._download_callbacks['annual_exceedance'],
-								filename: [
-										station,
-										"annual_exceedance",
-										variable
-								].join('-').replace(/ /g, '_') + '.csv'
-						},
-						{
-								label: 'Chart image',
-								icon: 'picture-o',
-								attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
-								when_data: async () => {
-										let {width, height} = window.getComputedStyle(this.element);
-										width = Number.parseFloat(width) * 1.2;
-										height = Number.parseFloat(height) * 1.2;
-										return await Plotly.toImage(this.element, {
-												format: 'png', width: width, height: height
-										});
-								},
-								filename: [
-										station,
-										variable,
-										"graph"
-								].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
-						},
-				]
-		}
+	async request_downloads() {
+		const {station, variable} = this.parent.options;
+		return [
+			{
+				label: 'Annual Exceedance',
+				icon: 'bar-chart',
+				attribution: 'ACIS: livneh',
+				when_data: this._download_callbacks['annual_exceedance'],
+				filename: [
+					station,
+					"annual_exceedance",
+					variable
+				].join('-').replace(/ /g, '_') + '.csv'
+			},
+			{
+				label: 'Chart image',
+				icon: 'picture-o',
+				attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
+				when_data: async () => {
+					let {width, height} = window.getComputedStyle(this.element);
+					width = Number.parseFloat(width) * 1.2;
+					height = Number.parseFloat(height) * 1.2;
+					return await Plotly.toImage(this.element, {
+						format: 'png', width: width, height: height
+					});
+				},
+				filename: [
+					station,
+					variable,
+					"graph"
+				].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
+			},
+		]
+	}
 
 }
 

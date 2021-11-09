@@ -5,386 +5,427 @@ import DailyTemperatureMinMax from "./views/daily_temperature_minmax.js";
 import _ from "../node_modules/lodash-es/lodash.js";
 import DailyPrecipitationNormalized from "./views/daily_precipitation_normalized.js";
 import DailyTemperatureNormalized from "./views/daily_temperature_normalized.js";
-import {save_file} from './utils.js';
+import {get_cache_item, save_file, set_cache_item} from './utils.js';
 import DailyPrecipitationHistogram from "./views/daily_precipitation_histogram.js";
 import DailyTemperatureHistogram from "./views/daily_temperature_histogram.js";
 import DailyPrecipitationYtd from "./views/daily_precipitation_ytd";
 
 export default class ClimateByStationWidget {
 
-		/**
-		 *
-		 * @param element
-		 * @param {Object} options
-		 * @param {number} options.threshold_percentile - Allows setting the threshold based on percentile of daily values. When updated, set options.threshold to null to signify that percentile should be calculated.
-		 */
-		constructor(element, options = {}) {
-				this.options = {
-						view_type: !!options.view_type ? 'annual_exceedance' : options.view_type,
-						station: null,
-						sdate: 'por',
-						edate: (new Date().getFullYear()) + '-12-31',
-						variable: 'precipitation',
-						threshold: 1.0,
-						threshold_percentile: null,
-						window_days: 1,
-						window_behaviour: 'rollingSum',
-						threshold_operator: '>=',
-						data_api_endpoint: 'https://data.rcc-acis.org/'
-				};
+	/**
+	 *
+	 * @param element
+	 * @param {Object} options
+	 * @param {number} options.threshold_percentile - Allows setting the threshold based on percentile of daily values. When updated, set options.threshold to null to signify that percentile should be calculated.
+	 * @param {Object} options.cache_obj - Pass a common object for caching daily values data based on station/variable to reduce API requests.
+	 */
+	constructor(element, options = {}) {
+		this.options = {
+			view_type: !!options.view_type ? 'annual_exceedance' : options.view_type,
+			station: null,
+			sdate: 'por',
+			edate: (new Date().getFullYear()) + '-12-31',
+			variable: 'precipitation',
+			threshold: 1.0,
+			threshold_percentile: null,
+			window_days: 1,
+			window_behaviour: 'rollingSum',
+			threshold_operator: '>=',
+			data_api_endpoint: 'https://data.rcc-acis.org/',
+			cache_obj: null,
+		};
 
-				this.daily_values = null;
-				this.normal_values = null;
+		this.variables = {
+			precipitation: {
+				acis_elements: [{"name": "pcpn", "units": "inch"}]
+			},
+			precipitation_normal: {
+				acis_elements: [{"name": "pcpn", "prec": 1, "normal": "1", "units": "inch"}]
+			},
+			tmax: {
+				acis_elements: [{"name": "maxt", "units": "degreeF"}]
+			},
+			tmax_normal: {
+				acis_elements: [{"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}]
+			},
+			tmin: {
+				acis_elements: [{"name": "mint", "units": "degreeF"}]
+			},
+			tmin_normal: {
+				acis_elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}]
+			},
+			tavg: {
+				acis_elements: [{"name": "avgt", "units": "degreeF"}]
+			},
+			tavg_normal: {
+				acis_elements: [{"name": "avgt", "prec": 1, "normal": "1", "units": "degreeF"}]
+			},
+		}
 
-				this.variables = {
-						precipitation: {
-								elements: [{"name": "pcpn", "units": "inch"}]
-						},
-						precipitation_normal: {
-								elements: [{"name": "pcpn", "prec": 1, "normal": "1", "units": "inch"}]
-						},
-						tmax: {
-								elements: [{"name": "maxt", "units": "degreeF"}]
-						},
-						tmax_normal: {
-								elements: [{"name": "maxt", "prec": 1, "normal": "1", "units": "degreeF"}]
-						},
-						tmin: {
-								elements: [{"name": "mint", "units": "degreeF"}]
-						},
-						tmin_normal: {
-								elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}]
-						},
-						tavg: {
-								elements: [{"name": "avgt", "units": "degreeF"}]
-						},
-						tavg_normal: {
-								elements: [{"name": "avgt", "prec": 1, "normal": "1", "units": "degreeF"}]
-						},
-						temp_min_max: {
-								elements: [{"name": "mint", "prec": 1, "units": "degreeF"}, {
-										"name": "maxt",
-										"prec": 1,
-										"units": "degreeF"
-								}]
-						},
-						temp_min_max_normal: {
-								elements: [{"name": "mint", "prec": 1, "normal": "1", "units": "degreeF"}, {
-										"name": "maxt",
-										"prec": 1,
-										"normal": "1",
-										"units": "degreeF"
-								}]
-						}
-				}
+		this.daily_values = {};
+		this.normal_values = {};
 
-				this.clickhandler = null;
-				this.view = null;
-				this.element = element;
+		this.clickhandler = null;
+		this.view = null;
+		this.element = element;
 
-				this.view_container = document.createElement("div");
-				this.view_container.classList.add("climate-by-station-view");
+		this.view_container = document.createElement("div");
+		this.view_container.classList.add("climate-by-station-view");
 
-				this.element.append(this.view_container);
+		this.element.append(this.view_container);
 
-				this.spinner_element = document.createElement("div");
+		this.spinner_element = document.createElement("div");
 
-				this.spinner_element.style.position = "absolute";
-				this.spinner_element.style.left = "50%";
-				this.spinner_element.style.top = "0";
-				this.spinner_element.style.transform = "translateY(50%)";
-				this.spinner_element.style.height = "100%";
+		this.spinner_element.style.position = "absolute";
+		this.spinner_element.style.left = "50%";
+		this.spinner_element.style.top = "0";
+		this.spinner_element.style.transform = "translateY(50%)";
+		this.spinner_element.style.height = "100%";
 
-				this.spinner_element.classList.add("d-none");
+		this.spinner_element.classList.add("d-none");
 
-				this.spinner_styles = [
-						".climatebystation-spinner { border: 2px solid #e3e3e3;  border-top: 2px solid #6e6e6e; border-radius: 50%; width: 2rem; height: 2rem; animation: spin 2s linear infinite;}",
-						"@keyframes spin { 0% {transform: rotate(0deg);} 100% { transform: rotate(360deg); } }"
-				]
+		this.spinner_styles = [
+			".climatebystation-spinner { border: 2px solid #e3e3e3;  border-top: 2px solid #6e6e6e; border-radius: 50%; width: 2rem; height: 2rem; animation: spin 2s linear infinite;}",
+			"@keyframes spin { 0% {transform: rotate(0deg);} 100% { transform: rotate(360deg); } }"
+		]
 
-				this.spinner_element.innerHTML = `
+		this.spinner_element.innerHTML = `
 					<style>${this.spinner_styles.join('')}</style>
 					<div class="climatebystation-spinner"></div>
 				`
 
-				this.element.append(this.spinner_element);
+		this.element.append(this.spinner_element);
 
-				this.data_cache = {}; // not implemented yet
+		this.data_cache = {}; // not implemented yet
 
-				this.update(options);
+		this.update(options);
+	}
+
+	get_view_class() {
+
+		switch (this.options.view_type) {
+			case 'annual_exceedance':
+				return AnnualExceedance;
+			case 'daily_precipitation_absolute':
+				return DailyPrecipitationAbsolute;
+			case 'daily_temperature_absolute':
+				return DailyTemperatureAbsolute;
+			case 'daily_temperature_minmax':
+				return DailyTemperatureMinMax;
+			case 'daily_precipitation_normalized':
+				return DailyPrecipitationNormalized;
+			case 'daily_temperature_normalized':
+				return DailyTemperatureNormalized;
+			case 'daily_precipitation_histogram':
+				return DailyPrecipitationHistogram;
+			case 'daily_temperature_histogram':
+				return DailyTemperatureHistogram;
+			case 'daily_precipitation_ytd':
+				return DailyPrecipitationYtd;
+		}
+	}
+
+	update(options) {
+
+		let old_options = Object.assign({}, this.options);
+
+		this.options = _.merge({}, old_options, options);
+
+		if (old_options.station !== this.options.station) {
+			this._reset_widget();
 		}
 
-		get_view_class() {
+		if (old_options.view_type !== this.options.view_type) {
+			this.destroy();
+			const view_type = this.options.view_type;
 
-				switch (this.options.view_type) {
-						case 'annual_exceedance':
-								return AnnualExceedance;
-						case 'daily_precipitation_absolute':
-								return DailyPrecipitationAbsolute;
-						case 'daily_temperature_absolute':
-								return DailyTemperatureAbsolute;
-						case 'daily_temperature_minmax':
-								return DailyTemperatureMinMax;
-						case 'daily_precipitation_normalized':
-								return DailyPrecipitationNormalized;
-						case 'daily_temperature_normalized':
-								return DailyTemperatureNormalized;
-						case 'daily_precipitation_histogram':
-								return DailyPrecipitationHistogram;
-						case 'daily_temperature_histogram':
-								return DailyTemperatureHistogram;
-						case 'daily_precipitation_ytd':
-								return DailyPrecipitationYtd;
-				}
+			this.options.sdate = "por";
+			this.options.edate = (new Date().getFullYear()) + "-12-31";
+
+			if (view_type === "annual_exceedance" || view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized" || view_type === "daily_precipitation_histogram") {
+				this.options.variable = "precipitation";
+				this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 1.0 : options.threshold;
+				this.options.window_days = options.hasOwnProperty("window_days") ? options.window_days : 1;
+			} else if (view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized" || view_type === "daily_temperature_histogram") {
+				this.options.variable = "tmax";
+				this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 95.0 : options.threshold;
+			} else if (view_type === "daily_temperature_minmax") {
+				this.options.variable = "tmax";
+			}
 		}
 
-		update(options) {
+		if (old_options.variable !== this.options.variable) {
+			const view_type = this.options.view_type;
 
-				let old_options = Object.assign({}, this.options);
+			this.options.window_days = options.hasOwnProperty("window_days") ? options.window_days : 1;
 
-				this.options = _.merge({}, old_options, options);
+			if (view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized" || view_type === "daily_precipitation_histogram") {
+				this.options.variable = "precipitation";
+			} else if (view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized" || view_type === "daily_temperature_histogram") {
+				this.options.variable = this.options.variable === 'precipitation' ? old_options.variable || "tmax" : this.options.variable;
+			}
 
-				if (old_options.station !== this.options.station) {
-						this._reset_widget();
+			if (this.options.variable === "precipitation") {
+				this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 1.0 : options.threshold;
+			} else {
+				if (this.options.variable === "tmin") {
+					this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 32.0 : options.threshold;
+				} else if (this.options.variable === "tavg") {
+					this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 72.0 : options.threshold;
+				} else { // catchall set to tmax
+					this.options.variable = "tmax";
+					this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 95.0 : options.threshold;
 				}
+			}
+			this._reset_widget();
+		}
 
-				if (old_options.view_type !== this.options.view_type) {
-						this.destroy();
-						const view_type = this.options.view_type;
+		this._update();
+	}
 
-						this.options.sdate = "por";
-						this.options.edate = (new Date().getFullYear()) + "-12-31";
+	async _update() {
 
-						if (view_type === "annual_exceedance" || view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized" || view_type === "daily_precipitation_histogram") {
-								this.options.variable = "precipitation";
-								this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 1.0: options.threshold ;
-								this.options.window_days = options.hasOwnProperty("window_days") ? options.window_days : 1;
-						} else if (view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized" || view_type === "daily_temperature_histogram") {
-								this.options.variable = "tmax";
-								this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 95.0 : options.threshold;
-						} else if (view_type === "daily_temperature_minmax") {
-								this.options.variable = "temp_min_max";
+		if (this.view === null) {
+			const view_class = this.get_view_class();
+			if (!view_class) {
+				return
+			}
+			this.view = new view_class(this, this.view_container);
+		}
+
+		await this.view.request_update();
+
+
+		window.setTimeout(() => {
+			this.element.dispatchEvent(new CustomEvent('update_complete', {detail: this.options}));
+		});
+	}
+
+	_show_spinner() {
+		if (this.spinner_element.classList.contains("d-none")) {
+			this.spinner_element.classList.remove("d-none");
+			this.view_container.style.filter = "opacity(0.5)"
+		}
+	}
+
+	_hide_spinner() {
+		if (!this.spinner_element.classList.contains("d-none")) {
+			this.spinner_element.classList.add("d-none");
+			this.view_container.style.filter = "opacity(1)"
+		}
+	}
+
+	validator(value) {
+
+		let _value = this._get_value(value);
+
+		return (!isNaN(_value) && Number.isFinite(_value));
+	}
+
+	_get_value(value) {
+		if (value === "T") {
+			value = 0.0;
+		}
+
+		value = Number.parseFloat(value);
+
+		return value;
+	}
+
+	days_between(date1, date2) {
+		const d1 = new Date(date1);
+		const d2 = new Date(date2);
+
+		const dif = d2.getTime() - d1.getTime();
+
+		const oneDay = 1000 * 60 * 60 * 24;
+
+		const diffDays = Math.round(dif / oneDay);
+
+		return diffDays;
+	}
+
+	_reset_widget() {
+		this.daily_values = null;
+		this.normal_values = null;
+	}
+
+	download_annual_exceedance() {
+		return new Promise((resolve, reject) => {
+			this.request_downloads().then((downloads) => {
+				const download = downloads.find((d) => d['label'] === 'Annual Exceedance')
+				if (!download) {
+					return reject(new Error('Annual Exceedance is not available for download'));
+				}
+				download.download().then(() => resolve())
+			})
+		});
+	}
+
+	download_daily_precipitation_absolute() {
+		return new Promise((resolve, reject) => {
+			this.request_downloads().then((downloads) => {
+				const download = downloads.find((d) => d['label'] === 'Daily Precipitation Absolute')
+				if (!download) {
+					return reject(new Error('Daily Precipitation Absolute is not available for download'));
+				}
+				download.download().then(() => resolve())
+			})
+		});
+	}
+
+	download_daily_temperature_absolute() {
+		return new Promise((resolve, reject) => {
+			this.request_downloads().then((downloads) => {
+				const download = downloads.find((d) => d['label'] === 'Daily Temperature Absolute')
+				if (!download) {
+					return reject(new Error('Daily Temperature Absolute is not available for download'));
+				}
+				download.download().then(() => resolve())
+			})
+		});
+	}
+
+	download_daily_temperature_minmax() {
+		return new Promise((resolve, reject) => {
+			this.request_downloads().then((downloads) => {
+				const download = downloads.find((d) => d['label'] === 'Daily Temperature Minimum and Maximum')
+				if (!download) {
+					return reject(new Error('Daily Temperature Minimum and Maximum is not available for download'));
+				}
+				download.download().then(() => resolve())
+			})
+		});
+	}
+
+	download_daily_temperature_normalized() {
+		return new Promise((resolve, reject) => {
+			this.request_downloads().then((downloads) => {
+				const download = downloads.find((d) => d['label'] === 'Daily Temperature Normalized')
+				if (!download) {
+					return reject(new Error('Daily Temperature Normalized is not available for download'));
+				}
+				download.download().then(() => resolve())
+			})
+		});
+	}
+
+	download_daily_precipitation_normalized() {
+		return new Promise((resolve, reject) => {
+			this.request_downloads().then((downloads) => {
+				const download = downloads.find((d) => d['label'] === 'Daily Precipitation Normalized')
+				if (!download) {
+					return reject(new Error('Daily Precipitation Normalized is not available for download'));
+				}
+				download.download().then(() => resolve())
+			})
+		});
+	}
+
+	download_image() {
+		return new Promise((resolve, reject) => {
+			this.request_downloads().then((downloads) => {
+				const download = downloads.find((d) => d['filename'].slice(-3) === 'png')
+				if (!download) {
+					return reject(new Error('Chart image is not available for download'));
+				}
+				download.download().then(() => resolve())
+			})
+		});
+	}
+
+	/**
+	 * Gets the available downloads for the current view.
+	 * @return {Promise<*[]>}
+	 */
+	async request_downloads() {
+		if (this.view) {
+			return (await this.view.request_downloads()).map((d) => new Proxy(
+				d,
+				{
+					get: (target, prop) => {
+						if (prop === 'download') {
+							return async () => {
+								try {
+									const url = await target.when_data();
+
+									return await save_file(url, target['filename'])
+								} catch (e) {
+									console.log('Failed download with message', e)
+									throw new Error('Failed to download ' + target['label'])
+								}
+							}
 						}
-				}
-
-				if (old_options.variable !== this.options.variable) {
-						const view_type = this.options.view_type;
-
-						this.options.window_days = options.hasOwnProperty("window_days") ? options.window_days : 1;
-
-						if (view_type === "daily_precipitation_absolute" || view_type === "daily_precipitation_normalized" || view_type === "daily_precipitation_histogram") {
-								this.options.variable = "precipitation";
-						} else if (view_type === "daily_temperature_absolute" || view_type === "daily_temperature_normalized" || view_type === "daily_temperature_histogram") {
-								this.options.variable = this.options.variable === 'precipitation' ? old_options.variable || "tmax" : this.options.variable;
-						}
-
-						if (this.options.variable === "precipitation") {
-								this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 1.0 : options.threshold;
-						} else {
-								if (this.options.variable === "tmin") {
-										this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 32.0 : options.threshold;
-								} else if (this.options.variable === "tavg") {
-										this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 72.0 : options.threshold;
-								} else { // catchall set to tmax
-										this.options.variable = "tmax";
-										this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 95.0 : options.threshold;
-								}
-						}
-						this._reset_widget();
-				}
-
-				this._update();
+						return target[prop]
+					}
+				}));
 		}
+		return [];
+	}
 
-		async _update() {
+	get variable_unit() {
+		return this.options.variable === "precipitation" ? "in" : "°F";
+	}
 
-				if (this.view === null) {
-						const view_class = this.get_view_class();
-						if (!view_class) {
-								return
-						}
-						this.view = new view_class(this, this.view_container);
-				}
+	// get cache_obj() {
+	// 	if (!this.options.cache_obj) {
+	// 		this.options.cache_obj = []
+	// 	}
+	// 	return this.options.cache_obj
+	// }
+	//
+	// get cache_objs() {
+	// 	if (!this._cache_objs) {
+	// 		if (!!this.options.cache_obj) {
+	// 			this._cache_objs = [this.options.cache_obj]
+	// 		} else {
+	// 			if (!this._cache_obj) {
+	// 				this._cache_obj = {}
+	// 			}
+	// 			this._cache_objs = [this._cache_obj, sessionStorage, localStorage]
+	// 		}
+	// 	}
+	// 	return this._cache_objs
+	// }
+	//
+	// get daily_values() {
+	// 	const v = get_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'observed'].join('_'))
+	// 	if (!v){
+	// 		return null
+	// 	}
+	// 	if (v.hasOwnProperty('then')){
+	// 		return v
+	// 	} else {
+	// 		return Promise.resolve(v)
+	// 	}
+	// }
+	//
+	// set daily_values(values) {
+	// 	set_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'observed'].join('_'), values)
+	// 	return values
+	// }
+	//
+	// get normal_values() {
+	// 	const v = get_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'normals'].join('_'))
+	// 	if (!v){
+	// 		return null
+	// 	}
+	// 	if (v.hasOwnProperty('then')){
+	// 		return v
+	// 	} else {
+	// 		return Promise.resolve(v)
+	// 	}
+	// }
+	//
+	// set normal_values(values) {
+	// 	return set_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'normals'].join('_'), values)
+	// }
 
-				await this.view.request_update();
-
-
-				window.setTimeout(() => {
-						this.element.dispatchEvent(new CustomEvent('update_complete', {detail: this.options}));
-				});
+	destroy() {
+		if (this.view) {
+			this.view.destroy();
+			this._reset_widget();
+			this.view = null;
 		}
-
-		_show_spinner() {
-				if (this.spinner_element.classList.contains("d-none")) {
-						this.spinner_element.classList.remove("d-none");
-						this.view_container.style.filter = "opacity(0.5)"
-				}
-		}
-
-		_hide_spinner() {
-				if (!this.spinner_element.classList.contains("d-none")) {
-						this.spinner_element.classList.add("d-none");
-						this.view_container.style.filter = "opacity(1)"
-				}
-		}
-
-		validator(value) {
-
-				let _value = this._get_value(value);
-
-				return (!isNaN(_value) && Number.isFinite(_value));
-		}
-
-		_get_value(value) {
-				if (value === "T") {
-						value = 0.0;
-				}
-
-				value = Number.parseFloat(value);
-
-				return value;
-		}
-
-		days_between(date1, date2) {
-				const d1 = new Date(date1);
-				const d2 = new Date(date2);
-
-				const dif = d2.getTime() - d1.getTime();
-
-				const oneDay = 1000 * 60 * 60 * 24;
-
-				const diffDays = Math.round(dif / oneDay);
-
-				return diffDays;
-		}
-
-		_reset_widget() {
-				this.daily_values = null;
-				this.normal_values = null;
-		}
-
-		download_annual_exceedance() {
-				return new Promise((resolve, reject) => {
-						this.request_downloads().then((downloads) => {
-								const download = downloads.find((d) => d['label'] === 'Annual Exceedance')
-								if (!download) {
-										return reject(new Error('Annual Exceedance is not available for download'));
-								}
-								download.download().then(() => resolve())
-						})
-				});
-		}
-
-		download_daily_precipitation_absolute() {
-				return new Promise((resolve, reject) => {
-						this.request_downloads().then((downloads) => {
-								const download = downloads.find((d) => d['label'] === 'Daily Precipitation Absolute')
-								if (!download) {
-										return reject(new Error('Daily Precipitation Absolute is not available for download'));
-								}
-								download.download().then(() => resolve())
-						})
-				});
-		}
-
-		download_daily_temperature_absolute() {
-				return new Promise((resolve, reject) => {
-						this.request_downloads().then((downloads) => {
-								const download = downloads.find((d) => d['label'] === 'Daily Temperature Absolute')
-								if (!download) {
-										return reject(new Error('Daily Temperature Absolute is not available for download'));
-								}
-								download.download().then(() => resolve())
-						})
-				});
-		}
-
-		download_daily_temperature_minmax() {
-				return new Promise((resolve, reject) => {
-						this.request_downloads().then((downloads) => {
-								const download = downloads.find((d) => d['label'] === 'Daily Temperature Minimum and Maximum')
-								if (!download) {
-										return reject(new Error('Daily Temperature Minimum and Maximum is not available for download'));
-								}
-								download.download().then(() => resolve())
-						})
-				});
-		}
-
-		download_daily_temperature_normalized() {
-				return new Promise((resolve, reject) => {
-						this.request_downloads().then((downloads) => {
-								const download = downloads.find((d) => d['label'] === 'Daily Temperature Normalized')
-								if (!download) {
-										return reject(new Error('Daily Temperature Normalized is not available for download'));
-								}
-								download.download().then(() => resolve())
-						})
-				});
-		}
-
-		download_daily_precipitation_normalized() {
-				return new Promise((resolve, reject) => {
-						this.request_downloads().then((downloads) => {
-								const download = downloads.find((d) => d['label'] === 'Daily Precipitation Normalized')
-								if (!download) {
-										return reject(new Error('Daily Precipitation Normalized is not available for download'));
-								}
-								download.download().then(() => resolve())
-						})
-				});
-		}
-
-		download_image() {
-				return new Promise((resolve, reject) => {
-						this.request_downloads().then((downloads) => {
-								const download = downloads.find((d) => d['filename'].slice(-3) === 'png')
-								if (!download) {
-										return reject(new Error('Chart image is not available for download'));
-								}
-								download.download().then(() => resolve())
-						})
-				});
-		}
-
-		/**
-		 * Gets the available downloads for the current view.
-		 * @return {Promise<*[]>}
-		 */
-		async request_downloads() {
-				if (this.view) {
-						return (await this.view.request_downloads()).map((d) => new Proxy(
-								d,
-								{
-										get: (target, prop) => {
-												if (prop === 'download') {
-														return async () => {
-																try {
-																		const url = await target.when_data();
-
-																		return await save_file(url, target['filename'])
-																} catch (e) {
-																		console.log('Failed download with message', e)
-																		throw new Error('Failed to download ' + target['label'])
-																}
-														}
-												}
-												return target[prop]
-										}
-								}));
-				}
-				return [];
-		}
-
-		get variable_unit() {
-				return this.options.variable === "precipitation" ? "Inches" : "°F";
-		}
-
-		destroy() {
-				if (this.view) {
-						this.view.destroy();
-						this._reset_widget();
-						this.view = null;
-				}
-		}
+	}
 }
