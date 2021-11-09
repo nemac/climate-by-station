@@ -170,7 +170,7 @@ export function get_cache_item(cache_objs, key) {
 			if (typeof v === "string") {
 				const expiry = parseInt(v.slice(0,13));
 				if (expiry > Date.now()) {
-					return JSON.parse(v.slice(13))
+					return JSON.parse(v.slice(13), (k, v) => v === "NaN" ? Number.NaN : v)
 				} else {
 					if (typeof cache_obj.removeItem === "function") {
 						cache_obj.removeItem(key)
@@ -213,7 +213,7 @@ export function set_cache_item(cache_objs, key, value, ttl = 60 * 60 * 1000) {
 			if (typeof value === "object" && typeof value.then === "function") {
 				continue
 			}
-			const v = expiry.toString().slice(0,13) + JSON.stringify(value);
+			const v = expiry.toString().slice(0,13) + JSON.stringify(value, (k, v) => v !== v ? "NaN" : v)
 			try {
 				cache_obj.setItem(key, v);
 			} catch {
