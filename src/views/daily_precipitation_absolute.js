@@ -53,6 +53,8 @@ export default class DailyPrecipitationAbsolute extends View {
 			}
 			days.push(e[0]);
 			values.push(e[1].value);
+
+
 		});
 
 		/*

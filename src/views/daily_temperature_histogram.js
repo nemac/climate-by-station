@@ -40,10 +40,11 @@ export default class DailyTemperatureHistogram extends View {
 			if (v[0].value > 0)
 				days.push(v[0]);
 			values.push(v[1].value);
+			download_data.push([v[0], v[1].value]);
 		}
 
 		this._download_callbacks = {
-			daily_temperature_histogram: async () => format_export_data(['day', 'precipitation', 'normal_value'], values, null, null)
+			daily_temperature_histogram: async () => format_export_data(['day', 'temperature'], download_data, null, null)
 		}
 
 		let por = "NaN"
@@ -147,12 +148,17 @@ export default class DailyTemperatureHistogram extends View {
 
 	_get_y_axis_layout() {
 		return {
-			// type: 'log'
+			title: {
+					text: "Number of events",
+					font: {
+							size: 12
+					}
+			}
 		}
 	}
 
 	async request_downloads() {
-		const {station} = this.parent.options;
+		const {station, variable} = this.parent.options;
 		return [
 			{
 				label: 'Daily Temperature Histogram',
@@ -162,7 +168,7 @@ export default class DailyTemperatureHistogram extends View {
 				filename: [
 					station,
 					"daily_temperature_histogram",
-					"precipitation"
+					variable
 				].join('-').replace(/ /g, '_') + '.csv'
 			},
 			{
@@ -179,7 +185,8 @@ export default class DailyTemperatureHistogram extends View {
 				},
 				filename: [
 					station,
-					"precipitation",
+					"daily_temperature_histogram",
+				  variable,
 					"graph"
 				].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
 			},

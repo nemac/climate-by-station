@@ -322,6 +322,42 @@ export default class ClimateByStationWidget {
 		});
 	}
 
+		download_daily_temperature_histogram() {
+				return new Promise((resolve, reject) => {
+						this.request_downloads().then((downloads) => {
+								const download = downloads.find((d) => d['label'] === 'Daily Temperature Histogram')
+								if (!download) {
+										return reject(new Error('Daily Temperature Histogram is not available for download'));
+								}
+								download.download().then(() => resolve())
+						})
+				});
+		}
+
+		download_daily_precipitation_histogram() {
+				return new Promise((resolve, reject) => {
+						this.request_downloads().then((downloads) => {
+								const download = downloads.find((d) => d['label'] === 'Daily Precipitation Histogram')
+								if (!download) {
+										return reject(new Error('Daily Precipitation Histogram is not available for download'));
+								}
+								download.download().then(() => resolve())
+						})
+				});
+		}
+
+		download_daily_precipitation_ytd() {
+				return new Promise((resolve, reject) => {
+						this.request_downloads().then((downloads) => {
+								const download = downloads.find((d) => d['label'] === 'Daily Precipitation YTD')
+								if (!download) {
+										return reject(new Error('Daily Precipitation YTD is not available for download'));
+								}
+								download.download().then(() => resolve())
+						})
+				});
+		}
+
 	download_image() {
 		return new Promise((resolve, reject) => {
 			this.request_downloads().then((downloads) => {

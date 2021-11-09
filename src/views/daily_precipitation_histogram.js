@@ -39,10 +39,11 @@ export default class DailyPrecipitationHistogram extends View {
 
 			days.push(v[0]);
 			values.push(v[1].value);
+		  download_data.push([v[0], v[1].value])
 		}
 
 		this._download_callbacks = {
-			daily_precipitation_histogram: async () => format_export_data(['day', 'precipitation', 'normal_value'], values, null, null)
+			daily_precipitation_histogram: async () => format_export_data(['day', 'precipitation'], download_data, null, null)
 		}
 
 		const values_filtered = values.filter(e => {
@@ -160,12 +161,18 @@ export default class DailyPrecipitationHistogram extends View {
 	}
 
 	_get_y_axis_layout() {
-		return {
-			type: 'log',
-			exponentformat: 'B', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-exponentformat
-			dtick: 'tick0', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-dtick
-			autorange: true
-		}
+			return {
+					type: 'log',
+					exponentformat: 'B', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-exponentformat
+					dtick: 'tick0', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-dtick
+					autorange: true,
+					title: {
+							text: "Number of events",
+							font: {
+									size: 12
+							}
+					}
+			}
 	}
 
 	async request_downloads() {
@@ -196,7 +203,7 @@ export default class DailyPrecipitationHistogram extends View {
 				},
 				filename: [
 					station,
-					"precipitation",
+					"daily_precipitation_histogram",
 					"graph"
 				].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
 			},

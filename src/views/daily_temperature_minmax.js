@@ -141,7 +141,7 @@ export default class DailyTemperatureMinMax extends View {
 					color: 'rgba(50, 136, 189, 0.95)'
 
 				},
-				name: "Actual min / max temperature"
+				name: "Observed min / max temperature"
 			}
 		]
 

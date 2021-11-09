@@ -68,6 +68,8 @@ export default class DailyPrecipitationYtd extends View {
 			days.push(v[0]);
 
 			prev_year = year;
+
+		  download_data.push([v[0], v[1].value]);
 		}
 
 		/*
@@ -79,7 +81,6 @@ export default class DailyPrecipitationYtd extends View {
 		let counter = normal_entries.length - 1;
 		for (let i = diff_days; i >= 0; i--) {
 			normals[i] = normal_entries[counter][1].value;
-			download_data[i] = [days[i], values[i], normal_entries[counter][1].value];
 
 			counter--;
 
@@ -112,7 +113,7 @@ export default class DailyPrecipitationYtd extends View {
 		})
 
 		this._download_callbacks = {
-			daily_precipitation_absolute: async () => format_export_data(['day', 'precipitation', 'normal_value'], download_data, null, null)
+			daily_precipitation_ytd: async () => format_export_data(['day', 'precipitation'], download_data, null, null)
 		}
 
 		const chart_layout = {
@@ -182,13 +183,13 @@ export default class DailyPrecipitationYtd extends View {
 		const {station} = this.parent.options;
 		return [
 			{
-				label: 'Daily Precipitation Absolute',
+				label: 'Daily Precipitation YTD',
 				icon: 'bar-chart',
 				attribution: 'ACIS: livneh',
-				when_data: this._download_callbacks['daily_precipitation_absolute'],
+				when_data: this._download_callbacks['daily_precipitation_ytd'],
 				filename: [
 					station,
-					"daily_precipitation_absolute",
+					"daily_precipitation_ytd",
 					"precipitation"
 				].join('-').replace(/ /g, '_') + '.csv'
 			},
@@ -206,7 +207,7 @@ export default class DailyPrecipitationYtd extends View {
 				},
 				filename: [
 					station,
-					"precipitation",
+					"daily_precipitation_ytd",
 					"graph"
 				].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
 			},

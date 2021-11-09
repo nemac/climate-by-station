@@ -265,6 +265,12 @@
 			widget.download_daily_temperature_normalized();
 		} else if (widget.options.view_type === 'daily_precipitation_normalized') {
 			widget.download_daily_precipitation_normalized();
+		} else if (widget.options.view_type === 'daily_temperature_histogram') {
+				widget.download_daily_temperature_histogram();
+		} else if (widget.options.view_type === 'daily_precipitation_histogram') {
+				widget.download_daily_precipitation_histogram();
+		} else if (widget.options.view_type === 'daily_precipitation_ytd') {
+				widget.download_daily_precipitation_ytd();
 		}
 	});
 
