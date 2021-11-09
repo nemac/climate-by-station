@@ -9,29 +9,41 @@ export default class DailyTemperatureMinMax extends View {
 
 		const options = this.parent.options;
 
-		if (this.parent.daily_values === null) {
+		let daily_values = this.parent.daily_values;
+
+		if (daily_values === null) {
 			this.parent._show_spinner();
-			const [data, normal_data] = await Promise.all([fetch_acis_station_data(options, [...this.parent.variables['tmin'].acis_elements, ...this.parent.variables['tmax'].acis_elements]).then((a) => a.data),
-				fetch_acis_station_data({
-					station: options.station,
-					sdate: (new Date().getFullYear() - 4) + '-01-01',
-					edate: (new Date().getFullYear()) + '-12-31',
-					data_api_endpoint: 'https://data.rcc-acis.org/'
-				}, [...this.parent.variables['tmin_normal'].acis_elements, ...this.parent.variables['tmax_normal'].acis_elements]).then((a) => a.data)
-			]);
-
-			this.parent.daily_values = this.get_daily_values(data);
-
-			this.parent.normal_values = this.get_daily_values(normal_data);
-
-			this.parent._hide_spinner();
+			// create a promise for data and set it on parent.daily_values so that it gets cached.
+			daily_values = this.parent.daily_values = fetch_acis_station_data(options, [...this.parent.variables['tmin'].acis_elements, ...this.parent.variables['tmax'].acis_elements]).then(a=>a.data).then(this.get_daily_values.bind(this))
 		}
+
+		let normal_values = this.parent.normal_values;
+		if (normal_values === null) {
+			this.parent._show_spinner();
+			// create a promise for data and set it on parent.daily_values so that it gets cached.
+			normal_values = this.parent.normal_values = fetch_acis_station_data({
+				station: options.station,
+				sdate: (new Date().getFullYear() - 4) + '-01-01',
+				edate: (new Date().getFullYear()) + '-12-31',
+				data_api_endpoint: 'https://data.rcc-acis.org/'
+			}, [...this.parent.variables['tmin_normal'].acis_elements, ...this.parent.variables['tmax_normal'].acis_elements]).then(a=>a.data).then(this.get_daily_values.bind(this))
+		}
+
+		// unwrap/await daily values if they are promises.
+		if ((typeof daily_values === "object" && typeof daily_values.then === "function") || (typeof normal_values === "object" && typeof normal_values.then === "function")){
+			this.parent._show_spinner();
+			[daily_values, normal_values] = await Promise.all([
+				(typeof daily_values === "object" && typeof daily_values.then === "function") ? daily_values : Promise.resolve(daily_values),
+				(typeof normal_values === "object" && typeof normal_values.then === "function") ? normal_values : Promise.resolve(normal_values)
+			])
+		}
+
+		this.parent._hide_spinner();
+
 		if (options.threshold === null && options.threshold_percentile > 0) {
-			options.threshold = get_percentile_value(options.threshold_percentile, this.parent.daily_values);
+			options.threshold = get_percentile_value(options.threshold_percentile, daily_values);
 		}
-		const daily_values = this.parent.daily_values;
-
-		const normal_values = this.parent.normal_values;
+		const daily_entries = Object.entries(daily_values);
 		const normal_entries = Object.entries(normal_values);
 
 		let years = [];
@@ -42,7 +54,7 @@ export default class DailyTemperatureMinMax extends View {
 		let normal_max = [];
 		let download_data = [];
 
-		daily_values.forEach(e => {
+		daily_entries.forEach(e => {
 
 			let year = e.day.slice(0, 4);
 			if (!years.includes(Number.parseInt(year))) {

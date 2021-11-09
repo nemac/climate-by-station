@@ -9,21 +9,25 @@ export default class DailyTemperatureHistogram extends View {
 
 		const options = this.parent.options;
 
-		const threshold = options.threshold;
 
-		if (this.parent.daily_values === null) {
+
+		let daily_values = this.parent.daily_values;
+		if (daily_values === null) {
 			this.parent._show_spinner();
-			const data = await (await fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements)).data;
-			this.parent.daily_values = this.get_daily_values(data);
-
-			this.parent._hide_spinner();
+			// create a promise for data and set it on parent.daily_values so that it gets cached.
+			daily_values = this.parent.daily_values = fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements).then(a=>a.data).then(this.get_daily_values.bind(this))
 		}
+		// unwrap/await daily values if they are promises.
+		if (typeof daily_values === "object" && typeof daily_values.then === "function"){
+			this.parent._show_spinner();
+			daily_values = await daily_values
+		}
+		this.parent._hide_spinner();
 
 		if (options.threshold === null && options.threshold_percentile > 0) {
-			options.threshold = get_percentile_value(options.threshold_percentile, this.parent.daily_values);
+			options.threshold = get_percentile_value(options.threshold_percentile, daily_values);
 		}
-
-		const daily_values = this.parent.daily_values;
+		const threshold = options.threshold;
 		const daily_values_entries = Object.entries(daily_values);
 
 		let years = [];

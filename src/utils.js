@@ -159,23 +159,28 @@ export function get_percentile_value(percentile, daily_values, gt_0 = false) {
 export function get_cache_item(cache_objs, key) {
 	let v = null;
 	for (const cache_obj of cache_objs) {
-		if (cache_obj.hasOwnProperty('getItem')) {
-			v = cache_obj.get(key)
+		if (typeof cache_obj.getItem === "function") {
+			v = cache_obj.getItem(key)
 		} else {
 			if (key in cache_obj) {
 				v = cache_obj[key]
 			}
 		}
 		if (v) {
-			if (v[0] < Date.now()) {
+			if (typeof v === "string") {
+				const expiry = parseInt(v.slice(0,13));
+				if (expiry > Date.now()) {
+					return JSON.parse(v.slice(13))
+				} else {
+					if (typeof cache_obj.removeItem === "function") {
+						cache_obj.removeItem(key)
+					}
+				}
+			}
+			else if (v[0] > Date.now()) {
 				return v[1]
-			} else{
-				if (cache_obj.hasOwnProperty('removeItem')){
-					cache_obj.removeItem(key)
-				}
-				else {
+			} else {
 					delete cache_obj[key]
-				}
 			}
 		}
 	}
@@ -187,49 +192,58 @@ export function get_cache_item(cache_objs, key) {
  *
  * @param {Object[]} cache_objs - A list of objects to attempt to cache the value in, preferring the last object first. e.g. [my_in_memory_obj, sessionStorage, localStorage]
  * @param key
- * @param value
+ * @param value {Object} object to cache. Strings not allowed.
  * @param {number} ttl - Milliseconds to keep the cached value
  */
 export function set_cache_item(cache_objs, key, value, ttl = 60 * 60 * 1000) {
-	const v = [Date.now() + ttl, value];
+
 	cache_objs = [...cache_objs]
 	cache_objs.reverse()
-	if (value.hasOwnProperty('then')){
-		value.then((result)=>{
+	// recursively hook onto promises (which cannot be stored using Web Storage) and attempt unwrap them when resolved.
+	if (typeof value === "object" && typeof value.then === "function") {
+		value.then((result) => {
 			del_cache_item(cache_objs, key)
-			set_cache_item(cache_objs, key, result, v[0])
+			set_cache_item(cache_objs, key, result, ttl)
 		})
 	}
-
-for (const cache_obj of cache_objs) {
+	const expiry = Date.now() + ttl
+	for (const cache_obj of cache_objs) {
 		// attempt to use Web Storage API
-		if (cache_obj.hasOwnProperty('setItem')) {
+		if (typeof cache_obj.setItem === "function") {
+			if (typeof value === "object" && typeof value.then === "function") {
+				continue
+			}
+			const v = expiry.toString().slice(0,13) + JSON.stringify(value);
 			try {
-				cache_obj.set(key, v);
-			} catch { // attempt to clear cache in case it's just full
-				if (cache_obj.hasOwnProperty('clear')) {
-					cache_obj.clear() // naively dump storage since we are not in full control of this object
-					cache_obj.set(key, v)
-					return
+				cache_obj.setItem(key, v);
+			} catch {
+				// attempt to clear cache in case it's just full
+				if (typeof cache_obj.clear === "function") {
+					try {
+						cache_obj.clear()
+						cache_obj.setItem(key, v)
+					}catch {
+						// do nothing
+					}
 				}
 			}
-		}
-		// fallback to in memory storage
-		try {
-			// check all cache objs for expiry
-			for (const k of Object.keys(cache_obj)) {
-				const now = Date.now()
-				if (cache_obj[k][0] > now){
-					delete cache_obj[k]
+		} else {
+			// fallback to in-memory storage
+			try {
+				const v = [expiry, value];
+				// check all cache objs for expiry
+				for (const k of Object.keys(cache_obj)) {
+					const now = Date.now()
+					if (cache_obj[k][0] > now) {
+						delete cache_obj[k]
+					}
 				}
+				// set the new cache key
+				cache_obj[key] = v;
+			} catch {
+				// do nothing
 			}
-			// set the new cache key
-			cache_obj[key] = v;
-			return
-		} catch {
-			// do nothing
 		}
-
 	}
 }
 
@@ -239,10 +253,10 @@ for (const cache_obj of cache_objs) {
  * @param cache_objs
  * @param key
  */
-export function del_cache_item(cache_objs, key){
+export function del_cache_item(cache_objs, key) {
 	for (const cache_obj of cache_objs) {
 		// attempt to use Web Storage API
-		if (cache_obj.hasOwnProperty('removeItem')) {
+		if (typeof cache_obj.removeItem === "function") {
 			try {
 				cache_obj.removeItem(key);
 			} catch {

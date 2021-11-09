@@ -32,7 +32,7 @@ export default class ClimateByStationWidget {
 			window_behaviour: 'rollingSum',
 			threshold_operator: '>=',
 			data_api_endpoint: 'https://data.rcc-acis.org/',
-			cache_obj: null,
+			cache_objs: null,
 		};
 
 		this.variables = {
@@ -62,8 +62,8 @@ export default class ClimateByStationWidget {
 			},
 		}
 
-		this.daily_values = {};
-		this.normal_values = {};
+		// this.daily_values = {};
+		// this.normal_values = {};
 
 		this.clickhandler = null;
 		this.view = null;
@@ -246,8 +246,8 @@ export default class ClimateByStationWidget {
 	}
 
 	_reset_widget() {
-		this.daily_values = null;
-		this.normal_values = null;
+		// this.daily_values = null;
+		// this.normal_values = null;
 	}
 
 	download_annual_exceedance() {
@@ -367,59 +367,53 @@ export default class ClimateByStationWidget {
 		return this.options.variable === "precipitation" ? "in" : "°F";
 	}
 
-	// get cache_obj() {
-	// 	if (!this.options.cache_obj) {
-	// 		this.options.cache_obj = []
-	// 	}
-	// 	return this.options.cache_obj
-	// }
-	//
-	// get cache_objs() {
-	// 	if (!this._cache_objs) {
-	// 		if (!!this.options.cache_obj) {
-	// 			this._cache_objs = [this.options.cache_obj]
-	// 		} else {
-	// 			if (!this._cache_obj) {
-	// 				this._cache_obj = {}
-	// 			}
-	// 			this._cache_objs = [this._cache_obj, sessionStorage, localStorage]
-	// 		}
-	// 	}
-	// 	return this._cache_objs
-	// }
-	//
-	// get daily_values() {
-	// 	const v = get_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'observed'].join('_'))
-	// 	if (!v){
-	// 		return null
-	// 	}
-	// 	if (v.hasOwnProperty('then')){
-	// 		return v
-	// 	} else {
-	// 		return Promise.resolve(v)
-	// 	}
-	// }
-	//
-	// set daily_values(values) {
-	// 	set_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'observed'].join('_'), values)
-	// 	return values
-	// }
-	//
-	// get normal_values() {
-	// 	const v = get_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'normals'].join('_'))
-	// 	if (!v){
-	// 		return null
-	// 	}
-	// 	if (v.hasOwnProperty('then')){
-	// 		return v
-	// 	} else {
-	// 		return Promise.resolve(v)
-	// 	}
-	// }
-	//
-	// set normal_values(values) {
-	// 	return set_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'normals'].join('_'), values)
-	// }
+	get cache_objs() {
+		if (!this._cache_objs) {
+			if (!!this.options.cache_obj) {
+				this._cache_objs = this.options.cache_objs
+			} else {
+				// default to using a js obj and localStorage.
+				if (!this._cache_obj) {
+					this._cache_obj = {}
+				}
+				this._cache_objs = [this._cache_obj, localStorage]
+			}
+		}
+		return this._cache_objs
+	}
+
+	get daily_values() {
+		const v = get_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'observed'].join('_'))
+		if (!v){
+			return null
+		}
+		if (typeof v === "object" && typeof v.then === "function"){
+			return v
+		} else {
+			return Promise.resolve(v)
+		}
+	}
+
+	set daily_values(values) {
+		set_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'observed'].join('_'), values)
+		return values
+	}
+
+	get normal_values() {
+		const v = get_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'normals'].join('_'))
+		if (!v){
+			return null
+		}
+		if (typeof v === "object" && typeof v.then === "function"){
+			return v
+		} else {
+			return Promise.resolve(v)
+		}
+	}
+
+	set normal_values(values) {
+		return set_cache_item(this.cache_objs, [this.options.station,this.options.variable, 'normals'].join('_'), values)
+	}
 
 	destroy() {
 		if (this.view) {
