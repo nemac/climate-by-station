@@ -112,7 +112,13 @@ export default class DailyTemperatureMinMax extends View {
 			legend: {
 				"orientation": "h"
 			},
-			bargap: 0.05
+			bargap: 0.05,
+				margin: {
+						l: 40,
+						r: 20,
+						b: 5,
+						t: 5
+				}
 		}
 
 		let chart_data = [

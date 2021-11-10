@@ -104,7 +104,13 @@ export default class DailyTemperatureAbsolute extends View {
 					},
 					visible: true
 				}
-			]
+			],
+				margin: {
+						l: 40,
+						r: 20,
+						b: 5,
+						t: 5
+				}
 		}
 
 		let chart_data = [

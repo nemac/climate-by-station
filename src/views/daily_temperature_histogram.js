@@ -90,7 +90,13 @@ export default class DailyTemperatureHistogram extends View {
 					},
 					visible: true
 				}
-			]
+			],
+				margin: {
+						l: 40,
+						r: 20,
+						b: 35,
+						t: 5
+				}
 		}
 
 		let chart_data = [

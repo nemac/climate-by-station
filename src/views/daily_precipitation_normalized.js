@@ -98,7 +98,13 @@ export default class DailyPrecipitationNormalized extends View {
 			autosize: true,
 			legend: {
 				"orientation": "h"
-			}
+			},
+				margin: {
+						l: 40,
+						r: 20,
+						b: 35,
+						t: 5
+				}
 		}
 
 		let chart_data = [
