@@ -170,17 +170,17 @@ export function get_cache_item(cache_objs, key) {
 			if (typeof v === "string") {
 				const expiry = parseInt(v.slice(0,13));
 				if (expiry > Date.now()) {
-					return JSON.parse(v.slice(13), (k, v) => v === "NaN" ? Number.NaN : v)
+					return JSON.parse(v.slice(13), (k, v) => v === "NaN" ? Number.NaN : v);
 				} else {
 					if (typeof cache_obj.removeItem === "function") {
-						cache_obj.removeItem(key)
+						cache_obj.removeItem(key);
 					}
 				}
 			}
 			else if (v[0] > Date.now()) {
 				return v[1]
 			} else {
-					delete cache_obj[key]
+					delete cache_obj[key];
 			}
 		}
 	}
