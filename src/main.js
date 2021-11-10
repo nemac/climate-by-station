@@ -32,7 +32,7 @@ export default class ClimateByStationWidget {
 			window_behaviour: 'rollingSum',
 			threshold_operator: '>=',
 			data_api_endpoint: 'https://data.rcc-acis.org/',
-			cache_objs: null,
+			cache_objs: null, // [{}, window.localStorage]
 		};
 
 		this.variables = {
