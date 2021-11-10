@@ -211,7 +211,7 @@ export function set_cache_item(cache_objs, key, value, ttl = 60 * 60 * 1000) {
 		// attempt to use Web Storage API
 		if (typeof cache_obj.setItem === "function") {
 			if (typeof value === "object" && typeof value.then === "function") {
-				continue
+				continue;
 			}
 			const v = expiry.toString().slice(0,13) + JSON.stringify(value, (k, v) => v !== v ? "NaN" : v)
 			try {
@@ -234,7 +234,7 @@ export function set_cache_item(cache_objs, key, value, ttl = 60 * 60 * 1000) {
 				// check all cache objs for expiry
 				for (const k of Object.keys(cache_obj)) {
 					const now = Date.now()
-					if (cache_obj[k][0] > now) {
+					if (cache_obj[k][0] < now) {
 						delete cache_obj[k]
 					}
 				}
@@ -264,7 +264,7 @@ export function del_cache_item(cache_objs, key) {
 			}
 		}
 		try {
-			delete cache_obj[k]
+			delete cache_obj[key];
 		} catch {
 			// do nothing
 		}

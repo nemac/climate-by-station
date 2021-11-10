@@ -1,6 +1,8 @@
 export async function fetch_acis_station_data(options, acis_elements) {
 	const url = options.data_api_endpoint + "StnData";
 
+	console.log(acis_elements);
+
 	const response = await (await fetch(url, {
 		method: "POST",
 		headers: {'Content-Type': 'application/json'},

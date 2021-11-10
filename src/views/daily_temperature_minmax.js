@@ -13,8 +13,9 @@ export default class DailyTemperatureMinMax extends View {
 
 		if (daily_values === null) {
 			this.parent._show_spinner();
+
 			// create a promise for data and set it on parent.daily_values so that it gets cached.
-			daily_values = this.parent.set_daily_values(options.station, "temp_min_max", false,fetch_acis_station_data(options, [...this.parent.variables['tmin'].acis_elements, ...this.parent.variables['tmax'].acis_elements]).then(a=>a.data).then(this.get_daily_values.bind(this)))
+			daily_values = this.parent.set_daily_values(options.station, "temp_min_max", false, fetch_acis_station_data(options, [...this.parent.variables['tmin'].acis_elements, ...this.parent.variables['tmax'].acis_elements]).then(a=>a.data).then(this.get_daily_values.bind(this)))
 		}
 
 		let normal_values = this.parent.get_daily_values(options.station, "temp_min_max", true);

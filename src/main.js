@@ -427,14 +427,14 @@ export default class ClimateByStationWidget {
 	 * @return {Object|Promise<Object>|null} May return the daily values directly, a promise which will will resolve to the values, or null.
 	 */
 	get_daily_values(station, variable, normals=false) {
-		const v = get_cache_item(this.cache_objs, [station,variable, normals? 'normals' : 'observed'].join('_'))
+		const v = get_cache_item(this.cache_objs, [station, variable, normals? 'normals' : 'observed'].join('_'));
 		if (!v){
-			return null
+			return null;
 		}
 		if (typeof v === "object" && typeof v.then === "function"){
-			return v
+			return v;
 		} else {
-			return Promise.resolve(v)
+			return Promise.resolve(v);
 		}
 	}
 
@@ -448,8 +448,8 @@ export default class ClimateByStationWidget {
 	 * @return {Object|Promise<Object>}
 	 */
 	set_daily_values(station, variable, normals=false, values) {
-		set_cache_item(this.cache_objs, [this.options.station,this.options.variable, normals? 'normals' : 'observed'].join('_'), values)
-		return values
+		set_cache_item(this.cache_objs, [this.options.station, variable, normals? 'normals' : 'observed'].join('_'), values)
+		return values;
 	}
 
 
