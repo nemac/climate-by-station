@@ -9,8 +9,6 @@ export default class DailyTemperatureHistogram extends View {
 
 		const options = this.parent.options;
 
-
-
 		let daily_values = this.parent.get_daily_values(options.station, options.variable, false);
 		if (daily_values === null) {
 			this.parent._show_spinner();
@@ -92,7 +90,7 @@ export default class DailyTemperatureHistogram extends View {
 				}
 			],
 				margin: {
-						l: 40,
+						l: 50,
 						r: 20,
 						b: 35,
 						t: 5
@@ -129,6 +127,10 @@ export default class DailyTemperatureHistogram extends View {
 				x: [[options.threshold, options.threshold]],
 				y: [[0, 1]]
 			}
+
+				window.setTimeout((() => {
+						this.parent.element.dispatchEvent(new CustomEvent('threshold_changed', {detail: options}));
+				}).bind(this));
 
 			Plotly.update(this.element, update, {}, [1]);
 		}
