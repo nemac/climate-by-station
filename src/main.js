@@ -78,9 +78,8 @@ export default class ClimateByStationWidget {
 
 		this.spinner_element.style.position = "absolute";
 		this.spinner_element.style.left = "50%";
-		this.spinner_element.style.top = "0";
-		this.spinner_element.style.transform = "translateY(50%)";
-		this.spinner_element.style.height = "100%";
+		this.spinner_element.style.top = "50%";
+		this.spinner_element.style.transform = "translate(-50%, -50%)";
 
 		this.spinner_element.classList.add("d-none");
 
@@ -135,6 +134,7 @@ export default class ClimateByStationWidget {
 			this._reset_widget();
 		}
 
+
 		if (old_options.view_type !== this.options.view_type) {
 			this.destroy();
 			const view_type = this.options.view_type;
@@ -179,6 +179,11 @@ export default class ClimateByStationWidget {
 			}
 			this._reset_widget();
 		}
+
+			if (!this.options.station) {
+					this._show_spinner();
+					return;
+			}
 
 		this._update();
 	}
