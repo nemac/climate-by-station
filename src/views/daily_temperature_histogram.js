@@ -9,8 +9,6 @@ export default class DailyTemperatureHistogram extends View {
 
 		const options = this.parent.options;
 
-
-
 		let daily_values = this.parent.get_daily_values(options.station, options.variable, false);
 		if (daily_values === null) {
 			this.parent._show_spinner();
@@ -27,7 +25,6 @@ export default class DailyTemperatureHistogram extends View {
 		if (options.threshold === null && options.threshold_percentile !== null && options.threshold_percentile >= 0) {
 			options.threshold = get_percentile_value(options.threshold_percentile, daily_values);
 		}
-		const threshold = options.threshold;
 		const daily_values_entries = Object.entries(daily_values);
 
 		let years = [];
@@ -77,7 +74,7 @@ export default class DailyTemperatureHistogram extends View {
 			},
 			annotations: [
 				{
-					x: threshold,
+					x: options.threshold,
 					y: 1,
 					xref: 'x',
 					yref: 'paper',
@@ -88,7 +85,7 @@ export default class DailyTemperatureHistogram extends View {
 					font: {
 						size: 10
 					},
-					visible: true
+					visible: options.threshold !== null
 				}
 			],
 				margin: {
@@ -110,7 +107,7 @@ export default class DailyTemperatureHistogram extends View {
 			{
 				mode: "lines",
 				showlegend: false,
-				x: [threshold, threshold],
+				x: [options.threshold, options.threshold],
 				y: [0, 1],
 				yaxis: 'y2',
 				hovertemplate: 'x %{x}, y y%{y}',

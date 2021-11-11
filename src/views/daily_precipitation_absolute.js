@@ -108,7 +108,7 @@ export default class DailyPrecipitationAbsolute extends View {
 					font: {
 						size: 10
 					},
-					visible: true
+					visible: options.threshold !== null
 				}
 			],
 				margin: {
@@ -149,7 +149,7 @@ export default class DailyPrecipitationAbsolute extends View {
 				mode: "lines",
 				fill: 'none',
 				connectgaps: false,
-				visible: true,
+				visible: options.threshold !== null,
 				line: {
 					color: 'rgb(0,0,0)',
 					width: 1

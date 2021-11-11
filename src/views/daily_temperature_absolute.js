@@ -9,8 +9,6 @@ export default class DailyTemperatureAbsolute extends View {
 
 		const options = this.parent.options;
 
-		let threshold = options.threshold;
-
 
 		let daily_values = this.parent.get_daily_values(options.station, options.variable, false);
 
@@ -92,7 +90,7 @@ export default class DailyTemperatureAbsolute extends View {
 			annotations: [
 				{
 					x: 1,
-					y: threshold,
+					y: options.threshold,
 					xref: 'paper',
 					yref: 'y',
 					text: `Threshold ${options.variable === 'precipitation' ? options.threshold + " (in)" : options.threshold + " (°F)"}`,
@@ -102,7 +100,7 @@ export default class DailyTemperatureAbsolute extends View {
 					font: {
 						size: 10
 					},
-					visible: true
+					visible: options.threshold !== null
 				}
 			],
 				margin: {
@@ -138,12 +136,13 @@ export default class DailyTemperatureAbsolute extends View {
 				name: "Threshold",
 				showlegend: false,
 				x: [years[0], years[years.length - 1]],
-				y: [threshold, threshold],
+				y: [options.threshold, options.threshold],
 				mode: "lines",
 				line: {
 					color: 'rgb(0,0,0)',
 					width: 1
-				}
+				},
+				visible: options.threshold !== null
 			}
 		]
 

@@ -9,8 +9,6 @@ export default class DailyPrecipitationHistogram extends View {
 
 		const options = this.parent.options;
 
-		const threshold = options.threshold;
-
 		let daily_values = this.parent.get_daily_values(options.station, options.variable, false);
 		if (daily_values === null) {
 			this.parent._show_spinner();
@@ -90,7 +88,7 @@ export default class DailyPrecipitationHistogram extends View {
 			},
 			annotations: [
 				{
-					x: threshold,
+					x: options.threshold,
 					y: 1,
 					xref: 'x',
 					yref: 'paper',
@@ -122,14 +120,15 @@ export default class DailyPrecipitationHistogram extends View {
 			},
 			{
 				mode: "lines",
-				x: [threshold, threshold],
+				x: [options.threshold, options.threshold],
 				y: [0, 1],
 				yaxis: 'y2',
 				showlegend: false,
 				line: {
 					color: 'rgb(0,0,0)',
 					width: 1
-				}
+				},
+				visible: options.threshold !== null
 			}
 		]
 
