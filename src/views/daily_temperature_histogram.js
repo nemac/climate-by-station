@@ -89,7 +89,7 @@ export default class DailyTemperatureHistogram extends View {
 				}
 			],
 				margin: {
-						l: 40,
+						l: 50,
 						r: 20,
 						b: 35,
 						t: 5
@@ -126,6 +126,10 @@ export default class DailyTemperatureHistogram extends View {
 				x: [[options.threshold, options.threshold]],
 				y: [[0, 1]]
 			}
+
+				window.setTimeout((() => {
+						this.parent.element.dispatchEvent(new CustomEvent('threshold_changed', {detail: options}));
+				}).bind(this));
 
 			Plotly.update(this.element, update, {}, [1]);
 		}
