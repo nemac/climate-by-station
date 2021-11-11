@@ -21,7 +21,7 @@ export default class ClimateByStationWidget {
 	 */
 	constructor(element, options = {}) {
 		this.options = {
-			view_type: !!options.view_type ? 'annual_exceedance' : options.view_type,
+			view_type: null, //!!options.view_type ? 'annual_exceedance' : options.view_type,
 			station: null,
 			sdate: 'por',
 			edate: (new Date().getFullYear()) + '-12-31',
@@ -67,6 +67,13 @@ export default class ClimateByStationWidget {
 
 		this.clickhandler = null;
 		this.view = null;
+
+			if (typeof element === "string") {
+					element = document.querySelector(this.element);
+			} else if (typeof element === 'object' && typeof element.jquery !== 'undefined') {
+					element = element[0];
+			}
+
 		this.element = element;
 
 		this.view_container = document.createElement("div");
@@ -201,9 +208,9 @@ export default class ClimateByStationWidget {
 		await this.view.request_update();
 
 
-		window.setTimeout(() => {
+		window.setTimeout((() => {
 			this.element.dispatchEvent(new CustomEvent('update_complete', {detail: this.options}));
-		});
+		}).bind(this));
 	}
 
 	_show_spinner() {

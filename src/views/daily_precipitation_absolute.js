@@ -40,7 +40,7 @@ export default class DailyPrecipitationAbsolute extends View {
 
 		this.parent._hide_spinner();
 
-		if (options.threshold == null && options.threshold_percentile >= 0) {
+		if (options.threshold == null && options.threshold_percentile !== null && options.threshold_percentile >= 0) {
 			options.threshold = get_percentile_value(options.threshold_percentile, daily_values, true);
 		}
 

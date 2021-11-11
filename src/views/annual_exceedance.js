@@ -23,7 +23,7 @@ export default class AnnualExceedance extends View {
 						daily_values = await daily_values
 				}
 				this.parent._hide_spinner();
-				if (options.threshold == null && options.threshold_percentile !== null) {
+				if (options.threshold == null && options.threshold_percentile !== null && options.threshold_percentile >= 0) {
 						options.threshold = get_percentile_value(options.threshold_percentile, daily_values, options.variable === 'precipitation');
 				}
 
