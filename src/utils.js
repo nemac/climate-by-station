@@ -168,7 +168,7 @@ export function get_cache_item(cache_objs, key) {
 		}
 		if (v) {
 			if (typeof v === "string") {
-				const expiry = parseInt(v.slice(0,13));
+				const expiry = parseInt(v.slice(0, 13));
 				if (expiry > Date.now()) {
 					return JSON.parse(v.slice(13), (k, v) => v === "NaN" ? Number.NaN : v);
 				} else {
@@ -176,11 +176,10 @@ export function get_cache_item(cache_objs, key) {
 						cache_obj.removeItem(key);
 					}
 				}
-			}
-			else if (v[0] > Date.now()) {
+			} else if (v[0] > Date.now()) {
 				return v[1]
 			} else {
-					delete cache_obj[key];
+				delete cache_obj[key];
 			}
 		}
 	}
@@ -213,7 +212,7 @@ export function set_cache_item(cache_objs, key, value, ttl = 60 * 60 * 1000) {
 			if (typeof value === "object" && typeof value.then === "function") {
 				continue;
 			}
-			const v = expiry.toString().slice(0,13) + JSON.stringify(value, (k, v) => v !== v ? "NaN" : v)
+			const v = expiry.toString().slice(0, 13) + JSON.stringify(value, (k, v) => v !== v ? "NaN" : v)
 			try {
 				cache_obj.setItem(key, v);
 			} catch {
@@ -222,7 +221,7 @@ export function set_cache_item(cache_objs, key, value, ttl = 60 * 60 * 1000) {
 					try {
 						cache_obj.clear()
 						cache_obj.setItem(key, v)
-					}catch {
+					} catch {
 						// do nothing
 					}
 				}
