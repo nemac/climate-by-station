@@ -20,7 +20,7 @@ export default class AnnualExceedance extends View {
 				// unwrap/await daily values if they are promises.
 				if (typeof daily_values === "object" && typeof daily_values.then === "function") {
 						this.parent._show_spinner();
-						daily_values = await daily_values
+						daily_values = await daily_values;
 				}
 				this.parent._hide_spinner();
 				if (options.threshold == null && options.threshold_percentile !== null && options.threshold_percentile >= 0) {
@@ -32,7 +32,7 @@ export default class AnnualExceedance extends View {
 				let years = [];
 				let exceedance_values = [];
 				let missing_values = [];
-				let download_data = [];
+				// let download_data = [];
 
 				Object.entries(exceedance).forEach(e => {
 
@@ -46,18 +46,18 @@ export default class AnnualExceedance extends View {
 								years.push(year);
 								exceedance_values.push(exceedance);
 								missing_values.push(missing);
-								download_data.push([year, exceedance, missing]);
+								// download_data.push([year, exceedance, missing]);
 						} else {
 								years.push(year);
 								exceedance_values.push(Number.NaN);
 								missing_values.push(Number.NaN);
-								download_data.push([year, Number.NaN, Number.NaN]);
+								// download_data.push([year, Number.NaN, Number.NaN]);
 						}
 
 				})
 
 				this._download_callbacks = {
-						annual_exceedance: async () => format_export_data(['year', 'annual_exceedance', 'missing_value'], download_data, null, null)
+						annual_exceedance: async () => format_export_data(['year', 'annual_exceedance', 'missing_value'], this.get_download_data(years, exceedance_values, missing_values), null, null)
 				}
 
 				const chart_layout = {
@@ -89,6 +89,16 @@ export default class AnnualExceedance extends View {
 						modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']
 				});
 
+		}
+
+		get_download_data(years, exceedance, missing) {
+				let output = [];
+
+				for(let i = 0; i < years.length; i++) {
+						output.push([years[i], exceedance[i], missing[i]]);
+				}
+
+				return output;
 		}
 
 		get_year_exceedance(dailyValues) {

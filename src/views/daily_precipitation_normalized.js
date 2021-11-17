@@ -52,7 +52,6 @@ export default class DailyPrecipitationNormalized extends View {
 		let years = [];
 		let days = [];
 		let values = [];
-		let download_data = [];
 
 		daily_values_entries.forEach(e => {
 
@@ -73,7 +72,6 @@ export default class DailyPrecipitationNormalized extends View {
 		let counter = normal_entries.length - 1;
 		for (let i = diff_days; i >= 0; i--) {
 			values[i] = values[i] - normal_entries[counter][1].value;
-			download_data[i] = [days[i], values[i]];
 
 			counter--;
 
@@ -83,7 +81,7 @@ export default class DailyPrecipitationNormalized extends View {
 		}
 
 		this._download_callbacks = {
-			daily_precipitation_normalized: async () => format_export_data(['day', 'normalized_precipitation'], download_data, null, 1)
+			daily_precipitation_normalized: async () => format_export_data(['day', 'normalized_precipitation'], this.get_download_data(days, values), null, 1)
 		}
 
 		const chart_layout = {
@@ -122,6 +120,17 @@ export default class DailyPrecipitationNormalized extends View {
 
 		Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
 	}
+
+		get_download_data(days, values) {
+
+				let output = [];
+
+				for(let i = 0; i < days.length; i++) {
+						output.push([days[i], values[i]]);
+				}
+
+				return output;
+		}
 
 	get_daily_values(data) {
 

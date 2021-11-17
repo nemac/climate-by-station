@@ -137,10 +137,6 @@ export default class ClimateByStationWidget {
 
     this.options = _.merge({}, old_options, options);
 
-    if (old_options.station !== this.options.station) {
-      this._reset_widget();
-    }
-
     if (old_options.view_type !== this.options.view_type) {
       this.destroy();
       const view_type = this.options.view_type;
@@ -183,7 +179,6 @@ export default class ClimateByStationWidget {
           this.options.threshold = !options.hasOwnProperty("threshold") || options.threshold === null ? 95.0 : options.threshold;
         }
       }
-      this._reset_widget();
     }
 
     if (this.options.threshold === null && this.options.threshold_percentile === null) {
@@ -269,11 +264,6 @@ export default class ClimateByStationWidget {
     const diffDays = Math.round(dif / oneDay);
 
     return diffDays;
-  }
-
-  _reset_widget() {
-    // this.daily_values = null;
-    // this.normal_values = null;
   }
 
   download_annual_exceedance() {
@@ -482,7 +472,6 @@ export default class ClimateByStationWidget {
   destroy() {
     if (this.view) {
       this.view.destroy();
-      this._reset_widget();
       this.view = null;
     }
   }

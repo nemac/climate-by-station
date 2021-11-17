@@ -16,7 +16,7 @@
   "scripts": {
     "build": "npm run build:js && npm run build:html",
     "build:js": "mkdir -p dist && rollup -c ",
-    "build:html": "rsync src/index.html dist/ && rsync src/style.css dist/",
+    "build:html": "rsync src/index.html dist/",
     "deploy:staging": "aws s3 sync --delete --no-follow-symlinks dist/ s3://climate-by-station.fernleafinteractive.com/ && aws cloudfront create-invalidation --distribution-id E1D1H5X0S4VFNX --paths '/*'"
   },
   "devDependencies": {

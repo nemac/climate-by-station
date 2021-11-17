@@ -31,7 +31,6 @@ export default class DailyPrecipitationHistogram extends View {
 		let years = [];
 		let days = [];
 		let values = [];
-		let download_data = [];
 
 		for (const v of daily_values_entries) {
 			let year = v[0].slice(0, 4);
@@ -41,11 +40,10 @@ export default class DailyPrecipitationHistogram extends View {
 
 			days.push(v[0]);
 			values.push(v[1].value);
-		  download_data.push([v[0], v[1].value])
 		}
 
 		this._download_callbacks = {
-			daily_precipitation_histogram: async () => format_export_data(['day', 'precipitation'], download_data, null, null)
+			daily_precipitation_histogram: async () => format_export_data(['day', 'precipitation'], this.get_download_data(daily_values_entries), null, null)
 		}
 
 		const values_filtered = values.filter(e => {
@@ -152,6 +150,17 @@ export default class DailyPrecipitationHistogram extends View {
 		this.element.on('plotly_click', this._click_handler);
 
 	}
+
+		get_download_data(daily_values_entries) {
+
+				let output = [];
+
+				for (const v of daily_values_entries) {
+						output.push([v[0], v[1].value]);
+				}
+
+				return output;
+		}
 
 	get_daily_values(data) {
 
