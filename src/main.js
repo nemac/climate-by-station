@@ -133,6 +133,16 @@ export default class ClimateByStationWidget {
 
 				let old_options = Object.assign({}, this.options);
 
+				// shortcut threshold change
+				 if(Object.keys(options).length === 1
+					 && Object.keys(options)[0] === 'threshold'
+					 && options.threshold !== null
+					 && this.view
+					 && this.view.hasOwnProperty('set_threshold')) {
+						 this.view.set_threshold(options.threshold);
+						 return;
+				 }
+
 				this.options = _.merge({}, old_options, options);
 
 				if (old_options.view_type !== this.options.view_type) {
@@ -216,7 +226,7 @@ export default class ClimateByStationWidget {
 
 
 				window.setTimeout((() => {
-						this.element.dispatchEvent(new CustomEvent('update_complete', {detail: this.options}));
+						this.element.dispatchEvent(new CustomEvent('update_complete', {}));
 				}).bind(this));
 		}
 

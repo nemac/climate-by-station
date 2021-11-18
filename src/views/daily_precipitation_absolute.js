@@ -14,23 +14,23 @@ export default class DailyPrecipitationAbsolute extends View {
 		if (daily_values === null) {
 			this.parent._show_spinner();
 			// create a promise for data and set it on parent.daily_values so that it gets cached.
-			daily_values = this.parent.set_daily_values(options.station, options.variable, false,fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements).then(a=>a.data).then(this.get_daily_values.bind(this)))
+			daily_values = this.parent.set_daily_values(options.station, options.variable, false, fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements).then(a => a.data).then(this.get_daily_values.bind(this)))
 		}
 
 		let normal_values = this.parent.get_daily_values(options.station, options.variable, true);
 		if (normal_values === null) {
 			this.parent._show_spinner();
 			// create a promise for data and set it on parent.daily_values so that it gets cached.
-			normal_values = this.parent.set_daily_values(options.station, options.variable, true,fetch_acis_station_data({
+			normal_values = this.parent.set_daily_values(options.station, options.variable, true, fetch_acis_station_data({
 				station: options.station,
 				sdate: (new Date().getFullYear() - 4) + '-01-01',
 				edate: (new Date().getFullYear()) + '-12-31',
 				data_api_endpoint: 'https://data.rcc-acis.org/'
-			}, this.parent.variables[options.variable + "_normal"].acis_elements).then(a=>a.data).then(this.get_daily_values.bind(this)))
+			}, this.parent.variables[options.variable + "_normal"].acis_elements).then(a => a.data).then(this.get_daily_values.bind(this)))
 		}
 
 		// unwrap/await daily values if they are promises.
-		if ((typeof daily_values === "object" && typeof daily_values.then === "function") || (typeof normal_values === "object" && typeof normal_values.then === "function")){
+		if ((typeof daily_values === "object" && typeof daily_values.then === "function") || (typeof normal_values === "object" && typeof normal_values.then === "function")) {
 			this.parent._show_spinner();
 			[daily_values, normal_values] = await Promise.all([
 				(typeof daily_values === "object" && typeof daily_values.then === "function") ? daily_values : Promise.resolve(daily_values),
@@ -107,12 +107,12 @@ export default class DailyPrecipitationAbsolute extends View {
 					visible: options.threshold !== null
 				}
 			],
-				margin: {
-						l: 40,
-						r: 20,
-						b: 5,
-						t: 5
-				}
+			margin: {
+				l: 40,
+				r: 20,
+				b: 5,
+				t: 5
+			}
 		}
 
 		let chart_data = [
@@ -156,23 +156,30 @@ export default class DailyPrecipitationAbsolute extends View {
 		Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
 	}
 
+
+	set_threshold(threshold) {
+		Plotly.update(this.element, {
+			y: [[threshold, threshold]]
+		}, {}, [2]);
+	}
+
 	get_download_data(days, values, normal_entries) {
 
-			let output = [];
-			const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][0]);
-			let counter = normal_entries.length - 1;
+		let output = [];
+		const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][0]);
+		let counter = normal_entries.length - 1;
 
-			for (let i = diff_days; i >= 0; i--) {
-					output[i] = [days[i], values[i], normal_entries[counter][1].value];
+		for (let i = diff_days; i >= 0; i--) {
+			output[i] = [days[i], values[i], normal_entries[counter][1].value];
 
-					counter--;
+			counter--;
 
-					if (counter < 0) {
-							counter = normal_entries.length - 1;
-					}
+			if (counter < 0) {
+				counter = normal_entries.length - 1;
 			}
+		}
 
-			return output;
+		return output;
 	}
 
 	get_daily_values(data) {

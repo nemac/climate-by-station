@@ -6,23 +6,20 @@ import {format_export_data, get_percentile_value} from "../utils.js";
 export default class DailyPrecipitationHistogram extends View {
 
 	async request_update() {
-
 		const options = this.parent.options;
 
-			//this.element.removeEventListener('plotly_click', this._click_handler);
-
+		this.parent._show_spinner();
+		//this.element.removeEventListener('plotly_click', this._click_handler);
 		let daily_values = this.parent.get_daily_values(options.station, options.variable, false);
 		if (daily_values === null) {
-			this.parent._show_spinner();
+
 			// create a promise for data and set it on parent.daily_values so that it gets cached.
-			daily_values = this.parent.set_daily_values(options.station, options.variable, false,fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements).then(a=>a.data).then(this.get_daily_values.bind(this)))
+			daily_values = this.parent.set_daily_values(options.station, options.variable, false, fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements).then(a => a.data).then(this.get_daily_values.bind(this)))
 		}
 		// unwrap/await daily values if they are promises.
-		if (typeof daily_values === "object" && typeof daily_values.then === "function"){
-			this.parent._show_spinner();
+		if (typeof daily_values === "object" && typeof daily_values.then === "function") {
 			daily_values = await daily_values
 		}
-		this.parent._hide_spinner();
 
 		if (options.threshold === null && options.threshold_percentile !== null && options.threshold_percentile >= 0) {
 			options.threshold = get_percentile_value(options.threshold_percentile, daily_values, true);
@@ -49,10 +46,9 @@ export default class DailyPrecipitationHistogram extends View {
 		}
 
 		let por = `NaN`
-		try{
-			por = `${daily_values_entries[0][0].slice(0,4)}–${daily_values_entries[daily_values_entries.length - 1][0].slice(0,4).slice(0,4)}`
-		}
-		catch (ex){
+		try {
+			por = `${daily_values_entries[0][0].slice(0, 4)}–${daily_values_entries[daily_values_entries.length - 1][0].slice(0, 4).slice(0, 4)}`
+		} catch (ex) {
 			// do nothing
 		}
 		const chart_layout = {
@@ -88,12 +84,12 @@ export default class DailyPrecipitationHistogram extends View {
 					visible: true
 				}
 			],
-				margin: {
-						l: 50,
-						r: 20,
-						b: 35,
-						t: 5
-				}
+			margin: {
+				l: 50,
+				r: 20,
+				b: 35,
+				t: 5
+			}
 		}
 
 		let chart_data = [
@@ -120,35 +116,31 @@ export default class DailyPrecipitationHistogram extends View {
 
 		Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
 
-		this._click_handler = (data) => {
-			options.threshold = data.points[0].x;
-			const update = {
-				x: [[options.threshold, options.threshold]],
-				y: [[0, 1]]
-			}
-
-		window.setTimeout((() => {
-				this.parent.element.dispatchEvent(new CustomEvent('threshold_changed', {detail: options}));
-		}).bind(this));
-
-			Plotly.update(this.element, update, {}, [1]);
-		}
+		this.parent._hide_spinner();
 
 		// https://stackoverflow.com/questions/60678586/update-x-and-y-values-of-a-trace-using-plotly-update
-		this.element.on('plotly_click', this._click_handler);
-
+		if (!this._click_listener) {
+			this._click_listener = this.element.on('plotly_click', this._click_handler.bind(this));
+		}
 	}
 
-		get_download_data(daily_values_entries) {
+	set_threshold(threshold){
+		Plotly.update(this.element, {
+			x: [[threshold, threshold]],
+			y: [[0, 1]]
+		}, {}, [1]);
+	}
 
-				let output = [];
+	get_download_data(daily_values_entries) {
 
-				for (const v of daily_values_entries) {
-						output.push([v[0], v[1].value]);
-				}
+		let output = [];
 
-				return output;
+		for (const v of daily_values_entries) {
+			output.push([v[0], v[1].value]);
 		}
+
+		return output;
+	}
 
 	get_daily_values(data) {
 
@@ -158,6 +150,15 @@ export default class DailyPrecipitationHistogram extends View {
 		})
 
 	}
+
+	_click_handler(data) {
+		const threshold = data.points[0].x;
+		if (threshold === null) return;
+		window.setTimeout((() => {
+				this.parent.element.dispatchEvent(new CustomEvent('threshold_changed', {detail: threshold}));
+			}).bind(this));
+	}
+
 
 	_get_x_axis_layout() {
 		return {
@@ -171,18 +172,18 @@ export default class DailyPrecipitationHistogram extends View {
 	}
 
 	_get_y_axis_layout() {
-			return {
-					type: 'log',
-					exponentformat: 'B', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-exponentformat
-					dtick: 'tick0', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-dtick
-					autorange: true,
-					title: {
-							text: "Number of events",
-							font: {
-									size: 12
-							}
-					}
+		return {
+			type: 'log',
+			exponentformat: 'B', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-exponentformat
+			dtick: 'tick0', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-dtick
+			autorange: true,
+			title: {
+				text: "Number of events",
+				font: {
+					size: 12
+				}
 			}
+		}
 	}
 
 	async request_downloads() {
@@ -222,7 +223,7 @@ export default class DailyPrecipitationHistogram extends View {
 
 	destroy() {
 		super.destroy();
-		this.element.removeListener('plotly_click', this._click_handler);
-			this._click_handler = null;
+		this.element.removeListener('plotly_click', this._click_handler.bind(this));
+		this._click_listener = null;
 	}
 }
