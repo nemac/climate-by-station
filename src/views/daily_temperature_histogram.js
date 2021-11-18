@@ -216,6 +216,7 @@ export default class DailyTemperatureHistogram extends View {
 	destroy() {
 		super.destroy();
 		this.element.removeListener('plotly_click', this._click_handler);
+		this._click_handler = null;
 	}
 
 }

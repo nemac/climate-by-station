@@ -102,8 +102,6 @@ export default class ClimateByStationWidget {
 
 				this.element.append(this.spinner_element);
 
-				this.data_cache = {}; // not implemented yet
-
 				this.update(options);
 		}
 

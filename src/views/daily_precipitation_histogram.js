@@ -9,6 +9,8 @@ export default class DailyPrecipitationHistogram extends View {
 
 		const options = this.parent.options;
 
+			//this.element.removeEventListener('plotly_click', this._click_handler);
+
 		let daily_values = this.parent.get_daily_values(options.station, options.variable, false);
 		if (daily_values === null) {
 			this.parent._show_spinner();
@@ -46,20 +48,6 @@ export default class DailyPrecipitationHistogram extends View {
 			daily_precipitation_histogram: async () => format_export_data(['day', 'precipitation'], this.get_download_data(daily_values_entries), null, null)
 		}
 
-		const values_filtered = values.filter(e => {
-			if (e !== Number.NaN) {
-				return e;
-			}
-		})
-
-		const max_val = Math.max(...values_filtered);
-		const min_val = Math.min(...values_filtered);
-		const bin_size = 17;
-
-		const bin_width = Math.ceil((max_val - min_val) / bin_size);
-
-		let count = [];
-		let bins = [];
 		let por = `NaN`
 		try{
 			por = `${daily_values_entries[0][0].slice(0,4)}–${daily_values_entries[daily_values_entries.length - 1][0].slice(0,4).slice(0,4)}`
@@ -235,5 +223,6 @@ export default class DailyPrecipitationHistogram extends View {
 	destroy() {
 		super.destroy();
 		this.element.removeListener('plotly_click', this._click_handler);
+			this._click_handler = null;
 	}
 }
