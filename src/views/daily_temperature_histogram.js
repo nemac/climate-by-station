@@ -20,7 +20,6 @@ export default class DailyTemperatureHistogram extends View {
 			this.parent._show_spinner();
 			daily_values = await daily_values
 		}
-		this.parent._hide_spinner();
 
 		if (options.threshold === null && options.threshold_percentile !== null && options.threshold_percentile >= 0) {
 			options.threshold = get_percentile_value(options.threshold_percentile, daily_values);
@@ -118,24 +117,28 @@ export default class DailyTemperatureHistogram extends View {
 
 		Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
 
-		this._click_handler = (data) => {
-			options.threshold = data.points[0].x;
-			const update = {
-				x: [[options.threshold, options.threshold]],
-				y: [[0, 1]]
+			this.parent._hide_spinner();
+
+			if (!this._click_listener) {
+					this._click_listener = this.element.on('plotly_click', this._click_handler.bind(this));
 			}
 
-				window.setTimeout((() => {
-						this.parent.element.dispatchEvent(new CustomEvent('threshold_changed', {detail: options}));
-				}).bind(this));
+	}
 
-			Plotly.update(this.element, update, {}, [1]);
+		set_threshold(threshold){
+				Plotly.update(this.element, {
+						x: [[threshold, threshold]],
+						y: [[0, 1]]
+				}, {}, [1]);
 		}
 
-		// https://stackoverflow.com/questions/60678586/update-x-and-y-values-of-a-trace-using-plotly-update
-		this.element.on('plotly_click', this._click_handler);
-
-	}
+		_click_handler(data) {
+				const threshold = data.points[0].x;
+				if (threshold === null) return;
+				window.setTimeout((() => {
+						this.parent.element.dispatchEvent(new CustomEvent('threshold_changed', {detail: threshold}));
+				}).bind(this));
+		}
 
 		get_download_data(daily_values_entries) {
 
@@ -215,8 +218,8 @@ export default class DailyTemperatureHistogram extends View {
 
 	destroy() {
 		super.destroy();
-		this.element.removeListener('plotly_click', this._click_handler);
-		this._click_handler = null;
+			this.element.removeListener('plotly_click', this._click_handler.bind(this));
+			this._click_listener = null;
 	}
 
 }

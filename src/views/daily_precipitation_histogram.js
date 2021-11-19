@@ -118,7 +118,6 @@ export default class DailyPrecipitationHistogram extends View {
 
 		this.parent._hide_spinner();
 
-		// https://stackoverflow.com/questions/60678586/update-x-and-y-values-of-a-trace-using-plotly-update
 		if (!this._click_listener) {
 			this._click_listener = this.element.on('plotly_click', this._click_handler.bind(this));
 		}

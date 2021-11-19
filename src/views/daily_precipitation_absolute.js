@@ -156,7 +156,6 @@ export default class DailyPrecipitationAbsolute extends View {
 		Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
 	}
 
-
 	set_threshold(threshold) {
 		Plotly.update(this.element, {
 			y: [[threshold, threshold]]

@@ -166,6 +166,12 @@ export default class DailyTemperatureAbsolute extends View {
 				return output;
 		}
 
+		set_threshold(threshold) {
+				Plotly.update(this.element, {
+						y: [[threshold, threshold]]
+				}, {}, [2]);
+		}
+
 	get_daily_values(data) {
 
 		return _.mapValues(_.fromPairs(data), (value) => {
