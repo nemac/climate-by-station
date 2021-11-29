@@ -32,7 +32,6 @@ export default class AnnualExceedance extends View {
 				let years = [];
 				let exceedance_values = [];
 				let missing_values = [];
-				// let download_data = [];
 
 				Object.entries(exceedance).forEach(e => {
 
@@ -46,12 +45,10 @@ export default class AnnualExceedance extends View {
 								years.push(year);
 								exceedance_values.push(exceedance);
 								missing_values.push(missing);
-								// download_data.push([year, exceedance, missing]);
 						} else {
 								years.push(year);
 								exceedance_values.push(Number.NaN);
 								missing_values.push(Number.NaN);
-								// download_data.push([year, Number.NaN, Number.NaN]);
 						}
 
 				})

@@ -62,8 +62,6 @@ export default class ClimateByStationWidget {
 						},
 				}
 
-				// this.daily_values = {};
-				// this.normal_values = {};
 
 				this.clickhandler = null;
 				this.view = null;
@@ -481,6 +479,8 @@ export default class ClimateByStationWidget {
 				if (this.view) {
 						this.view.destroy();
 						Plotly.purge(this.view.element);
+						this.view_container.remove();
+						this.spinner_element.remove();
 						this.view = null;
 				}
 		}

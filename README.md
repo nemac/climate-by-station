@@ -44,10 +44,10 @@ whether at least 293 days (80%) had valid data. In the new Module the validity i
 * ✅ annual_exceedance
 * ✅️ daily_precipitation_absolute
 * ✅️ daily_precipitation_normalized
-* ☑️ daily_precipitation_ytd
+* ✅️ daily_precipitation_ytd
 * ✅️ daily_temperature_absolute
 * ✅️ daily_temperature_normalized
 * ✅️ daily_temperature_minmax
-* ☑️ daily_precipitation_histogram
-* ☑️ daily_temperature_histogram
+* ✅️ daily_precipitation_histogram
+* ✅️ daily_temperature_histogram
 * 🔲 annual_exceedance_summary (the semantic digest view)
