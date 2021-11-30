@@ -9,6 +9,7 @@ import {get_cache_item, save_file, set_cache_item} from './utils.js';
 import DailyPrecipitationHistogram from "./views/daily_precipitation_histogram.js";
 import DailyTemperatureHistogram from "./views/daily_temperature_histogram.js";
 import DailyPrecipitationYtd from "./views/daily_precipitation_ytd";
+import NaturalLanguage from "./views/natural_language";
 
 export default class ClimateByStationWidget {
 
@@ -124,6 +125,8 @@ export default class ClimateByStationWidget {
 								return DailyTemperatureHistogram;
 						case 'daily_precipitation_ytd':
 								return DailyPrecipitationYtd;
+						case 'natural_language':
+								return NaturalLanguage;
 				}
 		}
 
