@@ -144,7 +144,7 @@ export default class ClimateByStationWidget {
 				this.options = _.merge({}, old_options, options);
 
 				if (old_options.view_type !== this.options.view_type) {
-						this.destroy();
+						this.reset();
 						const view_type = this.options.view_type;
 
 						this.options.sdate = "por";
@@ -474,7 +474,20 @@ export default class ClimateByStationWidget {
 				return values;
 		}
 
+		reset() {
+				if (this.view) {
+						this.view.destroy();
+						Plotly.purge(this.view.element);
+						this.view = null;
+				}
+		}
 
+		/**
+		 * Destroys the view container and the spinner element. We do this, because when we call destroy
+		 * on a view and create a new view object using the 'new' keyword, we end up with another set of
+		 * view_container and spinner_element. Use 'this.reset()' if we just want to reset the view or if
+		 * we just changed the view_type.
+		 */
 		destroy() {
 				if (this.view) {
 						this.view.destroy();
@@ -484,4 +497,5 @@ export default class ClimateByStationWidget {
 						this.view = null;
 				}
 		}
+
 }
