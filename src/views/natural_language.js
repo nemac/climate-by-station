@@ -56,6 +56,8 @@ export default class NaturalLanguage extends AnnualExceedance {
 
 				const output = this.get_natural_language(this.parent.options.variable, this.parent.options.threshold, this.parent.options.threshold_operator, this.parent.options.window_days, total, average, years[0], years[years.length - 1]);
 
+				this.element.innerText = output;
+
 				console.log(output);
 
 		}
@@ -71,6 +73,10 @@ export default class NaturalLanguage extends AnnualExceedance {
 				output += ` ${window_text} occurred ${total} times (an average of ${average.toFixed(2)} per year) between ${start_year}-${end_year}.`;
 
 				return output;
+		}
+
+		destroy() {
+				this.element.innerText = "";
 		}
 
 }
