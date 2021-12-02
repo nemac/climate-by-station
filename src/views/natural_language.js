@@ -57,14 +57,22 @@ export default class NaturalLanguage extends AnnualExceedance {
 				const output = this.get_natural_language(this.parent.options.variable, this.parent.options.threshold, this.parent.options.threshold_operator, this.parent.options.window_days, total, average, years[0], years[years.length - 1]);
 
 				this.element.innerText = output;
-
-				console.log(output);
-
 		}
 
 		get_natural_language(variable, threshold, operator, window, total, average, start_year, end_year) {
 
-				let output = `${variable} of ${threshold} ${this.parent.variable_unit}`;
+				let variable_text = '';
+				if(variable === 'precipitation') {
+						variable_text = 'Precipitation';
+				} else if(variable === 'tmax') {
+						variable_text = 'Maximum temperature';
+				} else if(variable === 'tmin') {
+						variable_text = 'Minimum temperature';
+				} else if(variable === 'tavg') {
+						variable_text = 'Average temperature';
+				}
+
+				let output = `${variable_text} of ${threshold} ${this.parent.variable_unit}`;
 				let operator_text = operator === '>=' ? " or above in a" : " or less in a";
 
 				output += operator_text;
