@@ -56,7 +56,7 @@ export default class NaturalLanguage extends AnnualExceedance {
 
 				const output = this.get_natural_language(this.parent.options.variable, this.parent.options.threshold, this.parent.options.threshold_operator, this.parent.options.window_days, total, average, years[0], years[years.length - 1]);
 
-				this.element.innerText = output;
+				this.element.innerHTML = output;
 		}
 
 		get_natural_language(variable, threshold, operator, window, total, average, start_year, end_year) {
@@ -72,13 +72,13 @@ export default class NaturalLanguage extends AnnualExceedance {
 						variable_text = 'Average temperature';
 				}
 
-				let output = `${variable_text} of ${threshold} ${this.parent.variable_unit}`;
+				let output = `${variable_text} of <strong>${threshold} ${this.parent.variable_unit}</strong>`;
 				let operator_text = operator === '>=' ? " or above in a" : " or less in a";
 
-				output += operator_text;
-				let window_text = window > 1 ? window + " day period" : "single day";
+				output += `<strong>${operator_text}</strong>`;
+				let window_text = window > 1 ? window + "-day period" : "single day";
 
-				output += ` ${window_text} occurred ${total} times (an average of ${average.toFixed(2)} per year) between ${start_year}-${end_year}.`;
+				output += ` <strong>${window_text}</strong> occurred ${total.toLocaleString()} times (an average of ${average.toFixed(2)} per year) between ${start_year}-${end_year}.`;
 
 				return output;
 		}
