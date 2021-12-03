@@ -132,6 +132,8 @@ export default class ClimateByStationWidget {
 
 		update(options) {
 
+				this._show_spinner();
+
 				let old_options = Object.assign({}, this.options);
 
 				// shortcut threshold change
@@ -225,6 +227,7 @@ export default class ClimateByStationWidget {
 
 				await this.view.request_update();
 
+				this._hide_spinner();
 
 				window.setTimeout((() => {
 						this.element.dispatchEvent(new CustomEvent('update_complete', {}));
