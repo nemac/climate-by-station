@@ -164,7 +164,7 @@ export default class DailyPrecipitationHistogram extends View {
 			title: {
 				text: "Daily precipitation (in)",
 				font: {
-					size: 12
+					size: 11
 				}
 			}
 		}
@@ -179,7 +179,7 @@ export default class DailyPrecipitationHistogram extends View {
 			title: {
 				text: "Number of events",
 				font: {
-					size: 12
+					size: 11
 				}
 			}
 		}

@@ -193,7 +193,7 @@ export default class DailyTemperatureAbsolute extends View {
 			title: {
 				text: "Daily temperature (°F)",
 				font: {
-					size: 12
+					size: 11
 				}
 			}
 		}

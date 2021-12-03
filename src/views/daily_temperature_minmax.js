@@ -188,7 +188,7 @@ export default class DailyTemperatureMinMax extends View {
 			title: {
 				text: "Daily min / max temperature (°F)",
 				font: {
-					size: 12
+					size: 11
 				}
 			}
 		}

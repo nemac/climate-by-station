@@ -163,7 +163,7 @@ export default class DailyTemperatureHistogram extends View {
 			title: {
 				text: "Daily temperature (°F)",
 				font: {
-					size: 12
+					size: 11
 				}
 			}
 		}
@@ -174,7 +174,7 @@ export default class DailyTemperatureHistogram extends View {
 			title: {
 					text: "Number of events",
 					font: {
-							size: 12
+							size: 11
 					}
 			}
 		}

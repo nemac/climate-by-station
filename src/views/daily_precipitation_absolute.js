@@ -202,7 +202,7 @@ export default class DailyPrecipitationAbsolute extends View {
 			title: {
 				text: "Daily precipitation (in)",
 				font: {
-					size: 12
+					size: 11
 				}
 			}
 		}

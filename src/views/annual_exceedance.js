@@ -278,7 +278,7 @@ export default class AnnualExceedance extends View {
 						title: {
 								text: this._get_y_axis_title(options.window_days, options.variable, options.threshold, options.threshold_operator),
 								font: {
-										size: 12
+										size: 11
 								}
 						}
 				}
