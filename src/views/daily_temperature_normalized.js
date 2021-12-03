@@ -5,169 +5,175 @@ import {format_export_data, get_percentile_value} from "../utils";
 
 export default class DailyTemperatureNormalized extends View {
 
-	async request_update() {
+		async request_update() {
 
-		const options = this.parent.options;
+				const options = this.parent.options;
 
 
-		let daily_values = this.parent.get_daily_values(options.station, options.variable, false);
+				let daily_values = this.parent.get_daily_values(options.station, options.variable, false);
 
-		if (daily_values === null) {
-			this.parent._show_spinner();
-			// create a promise for data and set it on parent.daily_values so that it gets cached.
-			daily_values = this.parent.set_daily_values(options.station, options.variable, false,fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements).then(a=>a.data).then(this.get_daily_values.bind(this)))
-		}
-
-		let normal_values = this.parent.get_daily_values(options.station, options.variable, true);
-		if (normal_values === null) {
-			this.parent._show_spinner();
-			// create a promise for data and set it on parent.daily_values so that it gets cached.
-			normal_values = this.parent.set_daily_values(options.station, options.variable, true,fetch_acis_station_data({
-				station: options.station,
-				sdate: (new Date().getFullYear() - 4) + '-01-01',
-				edate: (new Date().getFullYear()) + '-12-31',
-				data_api_endpoint: 'https://data.rcc-acis.org/'
-			}, this.parent.variables[options.variable + "_normal"].acis_elements).then(a=>a.data).then(this.get_daily_values.bind(this)))
-		}
-
-		// unwrap/await daily values if they are promises.
-		if ((typeof daily_values === "object" && typeof daily_values.then === "function") || (typeof normal_values === "object" && typeof normal_values.then === "function")){
-			this.parent._show_spinner();
-			[daily_values, normal_values] = await Promise.all([
-				(typeof daily_values === "object" && typeof daily_values.then === "function") ? daily_values : Promise.resolve(daily_values),
-				(typeof normal_values === "object" && typeof normal_values.then === "function") ? normal_values : Promise.resolve(normal_values)
-			])
-		}
-
-		this.parent._hide_spinner();
-
-		if (options.threshold === null && options.threshold_percentile !== null && options.threshold_percentile >= 0) {
-			options.threshold = get_percentile_value(options.threshold_percentile, daily_values);
-		}
-
-		const normal_entries = Object.entries(normal_values);
-
-		let years = [];
-		let days = [];
-		let values = [];
-
-		Object.entries(daily_values).forEach(e => {
-
-			let year = e[0].slice(0, 4);
-			if (!years.includes(Number.parseInt(year))) {
-				years.push(Number.parseInt(year));
-			}
-			days.push(e[0]);
-			values.push(e[1].value);
-
-		})
-
-		const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][0]);
-		let counter = normal_entries.length - 1;
-		for (let i = diff_days; i >= 0; i--) {
-			values[i] = values[i] - normal_entries[counter][1].value;
-
-			counter--;
-
-			if (counter < 0) {
-				counter = normal_entries.length - 1;
-			}
-		}
-
-		this._download_callbacks = {
-			daily_temperature_normalized: async () => format_export_data(['day', 'normalized_' + options.variable], this.get_download_data(days, values), null, 1)
-		}
-
-		const chart_layout = {
-			xaxis: {
-				range: [(years[years.length - 1] - 30) + "-01-01", (years[years.length - 1]) + "-01-01"]
-			},
-			yaxis: {
-				title: {
-					text: "Daily temperature normalized values (°F)"
+				if (daily_values === null) {
+						this.parent._show_spinner();
+						// create a promise for data and set it on parent.daily_values so that it gets cached.
+						daily_values = this.parent.set_daily_values(options.station, options.variable, false, fetch_acis_station_data(options, this.parent.variables[options.variable].acis_elements).then(a => a.data).then(this.get_daily_values.bind(this)))
 				}
-			},
-			autosize: true,
-			legend: {
-				"orientation": "h"
-			},
-				margin: {
-						l: 40,
-						r: 20,
-						b: 5,
-						t: 5
+
+				let normal_values = this.parent.get_daily_values(options.station, options.variable, true);
+				if (normal_values === null) {
+						this.parent._show_spinner();
+						// create a promise for data and set it on parent.daily_values so that it gets cached.
+						normal_values = this.parent.set_daily_values(options.station, options.variable, true, fetch_acis_station_data({
+								station: options.station,
+								sdate: (new Date().getFullYear() - 4) + '-01-01',
+								edate: (new Date().getFullYear()) + '-12-31',
+								data_api_endpoint: 'https://data.rcc-acis.org/'
+						}, this.parent.variables[options.variable + "_normal"].acis_elements).then(a => a.data).then(this.get_daily_values.bind(this)))
 				}
+
+				// unwrap/await daily values if they are promises.
+				if ((typeof daily_values === "object" && typeof daily_values.then === "function") || (typeof normal_values === "object" && typeof normal_values.then === "function")) {
+						this.parent._show_spinner();
+						[daily_values, normal_values] = await Promise.all([
+								(typeof daily_values === "object" && typeof daily_values.then === "function") ? daily_values : Promise.resolve(daily_values),
+								(typeof normal_values === "object" && typeof normal_values.then === "function") ? normal_values : Promise.resolve(normal_values)
+						])
+				}
+
+				this.parent._hide_spinner();
+
+				if (options.threshold === null && options.threshold_percentile !== null && options.threshold_percentile >= 0) {
+						options.threshold = get_percentile_value(options.threshold_percentile, daily_values);
+				}
+
+				const normal_entries = Object.entries(normal_values);
+
+				let years = [];
+				let days = [];
+				let values = [];
+
+				Object.entries(daily_values).forEach(e => {
+
+						let year = e[0].slice(0, 4);
+						if (!years.includes(Number.parseInt(year))) {
+								years.push(Number.parseInt(year));
+						}
+						days.push(e[0]);
+						values.push(e[1].value);
+
+				})
+
+				const diff_days = this.parent.days_between(days[0], normal_entries[normal_entries.length - 1][0]);
+				let counter = normal_entries.length - 1;
+				for (let i = diff_days; i >= 0; i--) {
+						values[i] = values[i] - normal_entries[counter][1].value;
+
+						counter--;
+
+						if (counter < 0) {
+								counter = normal_entries.length - 1;
+						}
+				}
+
+				this._download_callbacks = {
+						daily_temperature_normalized: async () => format_export_data(['day', 'normalized_' + options.variable], this.get_download_data(days, values), null, 1)
+				}
+
+				const chart_layout = {
+						xaxis: {
+								range: [(years[years.length - 1] - 30) + "-01-01", (years[years.length - 1]) + "-01-01"]
+						},
+						yaxis: {
+								title: {
+										text: "Daily temperature normalized values (°F)",
+										font: {
+												size: 11
+										}
+								}
+						},
+						autosize: true,
+						legend: {
+								"orientation": "h"
+						},
+						margin: {
+								l: 40,
+								r: 20,
+								b: 5,
+								t: 5
+						}
+				}
+
+				let chart_data = [
+						{
+								x: days,
+								y: values,
+								name: "Daily temperature normalized",
+								mode: "lines",
+								line: {
+										color: 'rgb(50,136,189)',
+										width: 0.5
+								}
+						}
+				]
+
+				Plotly.react(this.element, chart_data, chart_layout, {
+						displaylogo: false,
+						modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']
+				});
 		}
-
-		let chart_data = [
-			{
-				x: days,
-				y: values,
-				name: "Daily temperature normalized",
-				mode: "lines",
-				line: {
-					color: 'rgb(50,136,189)',
-					width: 0.5
-				}
-			}
-		]
-
-		Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
-	}
 
 		get_download_data(days, values) {
 
 				let output = [];
 
-				for(let i = 0; i < days.length; i++) {
+				for (let i = 0; i < days.length; i++) {
 						output.push([days[i], values[i]]);
 				}
 
 				return output;
 		}
 
-	get_daily_values(data) {
+		get_daily_values(data) {
 
-		return _.mapValues(_.fromPairs(data), (value) => {
-			let valid = this.parent.validator(value);
-			return {value: valid ? Number.parseFloat(this.parent._get_value(value)) : Number.NaN, valid: valid}
-		})
+				return _.mapValues(_.fromPairs(data), (value) => {
+						let valid = this.parent.validator(value);
+						return {value: valid ? Number.parseFloat(this.parent._get_value(value)) : Number.NaN, valid: valid}
+				})
 
-	}
+		}
 
-	async request_downloads() {
-		const {station, variable} = this.parent.options;
-		return [
-			{
-				label: 'Daily Temperature Normalized',
-				icon: 'bar-chart',
-				attribution: 'ACIS: livneh',
-				when_data: this._download_callbacks['daily_temperature_normalized'],
-				filename: [
-					station,
-					"daily_temperature_normalized",
-					variable
-				].join('-').replace(/ /g, '_') + '.csv'
-			},
-			{
-				label: 'Chart image',
-				icon: 'picture-o',
-				attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
-				when_data: async () => {
-					let {width, height} = window.getComputedStyle(this.element);
-					width = Number.parseFloat(width) * 1.2;
-					height = Number.parseFloat(height) * 1.2;
-					return await Plotly.toImage(this.element, {
-						format: 'png', width: width, height: height
-					});
-				},
-				filename: [
-					station,
-					"daily_temperature_normalized",
-					"graph"
-				].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
-			},
-		]
-	}
+		async request_downloads() {
+				const {station, variable} = this.parent.options;
+				return [
+						{
+								label: 'Daily Temperature Normalized',
+								icon: 'bar-chart',
+								attribution: 'ACIS: livneh',
+								when_data: this._download_callbacks['daily_temperature_normalized'],
+								filename: [
+										station,
+										"daily_temperature_normalized",
+										variable
+								].join('-').replace(/ /g, '_') + '.csv'
+						},
+						{
+								label: 'Chart image',
+								icon: 'picture-o',
+								attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
+								when_data: async () => {
+										let {width, height} = window.getComputedStyle(this.element);
+										width = Number.parseFloat(width) * 1.2;
+										height = Number.parseFloat(height) * 1.2;
+										return await Plotly.toImage(this.element, {
+												format: 'png', width: width, height: height
+										});
+								},
+								filename: [
+										station,
+										"daily_temperature_normalized",
+										"graph"
+								].join('-').replace(/[^A-Za-z0-9\-]/g, '_') + '.png'
+						},
+				]
+		}
 
 }
