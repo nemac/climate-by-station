@@ -83,7 +83,8 @@ export default class AnnualExceedance extends View {
 
 				Plotly.react(this.element, chart_data, chart_layout, {
 						displaylogo: false,
-						modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']
+						modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d'],
+						responsive: true
 				});
 
 		}
