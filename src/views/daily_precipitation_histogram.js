@@ -114,7 +114,10 @@ export default class DailyPrecipitationHistogram extends View {
 			}
 		]
 
-		Plotly.react(this.element, chart_data, chart_layout, {displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d']});
+		Plotly.react(this.element, chart_data, chart_layout, {
+				displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d'],
+				responsive: true
+		});
 
 		this.parent._hide_spinner();
 
