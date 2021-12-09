@@ -31,6 +31,8 @@ export default class ClimateByStationWidget {
 						threshold_percentile: null,
 						window_days: 1,
 						window_behaviour: 'rollingSum',
+						title: "",
+						hide_y_axis_title: false,
 						threshold_operator: '>=',
 						data_api_endpoint: 'https://data.rcc-acis.org/',
 						cache_objs: null, // [{}, window.localStorage]

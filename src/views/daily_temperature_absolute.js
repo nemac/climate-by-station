@@ -78,6 +78,8 @@ export default class DailyTemperatureAbsolute extends View {
 			daily_temperature_absolute: async () => format_export_data(['day', options.variable, 'normal_value'], this.get_download_data(days, values, normal_entries), null, null)
 		}
 
+			this.parent.options.title = "Daily temperature (°F)";
+
 		const chart_layout = {
 			xaxis: this._get_x_axis_layout(years),
 			yaxis: this._get_y_axis_layout(),
@@ -197,7 +199,7 @@ export default class DailyTemperatureAbsolute extends View {
 	_get_y_axis_layout() {
 		return {
 			title: {
-				text: "Daily temperature (°F)",
+				text: this.parent.options.hide_y_axis_title ? '' : "Daily temperature (°F)",
 				font: {
 					size: 11
 				}
@@ -234,7 +236,7 @@ export default class DailyTemperatureAbsolute extends View {
 						const temp_layout = cloneDeep(this.layout);
 
 						temp_layout.title = cloneDeep(temp_layout.yaxis.title)
-						temp_layout.title.text = `<b>${temp_layout.title.text}</b>`
+						temp_layout.title.text = `<b>${this.parent.options.title}</b>`
 						temp_layout.title.x = 0.015;
 						temp_layout.title.font = {
 								// family: this.options.font === null ? "Roboto" : this.options.font,

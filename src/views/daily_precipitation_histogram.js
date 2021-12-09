@@ -51,6 +51,9 @@ export default class DailyPrecipitationHistogram extends View {
 		} catch (ex) {
 			// do nothing
 		}
+
+			this.parent.options.title = "Number of events";
+
 		const chart_layout = {
 			xaxis: this._get_x_axis_layout(),
 			yaxis: this._get_y_axis_layout(),
@@ -182,7 +185,7 @@ export default class DailyPrecipitationHistogram extends View {
 			dtick: 'tick0', // https://plotly.com/javascript/reference/histogram/#histogram-marker-colorbar-dtick
 			autorange: true,
 			title: {
-				text: "Number of events",
+				text: this.parent.options.hide_y_axis_title ? '' : "Number of events",
 				font: {
 					size: 11
 				}
@@ -219,7 +222,7 @@ export default class DailyPrecipitationHistogram extends View {
 						const temp_layout = cloneDeep(this.layout);
 
 						temp_layout.title = cloneDeep(temp_layout.yaxis.title)
-						temp_layout.title.text = `<b>${temp_layout.title.text}</b>`
+						temp_layout.title.text = `<b>${this.parent.options.title}</b>`
 						temp_layout.title.x = 0.015;
 						temp_layout.title.font = {
 								// family: this.options.font === null ? "Roboto" : this.options.font,

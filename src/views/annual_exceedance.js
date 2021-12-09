@@ -57,6 +57,8 @@ export default class AnnualExceedance extends View {
 						annual_exceedance: async () => format_export_data(['year', 'annual_exceedance', 'missing_value'], this.get_download_data(years, exceedance_values, missing_values), null, null)
 				}
 
+				this.parent.options.title = this._get_y_axis_title(options.window_days, options.variable, options.threshold, options.threshold_operator);
+
 				const chart_layout = {
 						xaxis: this._get_x_axis_layout(years),
 						yaxis: this._get_y_axis_layout(options),
@@ -279,7 +281,7 @@ export default class AnnualExceedance extends View {
 		_get_y_axis_layout(options) {
 				return {
 						title: {
-								text: this._get_y_axis_title(options.window_days, options.variable, options.threshold, options.threshold_operator),
+								text: this.parent.options.hide_y_axis_title ? '' : this._get_y_axis_title(options.window_days, options.variable, options.threshold, options.threshold_operator),
 								font: {
 										size: 11
 								}
@@ -316,7 +318,7 @@ export default class AnnualExceedance extends View {
 										const temp_layout = cloneDeep(this.layout);
 
 										temp_layout.title = cloneDeep(temp_layout.yaxis.title)
-										temp_layout.title.text = `<b>${temp_layout.title.text}</b>`
+										temp_layout.title.text = `<b>${this.parent.options.title}</b>`
 										temp_layout.title.x = 0.015;
 										temp_layout.title.font = {
 												// family: this.options.font === null ? "Roboto" : this.options.font,

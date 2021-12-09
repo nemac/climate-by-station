@@ -53,6 +53,8 @@ export default class DailyTemperatureHistogram extends View {
 			// do nothing
 		}
 
+			this.parent.options.title = "Number of events";
+
 		const chart_layout = {
 			xaxis: this._get_x_axis_layout(),
 			yaxis: this._get_y_axis_layout(),
@@ -177,7 +179,7 @@ export default class DailyTemperatureHistogram extends View {
 	_get_y_axis_layout() {
 		return {
 			title: {
-					text: "Number of events",
+					text: this.parent.options.hide_y_axis_title ? '' : "Number of events",
 					font: {
 							size: 11
 					}
@@ -214,7 +216,7 @@ export default class DailyTemperatureHistogram extends View {
 						const temp_layout = cloneDeep(this.layout);
 
 						temp_layout.title = cloneDeep(temp_layout.yaxis.title)
-						temp_layout.title.text = `<b>${temp_layout.title.text}</b>`
+						temp_layout.title.text = `<b>${this.parent.options.title}</b>`
 						temp_layout.title.x = 0.015;
 						temp_layout.title.font = {
 								// family: this.options.font === null ? "Roboto" : this.options.font,

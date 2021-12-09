@@ -93,6 +93,8 @@ export default class DailyTemperatureMinMax extends View {
 			daily_temperature_minmax: async () => format_export_data(['day', 'minimum', 'maximum', 'normal_minimum', 'normal_maximum'], download_data, null, null)
 		}
 
+			this.parent.options.title = "Daily min / max temperature (°F)";
+
 		const chart_layout = {
 			xaxis: this._get_x_axis_layout(years),
 			yaxis: this._get_y_axis_layout(),
@@ -192,7 +194,7 @@ export default class DailyTemperatureMinMax extends View {
 	_get_y_axis_layout() {
 		return {
 			title: {
-				text: "Daily min / max temperature (°F)",
+				text: this.parent.options.hide_y_axis_title ? '' : "Daily min / max temperature (°F)",
 				font: {
 					size: 11
 				}
@@ -228,7 +230,7 @@ export default class DailyTemperatureMinMax extends View {
 						const temp_layout = cloneDeep(this.layout);
 
 						temp_layout.title = cloneDeep(temp_layout.yaxis.title)
-						temp_layout.title.text = `<b>${temp_layout.title.text}</b>`
+						temp_layout.title.text = `<b>${this.parent.options.title}</b>`
 						temp_layout.title.x = 0.015;
 						temp_layout.title.font = {
 								// family: this.options.font === null ? "Roboto" : this.options.font,

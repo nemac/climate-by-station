@@ -78,13 +78,15 @@ export default class DailyTemperatureNormalized extends View {
 						daily_temperature_normalized: async () => format_export_data(['day', 'normalized_' + options.variable], this.get_download_data(days, values), null, 1)
 				}
 
+				this.parent.options.title = "Daily temperature normalized values (°F)";
+
 				const chart_layout = {
 						xaxis: {
 								range: [(years[years.length - 1] - 30) + "-01-01", (years[years.length - 1]) + "-01-01"]
 						},
 						yaxis: {
 								title: {
-										text: "Daily temperature normalized values (°F)",
+										text: this.parent.options.hide_y_axis_title ? '' : "Daily temperature normalized values (°F)",
 										font: {
 												size: 11
 										}
@@ -97,7 +99,7 @@ export default class DailyTemperatureNormalized extends View {
 						margin: {
 								l: 40,
 								r: 20,
-								b: 5,
+								b: 20,
 								t: 5
 						}
 				}
@@ -173,7 +175,7 @@ export default class DailyTemperatureNormalized extends View {
 										const temp_layout = cloneDeep(this.layout);
 
 										temp_layout.title = cloneDeep(temp_layout.yaxis.title)
-										temp_layout.title.text = `<b>${temp_layout.title.text}</b>`
+										temp_layout.title.text = `<b>${this.parent.options.title}</b>`
 										temp_layout.title.x = 0.015;
 										temp_layout.title.font = {
 												// family: this.options.font === null ? "Roboto" : this.options.font,

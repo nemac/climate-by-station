@@ -142,7 +142,8 @@
       threshold: Array.from(document.querySelectorAll("#variables, #view_type, #threshold_percentile")).includes(e.currentTarget) ? null : document.getElementById("threshold").value,
       threshold_percentile: e.currentTarget === document.getElementById("threshold_percentile") ? document.getElementById("threshold_percentile").value : null,
       window_days: document.getElementById("window_days").value,
-      threshold_operator: document.getElementById("threshold_operator").value
+      threshold_operator: document.getElementById("threshold_operator").value,
+        hide_y_axis_title: false
     });
   }
 
