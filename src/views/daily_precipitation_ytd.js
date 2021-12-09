@@ -1,6 +1,6 @@
 import View from "./view_base.js";
 import {fetch_acis_station_data} from "../io.js";
-import _ from "../../node_modules/lodash-es/lodash.js";
+import _, {cloneDeep} from "../../node_modules/lodash-es/lodash.js";
 import {format_export_data, get_percentile_value} from "../utils.js";
 
 export default class DailyPrecipitationYtd extends View {
@@ -165,6 +165,8 @@ export default class DailyPrecipitationYtd extends View {
 			}
 		]
 
+			this.layout = chart_layout;
+
 		Plotly.react(this.element, chart_data, chart_layout, {
 				displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d'],
 				responsive: true
@@ -228,12 +230,40 @@ export default class DailyPrecipitationYtd extends View {
 				icon: 'picture-o',
 				attribution: 'ACIS: Livneh & LOCA (CMIP 5)',
 				when_data: async () => {
-					let {width, height} = window.getComputedStyle(this.element);
-					width = Number.parseFloat(width) * 1.2;
-					height = Number.parseFloat(height) * 1.2;
-					return await Plotly.toImage(this.element, {
-						format: 'png', width: width, height: height
-					});
+						const width = 1440;
+						const height = 720;
+
+						const old_layout = cloneDeep(this.layout);
+
+						old_layout.title = ""
+
+						const temp_layout = cloneDeep(this.layout);
+
+						temp_layout.title = cloneDeep(temp_layout.yaxis.title)
+						temp_layout.title.text = `<b>${temp_layout.title.text}</b>`
+						temp_layout.title.x = 0.015;
+						temp_layout.title.font = {
+								// family: this.options.font === null ? "Roboto" : this.options.font,
+								size: 18,
+								color: '#124086'
+						}
+						temp_layout.yaxis.title.text = "";
+						temp_layout.margin = {
+								l: 50,
+								t: 50,
+								r: 50,
+								b: 50
+						}
+
+						await Plotly.relayout(this.element, temp_layout);
+
+						const result = await Plotly.toImage(this.element, {
+								format: 'png', width: width, height: height
+						});
+
+						await Plotly.relayout(this.element, old_layout);
+
+						return result;
 				},
 				filename: [
 					station,
