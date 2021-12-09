@@ -7,7 +7,6 @@ export default class AnnualExceedance extends View {
 
 		constructor(parent, element) {
 				super(parent, element);
-				this.layout = {};
 		}
 
 		async request_update() {

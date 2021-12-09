@@ -6,6 +6,7 @@ export default class View {
 		this.parent = parent;
 		this.element = element;
 		this._download_callbacks = {};
+		this.layout = {};
 	}
 
 	/**
