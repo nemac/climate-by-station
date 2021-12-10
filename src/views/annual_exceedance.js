@@ -158,19 +158,14 @@ export default class AnnualExceedance extends View {
 		}
 
 		_threshold_function(values) {
-
 				let operator = this.parent.options.threshold_operator;
 				let operator_function = this.operators[operator];
-
-				switch (this.parent.options.window_behaviour) {
-						case 'rollingSum':
-								return operator_function(_.sum(values), this.parent.options.threshold);
-								break;
-						case 'all':
-								return _.every(values, (value) => operator_function(value, this.parent.options.threshold));
-								break;
+				if (this.parent.options.variable === 'precipitation'){
+					return operator_function(_.sum(values), this.parent.options.threshold);
 				}
-
+				else{
+					return _.every(values, (value) => operator_function(value, this.parent.options.threshold));
+				}
 		}
 
 		get_daily_values(data) {

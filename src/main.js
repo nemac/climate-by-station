@@ -30,7 +30,6 @@ export default class ClimateByStationWidget {
 						threshold: 1.0,
 						threshold_percentile: null,
 						window_days: 1,
-						window_behaviour: 'rollingSum',
 						title: "",
 						hide_y_axis_title: false,
 						threshold_operator: '>=',
