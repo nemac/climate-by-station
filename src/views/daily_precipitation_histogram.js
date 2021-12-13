@@ -120,7 +120,7 @@ export default class DailyPrecipitationHistogram extends View {
 			this.layout = chart_layout;
 
 		Plotly.react(this.element, chart_data, chart_layout, {
-				displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d'],
+				displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d', 'zoom2d', 'pan2d', 'zoomin2d', 'zoomout2d', 'autoScale2d'],
 				responsive: true
 		});
 
@@ -174,7 +174,8 @@ export default class DailyPrecipitationHistogram extends View {
 				font: {
 					size: 11
 				}
-			}
+			},
+			fixedrange: true
 		}
 	}
 
@@ -189,7 +190,8 @@ export default class DailyPrecipitationHistogram extends View {
 				font: {
 					size: 11
 				}
-			}
+			},
+			fixedrange: true
 		}
 	}
 
