@@ -93,7 +93,7 @@ export default class DailyTemperatureMinMax extends View {
 			daily_temperature_minmax: async () => format_export_data(['day', 'minimum', 'maximum', 'normal_minimum', 'normal_maximum'], download_data, null, null)
 		}
 
-			this.parent.options.title = "Daily min / max temperature (°F)";
+			this.parent.options.title = "Daily min & max temperature (°F)";
 
 		const chart_layout = {
 			xaxis: this._get_x_axis_layout(years),
@@ -132,7 +132,7 @@ export default class DailyTemperatureMinMax extends View {
 				},
 				legendgroup: 'normal_band',
 				showlegend: false,
-				name: "Normal min / max temperature"
+				name: "Normal min & max temperature"
 			},
 			{
 				mode: "lines",
@@ -144,7 +144,7 @@ export default class DailyTemperatureMinMax extends View {
 					color: 'transparent'
 				},
 				legendgroup: 'normal_band',
-				name: 'Normal min / max temperature',
+				name: 'Normal min & max temperature',
 			},
 
 			{
@@ -158,7 +158,7 @@ export default class DailyTemperatureMinMax extends View {
 					color: 'rgba(50, 136, 189, 0.95)'
 
 				},
-				name: "Observed min / max temperature"
+				name: "Observed min & max temperature"
 			}
 		]
 
@@ -194,7 +194,7 @@ export default class DailyTemperatureMinMax extends View {
 	_get_y_axis_layout() {
 		return {
 			title: {
-				text: this.parent.options.hide_y_axis_title ? '' : "Daily min / max temperature (°F)",
+				text: this.parent.options.hide_y_axis_title ? '' : "Daily min & max temperature (°F)",
 				font: {
 					size: 11
 				}
@@ -206,7 +206,7 @@ export default class DailyTemperatureMinMax extends View {
 		const {station} = this.parent.options;
 		return [
 			{
-				label: 'Daily min / max temperature',
+				label: 'Daily min & max temperature',
 				icon: 'bar-chart',
 				attribution: 'ACIS: GHCN-D',
 				when_data: this._download_callbacks['daily_temperature_minmax'],

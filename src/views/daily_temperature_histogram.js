@@ -130,6 +130,17 @@ export default class DailyTemperatureHistogram extends View {
 					this._click_listener = this.element.on('plotly_click', this._click_handler.bind(this));
 			}
 
+			// if(!this._hover_listener) {
+			// 		this._hover_listener = this.element.on('plotly_hover', function(data) {
+			//
+			//
+			// 				const bar_layer = document.getElementsByClassName('barlayer')[0];
+			// 				console.log("hover called", bar_layer);
+			//
+			// 				bar_layer.style.cursor = 'pointer';
+			// 		})
+			// }
+
 	}
 
 		set_threshold(threshold){

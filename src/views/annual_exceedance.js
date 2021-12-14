@@ -234,14 +234,14 @@ export default class AnnualExceedance extends View {
 				let variable_str;
 
 				if (window > 1) {
-						window_str = window + "-Day periods/year";
+						window_str = window + "-Day periods per year";
 				} else {
-						window_str = "Days/year";
+						window_str = "Days per year";
 				}
 
 				if (variable === "precipitation") {
 						variable_str = "precipitation";
-						threshold_str = threshold + " in";
+						threshold_str = threshold + " inch";
 				} else if (variable === "tmax") {
 						variable_str = "maximum temperature";
 						threshold_str = threshold + " °F";
