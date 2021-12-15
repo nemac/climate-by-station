@@ -161,7 +161,7 @@ export default class DailyTemperatureHistogram extends View {
 		}
 
 		_unhover_handler(data) {
-				const dragLayer = document.getElementsByClassName('nsewdrag')[0];
+				const dragLayer = this.element.getElementsByClassName('nsewdrag')[0];
 				dragLayer.style.cursor = 'default';
 		}
 

@@ -175,12 +175,12 @@ export default class DailyPrecipitationHistogram extends View {
 	}
 
 		_hover_handler(data) {
-				const dragLayer = document.getElementsByClassName('nsewdrag')[0];
+				const dragLayer = this.element.getElementsByClassName('nsewdrag')[0];
 				dragLayer.style.cursor = 'pointer';
 		}
 
 		_unhover_handler(data) {
-				const dragLayer = document.getElementsByClassName('nsewdrag')[0];
+				const dragLayer = this.element.getElementsByClassName('nsewdrag')[0];
 				dragLayer.style.cursor = 'default';
 		}
 
