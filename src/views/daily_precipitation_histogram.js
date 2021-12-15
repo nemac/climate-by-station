@@ -129,6 +129,14 @@ export default class DailyPrecipitationHistogram extends View {
 		if (!this._click_listener) {
 			this._click_listener = this.element.on('plotly_click', this._click_handler.bind(this));
 		}
+
+			if(!this._hover_listener) {
+					this._hover_listener = this.element.on('plotly_hover', this._hover_handler.bind(this));
+			}
+
+			if(!this._unhover_listener) {
+					this._unhover_listener = this.element.on('plotly_unhover', this._unhover_handler.bind(this));
+			}
 	}
 
 	set_threshold(threshold){
@@ -166,6 +174,15 @@ export default class DailyPrecipitationHistogram extends View {
 			}).bind(this));
 	}
 
+		_hover_handler(data) {
+				const dragLayer = document.getElementsByClassName('nsewdrag')[0];
+				dragLayer.style.cursor = 'pointer';
+		}
+
+		_unhover_handler(data) {
+				const dragLayer = document.getElementsByClassName('nsewdrag')[0];
+				dragLayer.style.cursor = 'default';
+		}
 
 	_get_x_axis_layout() {
 		return {
@@ -260,7 +277,11 @@ export default class DailyPrecipitationHistogram extends View {
 
 	destroy() {
 		super.destroy();
-		this.element.removeListener('plotly_click', this._click_handler.bind(this));
-		this._click_listener = null;
+			this.element.removeListener('plotly_click', this._click_handler.bind(this));
+			this.element.removeListener('plotly_hover', this._hover_handler.bind(this));
+			this.element.removeListener('plotly_unhover', this._unhover_handler.bind(this));
+			this._click_listener = null;
+			this._hover_handler = null;
+			this._unhover_handler = null;
 	}
 }

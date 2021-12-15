@@ -130,16 +130,13 @@ export default class DailyTemperatureHistogram extends View {
 					this._click_listener = this.element.on('plotly_click', this._click_handler.bind(this));
 			}
 
-			// if(!this._hover_listener) {
-			// 		this._hover_listener = this.element.on('plotly_hover', function(data) {
-			//
-			//
-			// 				const bar_layer = document.getElementsByClassName('barlayer')[0];
-			// 				console.log("hover called", bar_layer);
-			//
-			// 				bar_layer.style.cursor = 'pointer';
-			// 		})
-			// }
+			if(!this._hover_listener) {
+					this._hover_listener = this.element.on('plotly_hover', this._hover_handler.bind(this));
+			}
+
+			if(!this._unhover_listener) {
+					this._unhover_listener = this.element.on('plotly_unhover', this._unhover_handler.bind(this));
+			}
 
 	}
 
@@ -156,6 +153,16 @@ export default class DailyTemperatureHistogram extends View {
 				window.setTimeout((() => {
 						this.parent.element.dispatchEvent(new CustomEvent('threshold_changed', {detail: threshold}));
 				}).bind(this));
+		}
+
+		_hover_handler(data) {
+				const dragLayer = this.element.getElementsByClassName('nsewdrag')[0];
+				dragLayer.style.cursor = 'pointer';
+		}
+
+		_unhover_handler(data) {
+				const dragLayer = document.getElementsByClassName('nsewdrag')[0];
+				dragLayer.style.cursor = 'default';
 		}
 
 		get_download_data(daily_values_entries) {
@@ -267,7 +274,11 @@ export default class DailyTemperatureHistogram extends View {
 	destroy() {
 		super.destroy();
 			this.element.removeListener('plotly_click', this._click_handler.bind(this));
+			this.element.removeListener('plotly_hover', this._hover_handler.bind(this));
+			this.element.removeListener('plotly_unhover', this._unhover_handler.bind(this));
 			this._click_listener = null;
+			this._hover_handler = null;
+			this._unhover_handler = null;
 	}
 
 }
