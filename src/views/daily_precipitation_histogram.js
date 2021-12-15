@@ -122,6 +122,9 @@ export default class DailyPrecipitationHistogram extends View {
 		Plotly.react(this.element, chart_data, chart_layout, {
 				displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d', 'zoom2d', 'pan2d', 'zoomin2d', 'zoomout2d', 'autoScale2d'],
 				responsive: true
+		}).then(() => {
+				const dragLayer = this.element.getElementsByClassName('nsewdrag')[0];
+				dragLayer.style.cursor = 'default';
 		});
 
 		this.parent._hide_spinner();
@@ -130,11 +133,11 @@ export default class DailyPrecipitationHistogram extends View {
 			this._click_listener = this.element.on('plotly_click', this._click_handler.bind(this));
 		}
 
-			if(!this._hover_listener) {
+			if (!this._hover_listener) {
 					this._hover_listener = this.element.on('plotly_hover', this._hover_handler.bind(this));
 			}
 
-			if(!this._unhover_listener) {
+			if (!this._unhover_listener) {
 					this._unhover_listener = this.element.on('plotly_unhover', this._unhover_handler.bind(this));
 			}
 	}

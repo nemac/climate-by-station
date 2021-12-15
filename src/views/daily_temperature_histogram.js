@@ -122,6 +122,9 @@ export default class DailyTemperatureHistogram extends View {
 		Plotly.react(this.element, chart_data, chart_layout, {
 				displaylogo: false, modeBarButtonsToRemove: ['toImage', 'lasso2d', 'select2d', 'resetScale2d', 'zoom2d', 'pan2d', 'zoomin2d', 'zoomout2d', 'autoScale2d'],
 				responsive: true
+		}).then(() => {
+				const dragLayer = this.element.getElementsByClassName('nsewdrag')[0];
+				dragLayer.style.cursor = 'default';
 		});
 
 			this.parent._hide_spinner();
